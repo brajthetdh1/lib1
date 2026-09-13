@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dockerfile – 20 Slides Deep Dive</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    /* ----- RESET & BASE ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #0a1a2a 0%, #1a3348 100%);
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .slide-wrapper {
+      max-width: 1100px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(4px);
+      border-radius: 3rem;
+      padding: 1.8rem 1.8rem 2rem 1.8rem;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .slide-card {
+      background: #ffffff;
+      border-radius: 2.2rem;
+      padding: 2.8rem 3rem;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), 0 20px 40px -10px rgba(0,0,0,0.5);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    /* ----- SLIDE NAVIGATION ----- */
+    .slide-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.8rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .slide-nav .dots {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      max-width: 60%;
+    }
+
+    .slide-nav .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 40px;
+      background: rgba(255, 255, 255, 0.25);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .slide-nav .dot.active {
+      background: #5ba9e0;
+      width: 28px;
+      box-shadow: 0 0 12px #3f9ad6;
+    }
+
+    .slide-nav .dot:hover {
+      background: #80c0f0;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #eef4fa;
+      padding: 0.6rem 1.5rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(2px);
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: #6bb4ed;
+      color: white;
+      transform: scale(1.02);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      pointer-events: none;
+      filter: grayscale(0.6);
+    }
+
+    .slide-counter {
+      color: #b0cfe0;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* ----- SLIDE CONTENT STYLES ----- */
+    .slide {
+      display: none;
+      animation: fadeSlide 0.3s ease;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0.4; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #0a263b;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 3px solid #dce7f0;
+      padding-bottom: 0.6rem;
+    }
+
+    .slide h2 i {
+      color: #1b6d9e;
+      font-size: 2rem;
+    }
+
+    .slide .sub {
+      font-size: 1.05rem;
+      color: #2e4a66;
+      margin-bottom: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .slide .sub .tag {
+      background: #e3edf5;
+      padding: 0.1rem 1.2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #1e5580;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.8rem;
+      margin: 1.5rem 0;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .dockerfile-card {
+      background: #f5f9fe;
+      border-radius: 1.5rem;
+      padding: 1.5rem 1.6rem;
+      border-left: 6px solid #2d7fb0;
+      box-shadow: 0 4px 12px rgba(0, 20, 40, 0.04);
+      transition: 0.2s;
+    }
+
+    .dockerfile-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(27, 109, 158, 0.10);
+    }
+
+    .dockerfile-card h3 {
+      font-size: 1.3rem;
+      color: #0e2c47;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.5rem;
+    }
+
+    .dockerfile-card h3 i {
+      color: #1f6e9b;
+      font-size: 1.4rem;
+      width: 2rem;
+    }
+
+    .dockerfile-card p {
+      color: #1f3a55;
+      line-height: 1.6;
+      font-size: 0.98rem;
+    }
+
+    .dockerfile-card .highlight {
+      background: #dcebf7;
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #00407a;
+      display: inline-block;
+      margin-top: 0.4rem;
+    }
+
+    .code-snip {
+      background: #0d1f2e;
+      color: #d6e6f5;
+      padding: 1rem 1.5rem;
+      border-radius: 1.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      margin: 1.2rem 0;
+      border-left: 5px solid #3b9bd6;
+      overflow-x: auto;
+    }
+
+    .code-snip .cm { color: #6a8faa; }
+    .code-snip .kw { color: #f5a97f; }
+    .code-snip .str { color: #a6da95; }
+    .code-snip .fn { color: #8fc5e8; }
+    .code-snip .num { color: #f5c2a0; }
+
+    .icon-big {
+      font-size: 2.6rem;
+      color: #1b6d9e;
+      margin-right: 10px;
+    }
+
+    .flex-row {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      margin: 1.2rem 0;
+    }
+
+    .badge {
+      background: #d1e2f0;
+      color: #124064;
+      padding: 0.2rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .footnote {
+      margin-top: 1.8rem;
+      padding-top: 1.2rem;
+      border-top: 2px solid #e2eaf2;
+      color: #3b5e7a;
+      font-size: 0.95rem;
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .comparison-box {
+      background: #f0f6fd;
+      border-radius: 1.2rem;
+      padding: 1.2rem 1.8rem;
+      margin: 1rem 0;
+      border: 1px solid #d4e2ef;
+    }
+
+    .comparison-box strong {
+      color: #0a2b47;
+    }
+
+    .comparison-box i {
+      color: #1b6d9e;
+      width: 1.8rem;
+    }
+
+    .instruction-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.8rem;
+      margin: 1rem 0;
+    }
+
+    .instruction-item {
+      background: white;
+      padding: 0.6rem 1rem;
+      border-radius: 0.8rem;
+      border: 1px solid #dce7f0;
+      text-align: center;
+      font-weight: 600;
+      color: #0a263b;
+      font-size: 0.9rem;
+    }
+
+    .instruction-item i {
+      color: #1b6d9e;
+      margin-right: 6px;
+    }
+
+    @media (max-width: 780px) {
+      .slide-card {
+        padding: 1.8rem 1.2rem;
+      }
+      .grid-2col, .grid-3col, .instruction-grid {
+        grid-template-columns: 1fr;
+      }
+      .slide h2 {
+        font-size: 1.6rem;
+      }
+      .slide-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .nav-btn {
+        justify-content: center;
+      }
+      .slide-nav .dots {
+        max-width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="slide-wrapper">
+  <div class="slide-card">
+
+    <!-- ========== SLIDE 1 ========== -->
+    <div class="slide active" data-slide="0">
+      <h2><i class="fas fa-file-code"></i> Dockerfile – The Image Blueprint</h2>
+      <div class="sub">
+        <span><i class="fas fa-pen"></i> Instructions for building Docker images</span>
+        <span class="tag"><i class="far fa-file-alt"></i> 20 Slides</span>
+      </div>
+
+      <p style="font-size:1.05rem; margin-bottom:1.8rem;">
+        A <strong>Dockerfile</strong> is a text document that contains all the commands a user could call on the command line to assemble an image.
+        It's the <strong>blueprint</strong> for creating Docker images.
+      </p>
+
+      <div class="grid-3col">
+        <div class="dockerfile-card">
+          <h3><i class="fas fa-file-alt"></i> Instructions</h3>
+          <p>Each line is an instruction that creates a layer. Common instructions: <code>FROM</code>, <code>RUN</code>, <code>COPY</code>, <code>CMD</code>.</p>
+          <span class="highlight">📝 Declarative syntax</span>
+        </div>
+        <div class="dockerfile-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-layer-group"></i> Layers</h3>
+          <p>Each instruction creates a new layer. Layers are cached for faster builds.</p>
+          <span class="highlight">🧅 Stackable layers</span>
+        </div>
+        <div class="dockerfile-card" style="border-left-color: #8a4d9e;">
+          <h3><i class="fas fa-sync-alt"></i> Reusable</h3>
+          <p>Dockerfiles are version-controlled, shareable, and can be used in CI/CD pipelines.</p>
+          <span class="highlight">🔄 Infrastructure as Code</span>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Analogy:</strong> A Dockerfile is like a <em>recipe</em>. The image is the <em>dish</em> you cook from it.
+      </div>
+
+      <div class="footnote">
+        <span><i class="fas fa-code"></i> Built with <code>docker build</code></span>
+        <span><i class="fas fa-file"></i> Filename: <code>Dockerfile</code> (no extension)</span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 2 ========== -->
+    <div class="slide" data-slide="1">
+      <h2><i class="fas fa-cube"></i> FROM – The Base Image</h2>
+      <div class="sub">
+        <span><i class="fas fa-flag"></i> Every Dockerfile starts with FROM</span>
+      </div>
+
+      <p><code>FROM</code> sets the base image for your build. All other instructions build on top of this.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Basic FROM</span><br>
+        FROM ubuntu:22.04<br><br>
+        <span class="cm"># FROM with alias (multi-stage)</span><br>
+        FROM golang:1.19 AS builder<br><br>
+        <span class="cm"># FROM scratch (empty image)</span><br>
+        FROM scratch
+      </div>
+
+      <div class="grid-2col">
+        <div class="dockerfile-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Best Practices</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Use official images when possible</li>
+            <li>Specify specific tags (not <code>latest</code>)</li>
+            <li>Use Alpine for smaller images</li>
+            <li>Use multi-stage for build/runtime separation</li>
+          </ul>
+        </div>
+        <div class="dockerfile-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Common Mistakes</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Using <code>latest</code> tag (unstable)</li>
+            <li>Choosing overly large base images</li>
+            <li>Not using multi-stage for compiled languages</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 3 ========== -->
+    <div class="slide" data-slide="2">
+      <h2><i class="fas fa-play"></i> RUN – Executing Commands</h2>
+      <div class="sub">
+        <span><i class="fas fa-terminal"></i> Build-time commands</span>
+      </div>
+
+      <p><code>RUN</code> executes commands during the build process, creating a new layer.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Shell form (runs in /bin/sh)</span><br>
+        RUN apt-get update &amp;&amp; apt-get install -y python3<br><br>
+        <span class="cm"># Exec form (JSON array)</span><br>
+        RUN ["apt-get", "update"]<br><br>
+        <span class="cm"># Combine commands to reduce layers</span><br>
+        RUN apt-get update &amp;&amp; \<br>
+        &nbsp;&nbsp;apt-get install -y curl &amp;&amp; \<br>
+        &nbsp;&nbsp;rm -rf /var/lib/apt/lists/*
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Combine <code>RUN</code> commands to reduce the number of layers and keep images small.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 4 ========== -->
+    <div class="slide" data-slide="3">
+      <h2><i class="fas fa-copy"></i> COPY vs ADD – Adding Files</h2>
+      <div class="sub">
+        <span><i class="fas fa-file-transfer"></i> Copying files into the image</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="dockerfile-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-copy"></i> COPY</h3>
+          <p><strong>Recommended</strong> – simple file/directory copying.</p>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+            COPY index.html /app/<br>
+            COPY ./src/ /app/src/<br>
+            COPY --from=builder /app/bin /app/
+          </div>
+          <span class="highlight">📁 Simple and predictable</span>
+        </div>
+        <div class="dockerfile-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-plus-circle"></i> ADD</h3>
+          <p>Extended version – supports URLs and auto-extract archives.</p>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+            ADD https://example.com/file.tar.gz /tmp/<br>
+            ADD archive.tar.gz /app/
+          </div>
+          <span class="highlight">📦 More features, less predictable</span>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-info-circle"></i> <strong>Recommendation:</strong> Use <code>COPY</code> unless you need URL support or auto-extraction. <code>COPY</code> is more transparent.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 5 ========== -->
+    <div class="slide" data-slide="4">
+      <h2><i class="fas fa-folder-open"></i> WORKDIR – Setting Working Directory</h2>
+      <div class="sub">
+        <span><i class="fas fa-folder"></i> Context for subsequent commands</span>
+      </div>
+
+      <p><code>WORKDIR</code> sets the working directory for all subsequent instructions (<code>RUN</code>, <code>CMD</code>, <code>COPY</code>, etc.).</p>
+
+      <div class="code-snip">
+        <span class="cm"># Sets working directory</span><br>
+        WORKDIR /app<br><br>
+        <span class="cm"># Can be relative to previous WORKDIR</span><br>
+        WORKDIR /app<br>
+        WORKDIR src<br>
+        <span class="cm"># Final path: /app/src</span><br><br>
+        <span class="cm"># Creates directory if it doesn't exist</span><br>
+        WORKDIR /var/www/html
+      </div>
+
+      <div class="grid-2col">
+        <div class="dockerfile-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Best Practice</h3>
+          <p>Always set <code>WORKDIR</code> early in your Dockerfile. It makes paths consistent and predictable.</p>
+        </div>
+        <div class="dockerfile-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-info-circle"></i> Equivalent</h3>
+          <p><code>WORKDIR /app</code> is equivalent to <code>RUN mkdir -p /app &amp;&amp; cd /app</code>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 6 ========== -->
+    <div class="slide" data-slide="5">
+      <h2><i class="fas fa-env"></i> ENV – Environment Variables</h2>
+      <div class="sub">
+        <span><i class="fas fa-cog"></i> Setting configuration</span>
+      </div>
+
+      <p><code>ENV</code> sets environment variables that persist in the container.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Set a single variable</span><br>
+        ENV NODE_ENV production<br><br>
+        <span class="cm"># Set multiple variables</span><br>
+        ENV DB_HOST=localhost \<br>
+        &nbsp;&nbsp;DB_PORT=5432 \<br>
+        &nbsp;&nbsp;DB_USER=admin
+      </div>
+
+      <div class="grid-2col">
+        <div class="dockerfile-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Use Cases</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Application configuration</li>
+            <li>Feature flags</li>
+            <li>Paths and directories</li>
+            <li>Build-time vs runtime variables</li>
+          </ul>
+        </div>
+        <div class="dockerfile-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-arrow-right"></i> ARG vs ENV</h3>
+          <p><code>ARG</code> is build-time only. <code>ENV</code> persists in the container.</p>
+          <span class="highlight">🔧 ARG for build, ENV for runtime</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 7 ========== -->
+    <div class="slide" data-slide="6">
+      <h2><i class="fas fa-tools"></i> ARG – Build-Time Variables</h2>
+      <div class="sub">
+        <span><i class="fas fa-wrench"></i> Parameterizing builds</span>
+      </div>
+
+      <p><code>ARG</code> defines variables that can be passed at build time.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Define ARG with default value</span><br>
+        ARG VERSION=1.0.0<br>
+        ARG APP_ENV=production<br><br>
+        <span class="cm"># Use the ARG</span><br>
+        ENV APP_VERSION=$VERSION<br>
+        RUN echo "Building version $VERSION"<br><br>
+        <span class="cm"># Build with custom ARG</span><br>
+        $ docker build --build-arg VERSION=2.0.0 -t myapp .
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Use <code>ARG</code> for version numbers, build environments, and feature flags. Use <code>ENV</code> for runtime configuration.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 8 ========== -->
+    <div class="slide" data-slide="7">
+      <h2><i class="fas fa-shield-alt"></i> USER – Changing User Context</h2>
+      <div class="sub">
+        <span><i class="fas fa-user"></i> Security best practice</span>
+      </div>
+
+      <p><code>USER</code> sets the user to use when running the container and subsequent instructions.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Create a user and switch to it</span><br>
+        FROM ubuntu:22.04<br>
+        RUN groupadd -r appgroup &amp;&amp; useradd -r -g appgroup appuser<br>
+        USER appuser<br><br>
+        <span class="cm"># Switch to user by UID</span><br>
+        USER 1000:1000
+      </div>
+
+      <div class="grid-2col">
+        <div class="dockerfile-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Best Practices</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Create a non-root user</li>
+            <li>Set <code>USER</code> before <code>CMD</code></li>
+            <li>Use least privilege principle</li>
+          </ul>
+        </div>
+        <div class="dockerfile-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Why It Matters</h3>
+          <p>Running as root is a security risk. If a container is compromised, the attacker gets root access.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 9 ========== -->
+    <div class="slide" data-slide="8">
+      <h2><i class="fas fa-plug"></i> EXPOSE – Documentation</h2>
+      <div class="sub">
+        <span><i class="fas fa-info-circle"></i> Informing users about ports</span>
+      </div>
+
+      <p><code>EXPOSE</code> informs users which ports the container listens on. It's <strong>documentation</strong>, not publishing.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Single port</span><br>
+        EXPOSE 80<br><br>
+        <span class="cm"># Multiple ports</span><br>
+        EXPOSE 80 443<br><br>
+        <span class="cm"># TCP/UDP</span><br>
+        EXPOSE 8080/tcp<br>
+        EXPOSE 53/udp
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Important:</strong> <code>EXPOSE</code> does NOT publish the port. It's metadata. Ports are published with <code>docker run -p</code>.
+      </div>
+
+      <div class="dockerfile-card" style="border-left-color: #b36b2d; margin-top:1rem;">
+        <h3><i class="fas fa-eye"></i> View Exposed Ports</h3>
+        <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+          $ docker inspect --format='{{.Config.ExposedPorts}}' image
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 10 ========== -->
+    <div class="slide" data-slide="9">
+      <h2><i class="fas fa-play"></i> CMD vs ENTRYPOINT – Running the Container</h2>
+      <div class="sub">
+        <span><i class="fas fa-code-branch"></i> Defining the default command</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="dockerfile-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-terminal"></i> CMD</h3>
+          <p>Defines the default command. Can be overridden by <code>docker run</code> arguments.</p>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+            CMD ["nginx", "-g", "daemon off;"]<br>
+            CMD echo "Hello World"
+          </div>
+          <span class="highlight">📝 Default executable</span>
+        </div>
+        <div class="dockerfile-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-flag"></i> ENTRYPOINT</h3>
+          <p>Defines the executable. Arguments are appended to it.</p>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+            ENTRYPOINT ["nginx"]<br>
+            CMD ["-g", "daemon off;"]
+          </div>
+          <span class="highlight">🎯 Fixed executable</span>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-info-circle"></i> <strong>Combined:</strong> <code>ENTRYPOINT</code> sets the executable, <code>CMD</code> provides default arguments.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 11 ========== -->
+    <div class="slide" data-slide="10">
+      <h2><i class="fas fa-heartbeat"></i> HEALTHCHECK – Container Health</h2>
+      <div class="sub">
+        <span><i class="fas fa-stethoscope"></i> Monitoring container liveness</span>
+      </div>
+
+      <p><code>HEALTHCHECK</code> tells Docker how to test if a container is working.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Basic healthcheck</span><br>
+        HEALTHCHECK CMD curl -f http://localhost/ || exit 1<br><br>
+        <span class="cm"># With options</span><br>
+        HEALTHCHECK --interval=30s --timeout=3s --retries=3 \<br>
+        &nbsp;&nbsp;CMD curl -f http://localhost/ || exit 1
+      </div>
+
+      <div class="grid-2col">
+        <div class="dockerfile-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Options</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li><code>--interval</code>: Check frequency (default 30s)</li>
+            <li><code>--timeout</code>: Command timeout (default 30s)</li>
+            <li><code>--retries</code>: Fail after N failures (default 3)</li>
+            <li><code>--start-period</code>: Grace period for startup</li>
+          </ul>
+        </div>
+        <div class="dockerfile-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-info-circle"></i> States</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li><strong>starting:</strong> Initial startup phase</li>
+            <li><strong>healthy:</strong> Container is working</li>
+            <li><strong>unhealthy:</strong> Failed health checks</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 12 ========== -->
+    <div class="slide" data-slide="11">
+      <h2><i class="fas fa-volume-up"></i> VOLUME – Persistent Data</h2>
+      <div class="sub">
+        <span><i class="fas fa-hdd"></i> Declaring mount points</span>
+      </div>
+
+      <p><code>VOLUME</code> creates a mount point for persistent data.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Single volume</span><br>
+        VOLUME /var/lib/mysql<br><br>
+        <span class="cm"># Multiple volumes</span><br>
+        VOLUME ["/data", "/var/log", "/config"]<br><br>
+        <span class="cm"># Named volume (not in Dockerfile, use docker run)</span><br>
+        <span class="cm"># docker run -v mydata:/data image</span>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Best Practice:</strong> Use <code>VOLUME</code> in Dockerfile for directories that should be persisted. Use <code>docker run -v</code> or <code>--mount</code> to create volumes at runtime.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 13 ========== -->
+    <div class="slide" data-slide="12">
+      <h2><i class="fas fa-code-branch"></i> Multi-Stage Builds – Optimizing Images</h2>
+      <div class="sub">
+        <span><i class="fas fa-cut"></i> Build and runtime separation</span>
+      </div>
+
+      <p>Multi-stage builds use multiple <code>FROM</code> statements to separate build environment from runtime.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Build stage</span><br>
+        FROM golang:1.19 AS builder<br>
+        WORKDIR /app<br>
+        COPY . .<br>
+        RUN go build -o myapp .<br><br>
+        <span class="cm"># Runtime stage (much smaller)</span><br>
+        FROM alpine:latest<br>
+        COPY --from=builder /app/myapp /usr/local/bin/<br>
+        CMD ["myapp"]
+      </div>
+
+      <div class="grid-2col">
+        <div class="dockerfile-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Benefits</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Smaller final images</li>
+            <li>No build tools in runtime</li>
+            <li>Better security</li>
+            <li>Faster deployments</li>
+          </ul>
+        </div>
+        <div class="dockerfile-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-arrow-right"></i> Example</h3>
+          <p>Go app: ~800MB with build tools → ~10MB with only binary.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 14 ========== -->
+    <div class="slide" data-slide="13">
+      <h2><i class="fas fa-secret"></i> Secrets in Dockerfiles (BuildKit)</h2>
+      <div class="sub">
+        <span><i class="fas fa-lock"></i> Secure secret handling</span>
+      </div>
+
+      <p>BuildKit allows mounting secrets during build without embedding them in the image.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Dockerfile with secret mount</span><br>
+        FROM python:3.9<br>
+        WORKDIR /app<br>
+        RUN --mount=type=secret,id=github_token \<br>
+        &nbsp;&nbsp;export TOKEN=$(cat /run/secrets/github_token) &amp;&amp; \<br>
+        &nbsp;&nbsp;pip install --extra-index-url https://$TOKEN@private.pypi.com/ mypackage<br><br>
+        <span class="cm"># Build with secret</span><br>
+        $ DOCKER_BUILDKIT=1 docker build \<br>
+        &nbsp;&nbsp;--secret id=github_token,src=./token.txt -t myapp .
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-shield-alt"></i> <strong>Security:</strong> Secrets are never stored in the image layers, protecting sensitive data.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 15 ========== -->
+    <div class="slide" data-slide="14">
+      <h2><i class="fas fa-cache"></i> Layer Caching – Build Optimization</h2>
+      <div class="sub">
+        <span><i class="fas fa-rocket"></i> Speed up builds with cache</span>
+      </div>
+
+      <p>Docker caches layers. Unchanged layers are reused.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Efficient – dependencies first, code last</span><br>
+        FROM node:18-alpine<br>
+        WORKDIR /app<br>
+        <span class="cm"># Copy package files first (changes less often)</span><br>
+        COPY package*.json ./<br>
+        RUN npm install          <span class="cm"># Cached unless package.json changes</span><br>
+        <span class="cm"># Copy source code last (changes often)</span><br>
+        COPY . .<br>
+        CMD ["npm", "start"]
+      </div>
+
+      <div class="grid-2col">
+        <div class="dockerfile-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Cache Best Practices</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Order from least to most frequently changing</li>
+            <li>Combine RUN commands</li>
+            <li>Use <code>--cache-from</code> for external cache</li>
+            <li>Use BuildKit for better caching</li>
+          </ul>
+        </div>
+        <div class="dockerfile-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Cache Invalidation</h3>
+          <p>Any change breaks cache for that layer and all subsequent layers.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 16 ========== -->
+    <div class="slide" data-slide="15">
+      <h2><i class="fas fa-tachometer-alt"></i> Dockerfile Best Practices – Summary</h2>
+      <div class="sub">
+        <span><i class="fas fa-star"></i> Production-ready Dockerfiles</span>
+      </div>
+
+      <div class="instruction-grid">
+        <div class="instruction-item"><i class="fas fa-cube"></i> FROM</div>
+        <div class="instruction-item"><i class="fas fa-play"></i> RUN</div>
+        <div class="instruction-item"><i class="fas fa-copy"></i> COPY</div>
+        <div class="instruction-item"><i class="fas fa-folder"></i> WORKDIR</div>
+        <div class="instruction-item"><i class="fas fa-env"></i> ENV</div>
+        <div class="instruction-item"><i class="fas fa-user"></i> USER</div>
+        <div class="instruction-item"><i class="fas fa-plug"></i> EXPOSE</div>
+        <div class="instruction-item"><i class="fas fa-play"></i> CMD</div>
+        <div class="instruction-item"><i class="fas fa-flag"></i> ENTRYPOINT</div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Golden Rules:</strong>
+        <ul style="margin:0.5rem 0 0 1.2rem;">
+          <li>Use official base images</li>
+          <li>Run as non-root user</li>
+          <li>Order layers for optimal caching</li>
+          <li>Keep images small (Alpine, multi-stage)</li>
+          <li>Use <code>.dockerignore</code></li>
+          <li>Add healthchecks</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 17 ========== -->
+    <div class="slide" data-slide="16">
+      <h2><i class="fas fa-undo-alt"></i> SHELL – Changing the Default Shell</h2>
+      <div class="sub">
+        <span><i class="fas fa-terminal"></i> Customizing command execution</span>
+      </div>
+
+      <p><code>SHELL</code> allows you to change the default shell used for shell-form commands.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Use bash instead of sh</span><br>
+        SHELL ["/bin/bash", "-c"]<br>
+        RUN echo "Hello from bash"<br><br>
+        <span class="cm"># Use PowerShell on Windows</span><br>
+        SHELL ["powershell", "-Command"]
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-info-circle"></i> <strong>Note:</strong> The default shell is <code>/bin/sh</code> on Linux. Change it if you need bash-specific features.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 18 ========== -->
+    <div class="slide" data-slide="17">
+      <h2><i class="fas fa-file-alt"></i> .dockerignore – Exclude Files</h2>
+      <div class="sub">
+        <span><i class="fas fa-ban"></i> Keep build context clean</span>
+      </div>
+
+      <p><code>.dockerignore</code> excludes files from the build context, speeding up builds and preventing secrets from being included.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Example .dockerignore</span><br>
+        node_modules/<br>
+        .git/<br>
+        .env<br>
+        *.log<br>
+        Dockerfile<br>
+        .dockerignore<br>
+        README.md<br>
+        tests/<br>
+        coverage/
+      </div>
+
+      <div class="grid-2col">
+        <div class="dockerfile-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Benefits</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Faster builds</li>
+            <li>Smaller build context</li>
+            <li>Prevents secrets in image</li>
+            <li>Reduces network transfer</li>
+          </ul>
+        </div>
+        <div class="dockerfile-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Common Mistakes</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Forgetting to ignore <code>node_modules</code></li>
+            <li>Not ignoring <code>.env</code> files</li>
+            <li>Ignoring too much (e.g., <code>*.js</code>)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 19 ========== -->
+    <div class="slide" data-slide="18">
+      <h2><i class="fas fa-tools"></i> Building with Dockerfile</h2>
+      <div class="sub">
+        <span><i class="fas fa-hammer"></i> The <code>docker build</code> command</span>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Basic build</span><br>
+        $ docker build -t myapp:latest .<br><br>
+        <span class="cm"># Build with specific Dockerfile</span><br>
+        $ docker build -f Dockerfile.prod -t myapp:prod .<br><br>
+        <span class="cm"># Build with BuildKit (modern builder)</span><br>
+        $ DOCKER_BUILDKIT=1 docker build -t myapp .<br><br>
+        <span class="cm"># Build with cache from previous image</span><br>
+        $ docker build --cache-from myapp:latest -t myapp:new .
+      </div>
+
+      <div class="grid-2col">
+        <div class="dockerfile-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-flag"></i> Common Flags</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li><code>-t</code> / <code>--tag</code>: Name and tag</li>
+            <li><code>-f</code> / <code>--file</code>: Custom Dockerfile path</li>
+            <li><code>--build-arg</code>: Pass build-time variables</li>
+            <li><code>--no-cache</code>: Ignore cache</li>
+          </ul>
+        </div>
+        <div class="dockerfile-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-info-circle"></i> Context</h3>
+          <p>The <code>.</code> at the end is the build context. Everything in this directory is sent to the daemon.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 20 ========== -->
+    <div class="slide" data-slide="19">
+      <h2><i class="fas fa-flag-checkered"></i> Recap – Dockerfile Mastered</h2>
+      <div class="sub">
+        <span><i class="fas fa-check-double"></i> 20 slides – key takeaways</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.2rem 0;">
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-file-code" style="color:#1f6e9b; width:2rem;"></i> 
+          <div><strong>Dockerfile = Blueprint</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Declarative image definition</span></div>
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-layer-group" style="color:#b36b2d; width:2rem;"></i> 
+          <div><strong>Layered Architecture</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Each instruction = one layer</span></div>
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-cache" style="color:#8a4d9e; width:2rem;"></i> 
+          <div><strong>Cache Optimization</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Order layers, combine RUN</span></div>
+        </div>
+        <div style="background:#dcebf7; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-shield-alt" style="color:#1d7a3e; width:2rem;"></i> 
+          <div><strong>Security</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Non-root, secrets, .dockerignore</span></div>
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-code-branch" style="color:#b34d4d; width:2rem;"></i> 
+          <div><strong>Multi-Stage</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Smaller images, better security</span></div>
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-sync-alt" style="color:#9b5f2d; width:2rem;"></i> 
+          <div><strong>Best Practices</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Use official images, add healthchecks</span></div>
+        </div>
+      </div>
+
+      <div style="background:#0d1f2e; color:#d6e6f5; border-radius:1.5rem; padding:1.2rem 1.8rem; margin-top:1rem;">
+        <i class="fas fa-quote-left" style="color:#5ba9e0; margin-right:8px;"></i>
+        "A well-written Dockerfile is the <strong>foundation</strong> of a secure, efficient, and maintainable container strategy."
+      </div>
+
+      <div class="footnote">
+        <span><i class="fas fa-docker" style="color:#0e7cbb;"></i> Build → Optimize → Secure → Repeat</span>
+        <span><i class="fas fa-code"></i> <code>docker build</code> is the command</span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE NAVIGATION ========== -->
+    <div class="slide-nav">
+      <button class="nav-btn" id="prevSlide"><i class="fas fa-chevron-left"></i> Prev</button>
+      <div class="dots" id="dotsContainer"></div>
+      <button class="nav-btn" id="nextSlide">Next <i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; flex-wrap:wrap; gap:0.5rem;">
+      <span class="slide-counter" id="slideCounter">1 / 20</span>
+      <span style="color:#8fb4cc; font-size:0.8rem;"><i class="fas fa-arrows-alt-h"></i> Use arrow keys or click dots</span>
+    </div>
+
+  </div> <!-- end slide-card -->
+</div> <!-- end slide-wrapper -->
+
+<script>
+  (function() {
+    const slides = document.querySelectorAll('.slide');
+    const dotsContainer = document.getElementById('dotsContainer');
+    const prevBtn = document.getElementById('prevSlide');
+    const nextBtn = document.getElementById('nextSlide');
+    const counter = document.getElementById('slideCounter');
+
+    let current = 0;
+    const total = slides.length;
+
+    // create dots
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.dataset.index = i;
+      dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+      dot.addEventListener('click', function() {
+        goTo(parseInt(this.dataset.index));
+      });
+      dotsContainer.appendChild(dot);
+    }
+
+    const dots = dotsContainer.querySelectorAll('.dot');
+
+    function goTo(index) {
+      if (index < 0) index = 0;
+      if (index >= total) index = total - 1;
+      if (index === current) return;
+
+      slides[current].classList.remove('active');
+      dots[current].classList.remove('active');
+      current = index;
+      slides[current].classList.add('active');
+      dots[current].classList.add('active');
+      updateCounter();
+      updateButtons();
+    }
+
+    function updateCounter() {
+      counter.textContent = (current + 1) + ' / ' + total;
+    }
+
+    function updateButtons() {
+      prevBtn.disabled = (current === 0);
+      nextBtn.disabled = (current === total - 1);
+    }
+
+    function next() {
+      if (current < total - 1) goTo(current + 1);
+    }
+
+    function prev() {
+      if (current > 0) goTo(current - 1);
+    }
+
+    prevBtn.addEventListener('click', prev);
+    nextBtn.addEventListener('click', next);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        next();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        prev();
+      }
+    });
+
+    updateCounter();
+    updateButtons();
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Docker Interview Questions – 100 Slides</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0a1a2a 0%, #1a3348 100%);
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .slide-wrapper {
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(4px);
+            border-radius: 3rem;
+            padding: 1.8rem 1.8rem 2rem 1.8rem;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04);
+        }
+
+        .slide-card {
+            background: #ffffff;
+            border-radius: 2.2rem;
+            padding: 2.8rem 3rem;
+            box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.6), 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            min-height: 450px;
+        }
+
+        .slide-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.8rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .slide-nav .dots {
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+            flex-wrap: wrap;
+            max-width: 50%;
+        }
+
+        .slide-nav .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.25);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .slide-nav .dot.active {
+            background: #5ba9e0;
+            width: 18px;
+            box-shadow: 0 0 12px #3f9ad6;
+        }
+
+        .slide-nav .dot:hover {
+            background: #80c0f0;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #eef4fa;
+            padding: 0.4rem 1rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(2px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: #6bb4ed;
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            pointer-events: none;
+            filter: grayscale(0.6);
+        }
+
+        .slide-counter {
+            color: #b0cfe0;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeSlide {
+            0% { opacity: 0.4; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide .q-badge {
+            display: inline-block;
+            background: #1b6d9e;
+            color: white;
+            padding: 0.15rem 1rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .slide h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #0a263b;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border-bottom: 3px solid #dce7f0;
+            padding-bottom: 0.5rem;
+        }
+
+        .slide h2 .q-num {
+            color: #1b6d9e;
+            font-size: 1.4rem;
+            min-width: 3rem;
+            font-weight: 800;
+        }
+
+        .slide h2 .q-text {
+            flex: 1;
+        }
+
+        .slide .sub {
+            font-size: 0.9rem;
+            color: #2e4a66;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-left: 4rem;
+        }
+
+        .slide .sub .tag {
+            background: #e3edf5;
+            padding: 0.1rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            color: #1e5580;
+        }
+
+        .answer-box {
+            background: #f5f9fe;
+            border-radius: 1.2rem;
+            padding: 1.2rem 1.8rem;
+            margin: 0.8rem 0;
+            border-left: 5px solid #2d7fb0;
+        }
+
+        .answer-box p {
+            color: #1f3a55;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .answer-box strong {
+            color: #0a263b;
+        }
+
+        .answer-box ul {
+            margin: 0.5rem 0 0 1.5rem;
+            color: #1f3a55;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .answer-box .code-snip {
+            background: #0d1f2e;
+            color: #d6e6f5;
+            padding: 0.6rem 1rem;
+            border-radius: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            margin: 0.5rem 0;
+            border-left: 3px solid #3b9bd6;
+            overflow-x: auto;
+        }
+
+        .answer-box .code-snip .cm { color: #6a8faa; }
+        .answer-box .code-snip .kw { color: #f5a97f; }
+        .answer-box .code-snip .str { color: #a6da95; }
+
+        .comparison-box {
+            background: #f0f6fd;
+            border-radius: 1rem;
+            padding: 0.8rem 1.2rem;
+            margin: 0.6rem 0;
+            border: 1px solid #d4e2ef;
+        }
+
+        .comparison-box strong {
+            color: #0a2b47;
+        }
+
+        .footnote {
+            margin-top: 1.2rem;
+            padding-top: 0.8rem;
+            border-top: 2px solid #e2eaf2;
+            color: #3b5e7a;
+            font-size: 0.8rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .grid-3col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+        }
+
+        .pill {
+            background: #dcebf7;
+            padding: 0.15rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #00407a;
+            display: inline-block;
+        }
+
+        @media (max-width: 780px) {
+            .slide-card {
+                padding: 1.2rem 1rem;
+            }
+            .slide h2 {
+                font-size: 1.2rem;
+                flex-wrap: wrap;
+            }
+            .slide h2 .q-num {
+                min-width: 2.2rem;
+                font-size: 1rem;
+            }
+            .slide .sub {
+                padding-left: 0;
+            }
+            .grid-2col, .grid-3col {
+                grid-template-columns: 1fr;
+            }
+            .slide-nav {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-btn {
+                justify-content: center;
+            }
+            .slide-nav .dots {
+                max-width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="slide-wrapper">
+    <div class="slide-card">
+
+        <!-- ===== SLIDE 0: TITLE ===== -->
+        <div class="slide active" data-slide="0">
+            <div style="text-align:center; padding:2rem 0;">
+                <i class="fab fa-docker" style="font-size:4rem; color:#1b6d9e;"></i>
+                <h1 style="font-size:2.5rem; color:#0a263b; margin:0.5rem 0; border-bottom:none;">Docker Interview Questions</h1>
+                <p style="font-size:1.3rem; color:#2e4a66;">100 Questions – Complete List</p>
+                <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; margin-top:1.5rem;">
+                    <span class="pill" style="font-size:0.8rem;">Part 1: Basics</span>
+                    <span class="pill" style="font-size:0.8rem;">Part 2: Commands</span>
+                    <span class="pill" style="font-size:0.8rem;">Part 3: Dockerfile</span>
+                    <span class="pill" style="font-size:0.8rem;">Part 4: Networking</span>
+                    <span class="pill" style="font-size:0.8rem;">Part 5: Storage</span>
+                    <span class="pill" style="font-size:0.8rem;">Part 6: Security</span>
+                    <span class="pill" style="font-size:0.8rem;">Part 7: Compose</span>
+                    <span class="pill" style="font-size:0.8rem;">Part 8: Swarm</span>
+                    <span class="pill" style="font-size:0.8rem;">Part 9: Debugging</span>
+                    <span class="pill" style="font-size:0.8rem;">Part 10: Advanced</span>
+                </div>
+                <div style="margin-top:2rem; padding:1rem; background:#f0f6fd; border-radius:1rem;">
+                    <i class="fas fa-arrow-right" style="color:#1b6d9e;"></i> Navigate using arrow keys or click the dots below
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- PART 1: DOCKER BASICS (Questions 1-8) -->
+        <!-- ===================================================================== -->
+
+        <!-- SLIDE 1: Q1 -->
+        <div class="slide" data-slide="1">
+            <span class="q-badge">Q1</span>
+            <h2><span class="q-num">01.</span><span class="q-text">What is Docker, and how does it differ from a virtual machine?</span></h2>
+            <div class="answer-box">
+                <p><strong>Docker</strong> is a platform for developing, shipping, and running applications in lightweight containers.</p>
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.8rem; border-radius:0.8rem;">
+                        <strong><i class="fas fa-cube" style="color:#1b6d9e;"></i> Container</strong>
+                        <ul style="font-size:0.85rem; margin-top:0.3rem;">
+                            <li>Shares host OS kernel</li>
+                            <li>Lightweight (MBs)</li>
+                            <li>Starts in seconds</li>
+                            <li>Less overhead</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.8rem; border-radius:0.8rem;">
+                        <strong><i class="fas fa-server" style="color:#b36b2d;"></i> Virtual Machine</strong>
+                        <ul style="font-size:0.85rem; margin-top:0.3rem;">
+                            <li>Has full OS with kernel</li>
+                            <li>Heavy (GBs)</li>
+                            <li>Starts in minutes</li>
+                            <li>More overhead</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footnote"><i class="fas fa-tag"></i> Docker uses namespaces &amp; cgroups for isolation; VMs use hypervisors.</div>
+        </div>
+
+        <!-- SLIDE 2: Q2 -->
+        <div class="slide" data-slide="2">
+            <span class="q-badge">Q2</span>
+            <h2><span class="q-num">02.</span><span class="q-text">What is a Docker image?</span></h2>
+            <div class="answer-box">
+                <p>A <strong>Docker image</strong> is a lightweight, standalone, executable package that includes everything needed to run a piece of software:</p>
+                <ul>
+                    <li>Code</li>
+                    <li>Runtime</li>
+                    <li>System tools</li>
+                    <li>Libraries</li>
+                    <li>Settings</li>
+                </ul>
+                <p style="margin-top:0.5rem;">Images are <strong>read-only</strong> and composed of layers. They serve as templates for creating containers.</p>
+            </div>
+            <div class="comparison-box"><i class="fas fa-lightbulb"></i> <strong>Analogy:</strong> An image is like a <em>class</em> in programming; a container is an <em>instance</em>.</div>
+        </div>
+
+        <!-- SLIDE 3: Q3 -->
+        <div class="slide" data-slide="3">
+            <span class="q-badge">Q3</span>
+            <h2><span class="q-num">03.</span><span class="q-text">What is a Docker container?</span></h2>
+            <div class="answer-box">
+                <p>A <strong>Docker container</strong> is a running instance of a Docker image. It adds a <strong>writable layer</strong> on top of the image layers.</p>
+                <p>Containers are:</p>
+                <ul>
+                    <li><strong>Isolated</strong> – have their own filesystem, network, and process space</li>
+                    <li><strong>Ephemeral</strong> – designed to be stopped, started, and destroyed easily</li>
+                    <li><strong>Lightweight</strong> – share the host kernel</li>
+                </ul>
+            </div>
+            <div class="comparison-box"><i class="fas fa-code"></i> <code>docker run nginx</code> creates and starts a container from the nginx image.</div>
+        </div>
+
+        <!-- SLIDE 4: Q4 -->
+        <div class="slide" data-slide="4">
+            <span class="q-badge">Q4</span>
+            <h2><span class="q-num">04.</span><span class="q-text">What are the main components of Docker architecture?</span></h2>
+            <div class="answer-box">
+                <div class="grid-3col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem; text-align:center;">
+                        <i class="fas fa-terminal" style="font-size:2rem; color:#1b6d9e;"></i>
+                        <h4 style="font-size:0.9rem; margin:0.2rem 0;">Docker Client</h4>
+                        <p style="font-size:0.8rem;">CLI / API</p>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem; text-align:center;">
+                        <i class="fas fa-server" style="font-size:2rem; color:#b36b2d;"></i>
+                        <h4 style="font-size:0.9rem; margin:0.2rem 0;">Docker Daemon</h4>
+                        <p style="font-size:0.8rem;">dockerd</p>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem; text-align:center;">
+                        <i class="fas fa-cloud" style="font-size:2rem; color:#8a4d9e;"></i>
+                        <h4 style="font-size:0.9rem; margin:0.2rem 0;">Registry</h4>
+                        <p style="font-size:0.8rem;">Image storage</p>
+                    </div>
+                </div>
+                <p style="margin-top:0.8rem;"><strong>Also:</strong> containerd (runtime), runc (OCI runtime), and shim (process supervision).</p>
+            </div>
+            <div class="comparison-box"><i class="fas fa-arrow-right"></i> Client → Daemon → containerd → runc → Kernel</div>
+        </div>
+
+        <!-- SLIDE 5: Q5 -->
+        <div class="slide" data-slide="5">
+            <span class="q-badge">Q5</span>
+            <h2><span class="q-num">05.</span><span class="q-text">What is Docker Hub?</span></h2>
+            <div class="answer-box">
+                <p><strong>Docker Hub</strong> is a cloud-based registry service for Docker images.</p>
+                <ul>
+                    <li>Hosts public and private images</li>
+                    <li>Official images (nginx, ubuntu, mysql, etc.)</li>
+                    <li>Community images</li>
+                    <li>Automated builds from GitHub/Bitbucket</li>
+                </ul>
+                <p><strong>Alternatives:</strong> Amazon ECR, Google Container Registry, Azure ACR, JFrog Artifactory, self-hosted registries.</p>
+            </div>
+            <div class="comparison-box"><i class="fas fa-code"></i> <code>docker pull nginx</code> pulls from Docker Hub by default.</div>
+        </div>
+
+        <!-- SLIDE 6: Q6 -->
+        <div class="slide" data-slide="6">
+            <span class="q-badge">Q6</span>
+            <h2><span class="q-num">06.</span><span class="q-text">What is a Dockerfile?</span></h2>
+            <div class="answer-box">
+                <p>A <strong>Dockerfile</strong> is a text file containing instructions to build a Docker image.</p>
+                <div class="code-snip">
+                    <span class="cm"># Example Dockerfile</span><br>
+                    FROM ubuntu:22.04<br>
+                    WORKDIR /app<br>
+                    COPY . .<br>
+                    RUN make<br>
+                    CMD ["./myapp"]
+                </div>
+                <ul>
+                    <li><strong>FROM</strong> – base image</li>
+                    <li><strong>RUN</strong> – execute commands during build</li>
+                    <li><strong>COPY</strong> – copy files from host</li>
+                    <li><strong>CMD</strong> – command to run when container starts</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: Q7 -->
+        <div class="slide" data-slide="7">
+            <span class="q-badge">Q7</span>
+            <h2><span class="q-num">07.</span><span class="q-text">What is Docker Compose?</span></h2>
+            <div class="answer-box">
+                <p><strong>Docker Compose</strong> is a tool for defining and running multi-container Docker applications.</p>
+                <p>Uses a <code>docker-compose.yml</code> file to configure:</p>
+                <ul>
+                    <li>Services</li>
+                    <li>Networks</li>
+                    <li>Volumes</li>
+                    <li>Environment variables</li>
+                    <li>Dependencies</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    version: '3'<br>
+                    services:<br>
+                    &nbsp;&nbsp;web:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;image: nginx<br>
+                    &nbsp;&nbsp;db:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;image: postgres
+                </div>
+            </div>
+            <div class="comparison-box"><i class="fas fa-code"></i> <code>docker-compose up -d</code> starts all services.</div>
+        </div>
+
+        <!-- SLIDE 8: Q8 -->
+        <div class="slide" data-slide="8">
+            <span class="q-badge">Q8</span>
+            <h2><span class="q-num">08.</span><span class="q-text">What is a Hypervisor?</span></h2>
+            <div class="answer-box">
+                <p>A <strong>hypervisor</strong> is software that creates and runs virtual machines (VMs). It allows multiple OSes to run on a single host.</p>
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong>Type 1 (Bare Metal)</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Runs directly on hardware</li>
+                            <li>Examples: VMware ESXi, KVM</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong>Type 2 (Hosted)</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Runs on top of OS</li>
+                            <li>Examples: VirtualBox, VMware Workstation</li>
+                        </ul>
+                    </div>
+                </div>
+                <p style="margin-top:0.5rem;">Docker does NOT use a hypervisor – it uses the host kernel directly.</p>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- PART 2: DOCKER COMMANDS & OPERATIONS (Q9-Q25) -->
+        <!-- ===================================================================== -->
+
+        <!-- SLIDE 9: Q9 -->
+        <div class="slide" data-slide="9">
+            <span class="q-badge">Q9</span>
+            <h2><span class="q-num">09.</span><span class="q-text">How do you create a Docker container from an image?</span></h2>
+            <div class="answer-box">
+                <p>Use the <code>docker run</code> command:</p>
+                <div class="code-snip">
+                    <span class="cm"># Basic run</span><br>
+                    docker run nginx<br><br>
+                    <span class="cm"># Run in detached mode</span><br>
+                    docker run -d nginx<br><br>
+                    <span class="cm"># With name and port mapping</span><br>
+                    docker run -d --name myweb -p 8080:80 nginx
+                </div>
+                <ul>
+                    <li><code>docker run</code> = <code>docker create</code> + <code>docker start</code></li>
+                    <li><code>-d</code> – detached mode (background)</li>
+                    <li><code>--name</code> – assign a name</li>
+                    <li><code>-p</code> – publish port</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: Q10 -->
+        <div class="slide" data-slide="10">
+            <span class="q-badge">Q10</span>
+            <h2><span class="q-num">10.</span><span class="q-text">How do you list all running containers?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Running containers</span><br>
+                    docker ps<br><br>
+                    <span class="cm"># All containers (including stopped)</span><br>
+                    docker ps -a<br><br>
+                    <span class="cm"># Only container IDs</span><br>
+                    docker ps -q<br><br>
+                    <span class="cm"># Filter by status</span><br>
+                    docker ps --filter "status=exited"
+                </div>
+                <p><strong>docker ps</strong> shows: CONTAINER ID, IMAGE, COMMAND, CREATED, STATUS, PORTS, NAMES.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: Q11 -->
+        <div class="slide" data-slide="11">
+            <span class="q-badge">Q11</span>
+            <h2><span class="q-num">11.</span><span class="q-text">How do you stop and start a container?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Stop a container</span><br>
+                    docker stop container_name_or_id<br><br>
+                    <span class="cm"># Start a stopped container</span><br>
+                    docker start container_name_or_id<br><br>
+                    <span class="cm"># Restart a container</span><br>
+                    docker restart container_name_or_id<br><br>
+                    <span class="cm"># Stop with custom timeout (30 seconds)</span><br>
+                    docker stop -t 30 container
+                </div>
+                <p><strong>docker stop</strong> sends SIGTERM (graceful), then SIGKILL after timeout.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: Q12 -->
+        <div class="slide" data-slide="12">
+            <span class="q-badge">Q12</span>
+            <h2><span class="q-num">12.</span><span class="q-text">How do you remove a container?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Remove a stopped container</span><br>
+                    docker rm container<br><br>
+                    <span class="cm"># Force remove a running container</span><br>
+                    docker rm -f container<br><br>
+                    <span class="cm"># Remove multiple containers</span><br>
+                    docker rm container1 container2<br><br>
+                    <span class="cm"># Remove all stopped containers</span><br>
+                    docker container prune
+                </div>
+                <p><strong>Note:</strong> Removing a container deletes its writable layer. Use volumes for persistent data.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 13: Q13 -->
+        <div class="slide" data-slide="13">
+            <span class="q-badge">Q13</span>
+            <h2><span class="q-num">13.</span><span class="q-text">How do you view logs for a container?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># View logs</span><br>
+                    docker logs container<br><br>
+                    <span class="cm"># Follow logs (tail -f style)</span><br>
+                    docker logs -f container<br><br>
+                    <span class="cm"># Show last 100 lines</span><br>
+                    docker logs --tail 100 container<br><br>
+                    <span class="cm"># Show logs since timestamp</span><br>
+                    docker logs --since 2024-01-01 container
+                </div>
+                <p>Containers should log to STDOUT/STDERR. Docker captures and routes logs via logging drivers.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 14: Q14 -->
+        <div class="slide" data-slide="14">
+            <span class="q-badge">Q14</span>
+            <h2><span class="q-num">14.</span><span class="q-text">How do you execute commands inside a running container?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Interactive shell</span><br>
+                    docker exec -it container bash<br><br>
+                    <span class="cm"># Run a single command</span><br>
+                    docker exec container ls -la<br><br>
+                    <span class="cm"># Run as specific user</span><br>
+                    docker exec -u root container apt-get update<br><br>
+                    <span class="cm"># Set working directory</span><br>
+                    docker exec -w /app container node app.js
+                </div>
+                <p><strong>docker exec</strong> runs new processes inside the container's namespaces.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 15: Q15 -->
+        <div class="slide" data-slide="15">
+            <span class="q-badge">Q15</span>
+            <h2><span class="q-num">15.</span><span class="q-text">How do you copy files between host and container?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Copy from host to container</span><br>
+                    docker cp /host/file.txt container:/app/file.txt<br>
+                    docker cp /host/folder/ container:/app/<br><br>
+                    <span class="cm"># Copy from container to host</span><br>
+                    docker cp container:/app/log.txt /host/log.txt<br>
+                    docker cp container:/app/logs/ /host/logs/
+                </div>
+                <p><strong>Note:</strong> Works on both running and stopped containers. Copies from the container's filesystem.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 16: Q16 -->
+        <div class="slide" data-slide="16">
+            <span class="q-badge">Q16</span>
+            <h2><span class="q-num">16.</span><span class="q-text">How do you check Docker version?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Docker version</span><br>
+                    docker version<br><br>
+                    <span class="cm"># Docker info (detailed)</span><br>
+                    docker info
+                </div>
+                <p><strong>docker version</strong> shows Client and Server versions.<br>
+                <strong>docker info</strong> shows system-wide info: containers, images, storage driver, cgroups version, etc.</p>
+            </div>
+            <div class="comparison-box"><i class="fas fa-check-circle"></i> Always check version compatibility between client and daemon.</div>
+        </div>
+
+        <!-- SLIDE 17: Q17 -->
+        <div class="slide" data-slide="17">
+            <span class="q-badge">Q17</span>
+            <h2><span class="q-num">17.</span><span class="q-text">How do you clean up unused Docker resources?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Remove everything unused (images, containers, networks, build cache)</span><br>
+                    docker system prune -a -f<br><br>
+                    <span class="cm"># Remove only images</span><br>
+                    docker image prune -a -f<br><br>
+                    <span class="cm"># Remove only containers</span><br>
+                    docker container prune -f<br><br>
+                    <span class="cm"># Remove only volumes</span><br>
+                    docker volume prune -f
+                </div>
+                <p><strong>docker system df</strong> shows disk usage by type.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 18: Q18 -->
+        <div class="slide" data-slide="18">
+            <span class="q-badge">Q18</span>
+            <h2><span class="q-num">18.</span><span class="q-text">What is the difference between <code>docker run</code> and <code>docker create</code>?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>docker create</code></strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Creates a container (allocates resources)</li>
+                            <li>Container is in "Created" state</li>
+                            <li>Does NOT start the container</li>
+                            <li>Use <code>docker start</code> to run it</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>docker run</code></strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Creates AND starts a container</li>
+                            <li>Container is in "Running" state</li>
+                            <li>Equivalent to <code>create</code> + <code>start</code></li>
+                            <li>Most commonly used command</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 19: Q19 -->
+        <div class="slide" data-slide="19">
+            <span class="q-badge">Q19</span>
+            <h2><span class="q-num">19.</span><span class="q-text">How do you build a Docker image from a Dockerfile?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Basic build</span><br>
+                    docker build -t myapp:latest .<br><br>
+                    <span class="cm"># Build with specific Dockerfile</span><br>
+                    docker build -f Dockerfile.prod -t myapp:prod .<br><br>
+                    <span class="cm"># Build with BuildKit (modern builder)</span><br>
+                    DOCKER_BUILDKIT=1 docker build -t myapp .<br><br>
+                    <span class="cm"># Build with build arguments</span><br>
+                    docker build --build-arg VERSION=2.0 -t myapp .
+                </div>
+                <p>The <code>.</code> at the end is the build context (current directory).</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 20: Q20 -->
+        <div class="slide" data-slide="20">
+            <span class="q-badge">Q20</span>
+            <h2><span class="q-num">20.</span><span class="q-text">How do you save and load a Docker image as a tar file?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Save image to tar</span><br>
+                    docker save -o myapp.tar myapp:latest<br>
+                    docker save myapp:latest &gt; myapp.tar<br><br>
+                    <span class="cm"># Load image from tar</span><br>
+                    docker load -i myapp.tar<br>
+                    docker load &lt; myapp.tar
+                </div>
+                <p><strong>Use cases:</strong> Air-gapped environments, offline transfers, no registry available.</p>
+                <p><strong>vs docker export:</strong> <code>save</code> preserves layers/metadata; <code>export</code> creates flattened filesystem.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 21: Q21 -->
+        <div class="slide" data-slide="21">
+            <span class="q-badge">Q21</span>
+            <h2><span class="q-num">21.</span><span class="q-text">How do you inspect a container or image?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Inspect container</span><br>
+                    docker inspect container<br><br>
+                    <span class="cm"># Inspect image</span><br>
+                    docker inspect image<br><br>
+                    <span class="cm"># Get specific field</span><br>
+                    docker inspect --format='{{.State.Status}}' container<br>
+                    docker inspect --format='{{.NetworkSettings.IPAddress}}' container
+                </div>
+                <p><strong>docker inspect</strong> returns JSON with all configuration and state information.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 22: Q22 -->
+        <div class="slide" data-slide="22">
+            <span class="q-badge">Q22</span>
+            <h2><span class="q-num">22.</span><span class="q-text">How do you check resource usage of containers?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Real-time stats for all containers</span><br>
+                    docker stats<br><br>
+                    <span class="cm"># Specific container</span><br>
+                    docker stats container<br><br>
+                    <span class="cm"># Single snapshot</span><br>
+                    docker stats --no-stream container
+                </div>
+                <p>Shows: CPU %, Memory usage/limit, Memory %, Network I/O, Block I/O.</p>
+            </div>
+            <div class="comparison-box"><i class="fas fa-lightbulb"></i> Metrics come from cgroups.</div>
+        </div>
+
+        <!-- SLIDE 23: Q23 -->
+        <div class="slide" data-slide="23">
+            <span class="q-badge">Q23</span>
+            <h2><span class="q-num">23.</span><span class="q-text">What is the difference between <code>docker kill</code> and <code>docker stop</code>?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>docker stop</code></strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Graceful shutdown</li>
+                            <li>Sends <strong>SIGTERM</strong> (allow cleanup)</li>
+                            <li>Waits timeout (default 10s)</li>
+                            <li>Then sends SIGKILL if still running</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>docker kill</code></strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Immediate termination</li>
+                            <li>Sends <strong>SIGKILL</strong></li>
+                            <li>No cleanup</li>
+                            <li>Can send custom signal: <code>docker kill --signal=SIGQUIT</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 24: Q24 -->
+        <div class="slide" data-slide="24">
+            <span class="q-badge">Q24</span>
+            <h2><span class="q-num">24.</span><span class="q-text">How do you login to Docker Hub from CLI?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Login to Docker Hub</span><br>
+                    docker login<br><br>
+                    <span class="cm"># Login to private registry</span><br>
+                    docker login myregistry.com<br><br>
+                    <span class="cm"># Login with username/password</span><br>
+                    docker login -u myuser -p mypass<br><br>
+                    <span class="cm"># Login with token</span><br>
+                    docker login -u myuser --password-stdin &lt; token.txt
+                </div>
+                <p>Credentials are stored in <code>~/.docker/config.json</code>.</p>
+            </div>
+            <div class="comparison-box"><i class="fas fa-shield-alt"></i> Use <code>--password-stdin</code> for security (prevents password in command history).</div>
+        </div>
+
+        <!-- SLIDE 25: Q25 -->
+        <div class="slide" data-slide="25">
+            <span class="q-badge">Q25</span>
+            <h2><span class="q-num">25.</span><span class="q-text">How do you push an image to a registry?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Tag the image</span><br>
+                    docker tag myapp:latest myuser/myapp:v1<br>
+                    docker tag myapp:latest myregistry.com/myapp:v1<br><br>
+                    <span class="cm"># Push the image</span><br>
+                    docker push myuser/myapp:v1<br>
+                    docker push myregistry.com/myapp:v1
+                </div>
+                <ol>
+                    <li>Build the image (<code>docker build</code>)</li>
+                    <li>Tag it with registry/repository/tag</li>
+                    <li>Login to registry (<code>docker login</code>)</li>
+                    <li>Push (<code>docker push</code>)</li>
+                </ol>
+            </div>
+            <div class="comparison-box"><i class="fas fa-upload"></i> Only layers that aren't in the registry are uploaded (deduplication).</div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- PART 3: DOCKERFILE & IMAGE BUILDING (Q26-Q40) -->
+        <!-- ===================================================================== -->
+
+        <!-- SLIDE 26: Q26 -->
+        <div class="slide" data-slide="26">
+            <span class="q-badge">Q26</span>
+            <h2><span class="q-num">26.</span><span class="q-text">What is the difference between <code>COPY</code> and <code>ADD</code>?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>COPY</code></strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Copies files/directories from host</li>
+                            <li>Simple and predictable</li>
+                            <li><strong>Recommended</strong> for most use cases</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>ADD</code></strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Copies files + <strong>extra features</strong></li>
+                            <li>Can copy from URLs</li>
+                            <li>Auto-extracts tar files</li>
+                            <li>Use only when you need these features</li>
+                        </ul>
+                    </div>
+                </div>
+                <p><strong>Best practice:</strong> Use <code>COPY</code> unless you need URL support or auto-extraction.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 27: Q27 -->
+        <div class="slide" data-slide="27">
+            <span class="q-badge">Q27</span>
+            <h2><span class="q-num">27.</span><span class="q-text">What is the difference between <code>CMD</code> and <code>ENTRYPOINT</code>?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>CMD</code></strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Sets default command</li>
+                            <li>Can be overridden by <code>docker run</code> arguments</li>
+                            <li>If ENTRYPOINT exists, CMD provides arguments</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>ENTRYPOINT</code></strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Sets executable</li>
+                            <li>Arguments are appended</li>
+                            <li>Can be overridden with <code>--entrypoint</code></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Combined</span><br>
+                    ENTRYPOINT ["nginx"]<br>
+                    CMD ["-g", "daemon off;"]   <span class="cm"># Default arguments</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 28: Q28 -->
+        <div class="slide" data-slide="28">
+            <span class="q-badge">Q28</span>
+            <h2><span class="q-num">28.</span><span class="q-text">What is the difference between <code>CMD</code> and <code>RUN</code>?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>RUN</code></strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Executes during <strong>build time</strong></li>
+                            <li>Creates a new layer</li>
+                            <li>Used for installing packages, compiling code</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>CMD</code></strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Executes during <strong>runtime</strong></li>
+                            <li>Does NOT create a layer</li>
+                            <li>Default command for the container</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 29: Q29 -->
+        <div class="slide" data-slide="29">
+            <span class="q-badge">Q29</span>
+            <h2><span class="q-num">29.</span><span class="q-text">What are some best practices for writing Dockerfiles?</span></h2>
+            <div class="answer-box">
+                <ul>
+                    <li>Use official base images</li>
+                    <li>Use <strong>Alpine</strong> variants for smaller images</li>
+                    <li><strong>Order layers</strong> from least to most frequently changing (for cache)</li>
+                    <li>Combine <code>RUN</code> commands to reduce layers</li>
+                    <li>Use <code>.dockerignore</code> to exclude unnecessary files</li>
+                    <li><strong>Run as non-root</strong> user (<code>USER</code> instruction)</li>
+                    <li>Use <strong>multi-stage builds</strong> for compiled languages</li>
+                    <li>Add <code>HEALTHCHECK</code> for monitoring</li>
+                    <li>Use <code>EXPOSE</code> to document ports</li>
+                    <li>Set <code>WORKDIR</code> early for consistency</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SLIDE 30: Q30 -->
+        <div class="slide" data-slide="30">
+            <span class="q-badge">Q30</span>
+            <h2><span class="q-num">30.</span><span class="q-text">What is a multi-stage build?</span></h2>
+            <div class="answer-box">
+                <p>Multi-stage builds use multiple <code>FROM</code> statements to separate <strong>build</strong> environment from <strong>runtime</strong> environment.</p>
+                <div class="code-snip" style="font-size:0.75rem;">
+                    <span class="cm"># Build stage</span><br>
+                    FROM golang:1.19 AS builder<br>
+                    WORKDIR /app<br>
+                    COPY . .<br>
+                    RUN go build -o myapp<br><br>
+                    <span class="cm"># Runtime stage (smaller)</span><br>
+                    FROM alpine:latest<br>
+                    COPY --from=builder /app/myapp /usr/local/bin/<br>
+                    CMD ["myapp"]
+                </div>
+                <p><strong>Benefits:</strong> Smaller images, no build tools in runtime, better security.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 31: Q31 -->
+        <div class="slide" data-slide="31">
+            <span class="q-badge">Q31</span>
+            <h2><span class="q-num">31.</span><span class="q-text">How do you reduce Docker image size?</span></h2>
+            <div class="answer-box">
+                <ul>
+                    <li>Use <strong>Alpine</strong> or <strong>slim</strong> base images</li>
+                    <li>Use <strong>multi-stage builds</strong></li>
+                    <li>Combine <code>RUN</code> commands (to reduce layers)</li>
+                    <li>Remove package manager caches (<code>apt-get clean</code>, <code>rm -rf /var/lib/apt/lists/*</code>)</li>
+                    <li>Use <code>.dockerignore</code> to exclude unnecessary files</li>
+                    <li>Use <strong>layered JARs</strong> (Spring Boot 2.3+)</li>
+                    <li>Consider <strong>GraalVM native image</strong> for Java</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    RUN apt-get update &amp;&amp; \<br>
+                    &nbsp;&nbsp;apt-get install -y python3 &amp;&amp; \<br>
+                    &nbsp;&nbsp;apt-get clean &amp;&amp; \<br>
+                    &nbsp;&nbsp;rm -rf /var/lib/apt/lists/*
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 32: Q32 -->
+        <div class="slide" data-slide="32">
+            <span class="q-badge">Q32</span>
+            <h2><span class="q-num">32.</span><span class="q-text">What is Build Cache in Docker?</span></h2>
+            <div class="answer-box">
+                <p><strong>Build Cache</strong> reuses layers from previous builds to speed up subsequent builds.</p>
+                <ul>
+                    <li>Each instruction creates a layer</li>
+                    <li>If a layer hasn't changed, Docker <strong>reuses</strong> it from cache</li>
+                    <li>A change in a layer invalidates that layer and <strong>all subsequent layers</strong></li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Order matters: dependencies first, code last</span><br>
+                    COPY package*.json ./    <span class="cm"># Changes less often</span><br>
+                    RUN npm install           <span class="cm"># Cached if package.json unchanged</span><br>
+                    COPY . .                  <span class="cm"># Changes often – invalidates only this layer</span>
+                </div>
+                <p><strong>--no-cache</strong> ignores cache. <strong>--cache-from</strong> uses external cache.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 33: Q33 -->
+        <div class="slide" data-slide="33">
+            <span class="q-badge">Q33</span>
+            <h2><span class="q-num">33.</span><span class="q-text">What is the purpose of <code>.dockerignore</code>?</span></h2>
+            <div class="answer-box">
+                <p><code>.dockerignore</code> excludes files from the build context, similar to <code>.gitignore</code>.</p>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Example .dockerignore</span><br>
+                    node_modules/<br>
+                    .git/<br>
+                    .env<br>
+                    *.log<br>
+                    Dockerfile<br>
+                    README.md<br>
+                    tests/
+                </div>
+                <ul>
+                    <li><strong>Faster builds</strong> (less data to send to daemon)</li>
+                    <li><strong>Prevents secrets</strong> from being embedded in images</li>
+                    <li><strong>Smaller build context</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SLIDE 34: Q34 -->
+        <div class="slide" data-slide="34">
+            <span class="q-badge">Q34</span>
+            <h2><span class="q-num">34.</span><span class="q-text">What is the <code>FROM scratch</code> image?</span></h2>
+            <div class="answer-box">
+                <p><strong>scratch</strong> is a completely empty base image. It has no filesystem, no shell, nothing.</p>
+                <ul>
+                    <li>Used for <strong>static binaries</strong> (Go, C, Rust)</li>
+                    <li>Smallest possible image size</li>
+                    <li><strong>No shell</strong> – cannot run <code>docker exec</code> or use shell commands</li>
+                    <li>Minimal attack surface</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    FROM scratch<br>
+                    COPY myapp /myapp<br>
+                    CMD ["/myapp"]
+                </div>
+                <p><strong>Use case:</strong> Go applications compiled to static binaries.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 35: Q35 -->
+        <div class="slide" data-slide="35">
+            <span class="q-badge">Q35</span>
+            <h2><span class="q-num">35.</span><span class="q-text">What is the <code>HEALTHCHECK</code> instruction?</span></h2>
+            <div class="answer-box">
+                <p><strong>HEALTHCHECK</strong> tells Docker how to test if a container is working.</p>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    HEALTHCHECK --interval=30s --timeout=3s --retries=3 \<br>
+                    &nbsp;&nbsp;CMD curl -f http://localhost/ || exit 1
+                </div>
+                <ul>
+                    <li><strong>--interval</strong> – how often to check (default 30s)</li>
+                    <li><strong>--timeout</strong> – command timeout (default 30s)</li>
+                    <li><strong>--retries</strong> – failures before marking unhealthy (default 3)</li>
+                    <li><strong>--start-period</strong> – grace period for startup</li>
+                </ul>
+                <p><strong>States:</strong> starting, healthy, unhealthy.</p>
+            </div>
+            <div class="comparison-box"><i class="fas fa-heartbeat"></i> Used by orchestration tools (Kubernetes, Swarm) for health checks.</div>
+        </div>
+
+        <!-- SLIDE 36: Q36 -->
+        <div class="slide" data-slide="36">
+            <span class="q-badge">Q36</span>
+            <h2><span class="q-num">36.</span><span class="q-text">What is the difference between <code>EXPOSE</code> and <code>-p</code> mapping?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>EXPOSE</code> (in Dockerfile)</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li><strong>Documentation</strong> only</li>
+                            <li>Informs users which ports the container listens on</li>
+                            <li>Does NOT publish the port</li>
+                            <li>Used for metadata</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>-p</code> (docker run)</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li><strong>Publishes</strong> the port to the host</li>
+                            <li>Maps container port to host port</li>
+                            <li>Makes container accessible from outside</li>
+                            <li>Example: <code>-p 8080:80</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 37: Q37 -->
+        <div class="slide" data-slide="37">
+            <span class="q-badge">Q37</span>
+            <h2><span class="q-num">37.</span><span class="q-text">What is <code>ARG</code> in a Dockerfile?</span></h2>
+            <div class="answer-box">
+                <p><strong>ARG</strong> defines build-time variables that can be passed at build time.</p>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Define ARG with default</span><br>
+                    ARG VERSION=1.0.0<br>
+                    ARG APP_ENV=production<br><br>
+                    <span class="cm"># Use the ARG</span><br>
+                    ENV APP_VERSION=$VERSION<br>
+                    RUN echo "Building version $VERSION"<br><br>
+                    <span class="cm"># Build with custom ARG</span><br>
+                    docker build --build-arg VERSION=2.0.0 -t myapp .
+                </div>
+                <ul>
+                    <li><strong>ARG</strong> is build-time only</li>
+                    <li>Does NOT persist in the final image</li>
+                    <li>Use for version numbers, build environments</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SLIDE 38: Q38 -->
+        <div class="slide" data-slide="38">
+            <span class="q-badge">Q38</span>
+            <h2><span class="q-num">38.</span><span class="q-text">What is <code>ENV</code> in a Dockerfile?</span></h2>
+            <div class="answer-box">
+                <p><strong>ENV</strong> sets environment variables that persist in the container.</p>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Single variable</span><br>
+                    ENV NODE_ENV production<br><br>
+                    <span class="cm"># Multiple variables</span><br>
+                    ENV DB_HOST=localhost \<br>
+                    &nbsp;&nbsp;DB_PORT=5432
+                </div>
+                <ul>
+                    <li><strong>ENV</strong> persists in the container</li>
+                    <li>Can be overridden at runtime with <code>-e</code></li>
+                    <li>Use for application configuration</li>
+                </ul>
+                <p><strong>vs ARG:</strong> ARG is build-time only; ENV persists in the container.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 39: Q39 -->
+        <div class="slide" data-slide="39">
+            <span class="q-badge">Q39</span>
+            <h2><span class="q-num">39.</span><span class="q-text">Why use Alpine Linux as a base image?</span></h2>
+            <div class="answer-box">
+                <ul>
+                    <li><strong>Very small:</strong> ~5 MB (vs Ubuntu ~77 MB)</li>
+                    <li><strong>Security-focused:</strong> minimal attack surface</li>
+                    <li><strong>Fast:</strong> faster pulls and builds</li>
+                    <li><strong>musl libc</strong> instead of glibc (smaller, but sometimes compatibility issues)</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    FROM alpine:3.18<br>
+                    RUN apk add --no-cache python3
+                </div>
+                <div class="comparison-box"><i class="fas fa-exclamation-triangle"></i> <strong>Note:</strong> Alpine uses <code>apk</code> package manager, not <code>apt</code>.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 40: Q40 -->
+        <div class="slide" data-slide="40">
+            <span class="q-badge">Q40</span>
+            <h2><span class="q-num">40.</span><span class="q-text">What is the order of instructions in a Dockerfile for optimal caching?</span></h2>
+            <div class="answer-box">
+                <p>Order instructions from <strong>least frequently changing</strong> to <strong>most frequently changing</strong>.</p>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># 1. Base image (rarely changes)</span><br>
+                    FROM node:18-alpine<br><br>
+                    <span class="cm"># 2. Work directory</span><br>
+                    WORKDIR /app<br><br>
+                    <span class="cm"># 3. Dependencies (changes less often)</span><br>
+                    COPY package*.json ./<br>
+                    RUN npm install<br><br>
+                    <span class="cm"># 4. Application code (changes most often)</span><br>
+                    COPY . .<br><br>
+                    <span class="cm"># 5. Runtime configuration</span><br>
+                    EXPOSE 3000<br>
+                    CMD ["npm", "start"]
+                </div>
+                <p><strong>Why:</strong> Changes to code only invalidate the final layer, not the dependencies layer.</p>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- PART 4: DOCKER NETWORKING (Q41-Q51) -->
+        <!-- ===================================================================== -->
+
+        <!-- SLIDE 41: Q41 -->
+        <div class="slide" data-slide="41">
+            <span class="q-badge">Q41</span>
+            <h2><span class="q-num">41.</span><span class="q-text">What are Docker network drivers?</span></h2>
+            <div class="answer-box">
+                <div class="grid-3col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem; text-align:center;">
+                        <strong>bridge</strong>
+                        <p style="font-size:0.8rem;">Default. Single-host network.</p>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem; text-align:center;">
+                        <strong>host</strong>
+                        <p style="font-size:0.8rem;">Uses host's network stack.</p>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem; text-align:center;">
+                        <strong>overlay</strong>
+                        <p style="font-size:0.8rem;">Multi-host networking.</p>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem; text-align:center;">
+                        <strong>macvlan</strong>
+                        <p style="font-size:0.8rem;">Assigns MAC address.</p>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem; text-align:center;">
+                        <strong>ipvlan</strong>
+                        <p style="font-size:0.8rem;">L2/L3 networking.</p>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem; text-align:center;">
+                        <strong>none</strong>
+                        <p style="font-size:0.8rem;">No networking.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 42: Q42 -->
+        <div class="slide" data-slide="42">
+            <span class="q-badge">Q42</span>
+            <h2><span class="q-num">42.</span><span class="q-text">What is the default network driver?</span></h2>
+            <div class="answer-box">
+                <p>The default network driver is <strong>bridge</strong>.</p>
+                <ul>
+                    <li>Creates a virtual bridge called <code>docker0</code> on the host</li>
+                    <li>Containers get IPs in the <code>172.17.0.0/16</code> range</li>
+                    <li>Containers can communicate on the same bridge</li>
+                    <li>Uses <strong>NAT</strong> (iptables) for external access</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Check default bridge</span><br>
+                    ip link show docker0
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 43: Q43 -->
+        <div class="slide" data-slide="43">
+            <span class="q-badge">Q43</span>
+            <h2><span class="q-num">43.</span><span class="q-text">How do containers on the same network communicate?</span></h2>
+            <div class="answer-box">
+                <ul>
+                    <li>Containers on the <strong>same user-defined bridge</strong> network can communicate by <strong>service name</strong> (DNS resolution)</li>
+                    <li>On the default bridge network, they can only communicate by <strong>IP address</strong></li>
+                    <li>They can also use <code>--link</code> (legacy) for DNS</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Create network</span><br>
+                    docker network create mynet<br><br>
+                    <span class="cm"># Run containers on same network</span><br>
+                    docker run -d --net mynet --name web nginx<br>
+                    docker run -it --net mynet alpine ping web  <span class="cm"># Works by name</span>
+                </div>
+            </div>
+            <div class="comparison-box"><i class="fas fa-lightbulb"></i> User-defined networks provide automatic DNS-based service discovery.</div>
+        </div>
+
+        <!-- SLIDE 44: Q44 -->
+        <div class="slide" data-slide="44">
+            <span class="q-badge">Q44</span>
+            <h2><span class="q-num">44.</span><span class="q-text">How do you create a custom Docker network?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Create a bridge network</span><br>
+                    docker network create mynet<br><br>
+                    <span class="cm"># Create with specific subnet</span><br>
+                    docker network create --subnet 10.10.0.0/16 mynet<br><br>
+                    <span class="cm"># Create with driver</span><br>
+                    docker network create --driver overlay myoverlay<br><br>
+                    <span class="cm"># List networks</span><br>
+                    docker network ls
+                </div>
+                <p>Use <code>docker network inspect</code> to view network details.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 45: Q45 -->
+        <div class="slide" data-slide="45">
+            <span class="q-badge">Q45</span>
+            <h2><span class="q-num">45.</span><span class="q-text">How do you connect a container to a specific network?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Run container on a network</span><br>
+                    docker run -d --net mynet --name web nginx<br><br>
+                    <span class="cm"># Connect an existing container</span><br>
+                    docker network connect mynet container<br><br>
+                    <span class="cm"># Disconnect a container</span><br>
+                    docker network disconnect mynet container<br><br>
+                    <span class="cm"># Connect with alias</span><br>
+                    docker network connect --alias db mynet container
+                </div>
+                <p><strong>Alias</strong> allows the container to be reached by the alias name on that network.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 46: Q46 -->
+        <div class="slide" data-slide="46">
+            <span class="q-badge">Q46</span>
+            <h2><span class="q-num">46.</span><span class="q-text">What is the difference between <code>bridge</code> and <code>host</code> network modes?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong>bridge</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Container has its own network stack</li>
+                            <li>Uses <code>docker0</code> bridge</li>
+                            <li>IP: 172.17.0.x</li>
+                            <li>Isolated from host</li>
+                            <li>NAT for external access</li>
+                            <li><strong>Default</strong></li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong>host</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Container uses <strong>host's</strong> network stack</li>
+                            <li>No isolation</li>
+                            <li>IP: same as host</li>
+                            <li>No NAT overhead</li>
+                            <li>Port conflicts with host</li>
+                            <li>Best performance</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 47: Q47 -->
+        <div class="slide" data-slide="47">
+            <span class="q-badge">Q47</span>
+            <h2><span class="q-num">47.</span><span class="q-text">What is overlay networking?</span></h2>
+            <div class="answer-box">
+                <p><strong>Overlay</strong> networks enable multi-host container communication using <strong>VXLAN</strong> tunneling.</p>
+                <ul>
+                    <li>Connects containers across <strong>multiple hosts</strong></li>
+                    <li>Used in <strong>Swarm</strong> and <strong>Kubernetes</strong></li>
+                    <li>Encapsulates traffic between hosts</li>
+                    <li>Supports <strong>encryption</strong> (IPsec)</li>
+                    <li>Requires a key-value store (or Swarm control plane)</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Create overlay network (Swarm)</span><br>
+                    docker network create --driver overlay myoverlay
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 48: Q48 -->
+        <div class="slide" data-slide="48">
+            <span class="q-badge">Q48</span>
+            <h2><span class="q-num">48.</span><span class="q-text">What is the difference between publishing ports (`-p`) and exposing ports (`EXPOSE`)?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>EXPOSE</code> (Dockerfile)</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>📝 <strong>Documentation</strong> only</li>
+                            <li>Informs users about ports</li>
+                            <li>Does NOT publish</li>
+                            <li>Metadata</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><code>-p</code> (docker run)</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>🔌 <strong>Publishes</strong> the port</li>
+                            <li>Maps container port to host</li>
+                            <li>Makes it accessible</li>
+                            <li>Example: <code>-p 8080:80</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 49: Q49 -->
+        <div class="slide" data-slide="49">
+            <span class="q-badge">Q49</span>
+            <h2><span class="q-num">49.</span><span class="q-text">How do you inspect network details?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># List networks</span><br>
+                    docker network ls<br><br>
+                    <span class="cm"># Inspect a network</span><br>
+                    docker network inspect mynet<br><br>
+                    <span class="cm"># Inspect a container's network</span><br>
+                    docker inspect --format='{{.NetworkSettings.Networks}}' container
+                </div>
+                <p><code>docker network inspect</code> shows: subnet, gateway, connected containers, IP allocations.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 50: Q50 -->
+        <div class="slide" data-slide="50">
+            <span class="q-badge">Q50</span>
+            <h2><span class="q-num">50.</span><span class="q-text">What is Container Networking Model (CNM)?</span></h2>
+            <div class="answer-box">
+                <p><strong>CNM</strong> is Docker's networking model, defining three core components:</p>
+                <div class="grid-3col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem; text-align:center;">
+                        <strong>Sandbox</strong>
+                        <p style="font-size:0.8rem;">Container's network stack (namespaces)</p>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem; text-align:center;">
+                        <strong>Endpoint</strong>
+                        <p style="font-size:0.8rem;">Connects sandbox to network</p>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem; text-align:center;">
+                        <strong>Network</strong>
+                        <p style="font-size:0.8rem;">Group of endpoints</p>
+                    </div>
+                </div>
+                <p><strong>vs CNI:</strong> CNI is Kubernetes' networking standard. Docker CNM is used with libnetwork.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 51: Q51 -->
+        <div class="slide" data-slide="51">
+            <span class="q-badge">Q51</span>
+            <h2><span class="q-num">51.</span><span class="q-text">What is the <code>--link</code> option in Docker?</span></h2>
+            <div class="answer-box">
+                <p><code>--link</code> is a legacy option for container communication, predating user-defined networks.</p>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    docker run -d --name db postgres<br>
+                    docker run -d --link db:db --name web nginx
+                </div>
+                <ul>
+                    <li>Adds DNS entry for the linked container</li>
+                    <li>Adds environment variables with connection info</li>
+                    <li><strong>Legacy</strong> – use user-defined networks instead</li>
+                </ul>
+                <div class="comparison-box"><i class="fas fa-exclamation-triangle"></i> <strong>Deprecated:</strong> Use custom networks with DNS-based service discovery instead.</div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- PART 5: DOCKER STORAGE & VOLUMES (Q52-Q57) -->
+        <!-- ===================================================================== -->
+
+        <!-- SLIDE 52: Q52 -->
+        <div class="slide" data-slide="52">
+            <span class="q-badge">Q52</span>
+            <h2><span class="q-num">52.</span><span class="q-text">What are Docker volumes and why are they used?</span></h2>
+            <div class="answer-box">
+                <p><strong>Docker volumes</strong> are persistent storage mechanisms that survive container deletion.</p>
+                <ul>
+                    <li>Stored in <code>/var/lib/docker/volumes/</code></li>
+                    <li>Managed by Docker (not the container)</li>
+                    <li>Can be shared between containers</li>
+                    <li>Decouple data from container lifecycle</li>
+                    <li>Support volume drivers (NFS, cloud storage)</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Create and use a volume</span><br>
+                    docker volume create mydata<br>
+                    docker run -v mydata:/app/data nginx
+                </div>
+            </div>
+            <div class="comparison-box"><i class="fas fa-database"></i> <strong>Use when:</strong> Persistent data, sharing between containers, backups.</div>
+        </div>
+
+        <!-- SLIDE 53: Q53 -->
+        <div class="slide" data-slide="53">
+            <span class="q-badge">Q53</span>
+            <h2><span class="q-num">53.</span><span class="q-text">What is the difference between a volume and a bind mount?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong>Volume</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Managed by Docker</li>
+                            <li>Stored in <code>/var/lib/docker/volumes/</code></li>
+                            <li>Portable across hosts</li>
+                            <li>Can use volume drivers</li>
+                            <li><strong>Recommended</strong> for production</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong>Bind Mount</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Managed by the user</li>
+                            <li>Any path on the host</li>
+                            <li>Host-dependent</li>
+                            <li>Bypasses Docker's storage</li>
+                            <li>Good for development</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 54: Q54 -->
+        <div class="slide" data-slide="54">
+            <span class="q-badge">Q54</span>
+            <h2><span class="q-num">54.</span><span class="q-text">How do you create and use a volume?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Create a volume</span><br>
+                    docker volume create mydata<br><br>
+                    <span class="cm"># List volumes</span><br>
+                    docker volume ls<br><br>
+                    <span class="cm"># Run with volume</span><br>
+                    docker run -v mydata:/app/data nginx<br><br>
+                    <span class="cm"># Using --mount (explicit)</span><br>
+                    docker run --mount source=mydata,target=/app/data nginx<br><br>
+                    <span class="cm"># Inspect volume</span><br>
+                    docker volume inspect mydata
+                </div>
+                <p>You can also use <strong>anonymous volumes</strong> (<code>-v /app/data</code>) but named volumes are easier to manage.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 55: Q55 -->
+        <div class="slide" data-slide="55">
+            <span class="q-badge">Q55</span>
+            <h2><span class="q-num">55.</span><span class="q-text">Will data be lost when a container exits?</span></h2>
+            <div class="answer-box">
+                <ul>
+                    <li><strong>Writable layer:</strong> Data is <strong>lost</strong> when container is removed</li>
+                    <li><strong>Volumes:</strong> Data <strong>persists</strong> even after container is removed</li>
+                    <li><strong>Bind mounts:</strong> Data <strong>persists</strong> on the host</li>
+                    <li><strong>tmpfs mounts:</strong> Data is <strong>lost</strong> when container stops (in-memory)</li>
+                </ul>
+                <div class="comparison-box"><i class="fas fa-lightbulb"></i> <strong>Best practice:</strong> Use volumes for persistent data, not the writable layer.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 56: Q56 -->
+        <div class="slide" data-slide="56">
+            <span class="q-badge">Q56</span>
+            <h2><span class="q-num">56.</span><span class="q-text">How do you backup Docker volume data?</span></h2>
+            <div class="answer-box">
+                <p>Use a temporary container to backup/restore volume data:</p>
+                <div class="code-snip" style="font-size:0.75rem;">
+                    <span class="cm"># Backup volume to tar</span><br>
+                    docker run --rm -v mydata:/data -v $(pwd):/backup alpine \<br>
+                    &nbsp;&nbsp;tar czf /backup/mydata-backup.tar.gz -C /data .<br><br>
+                    <span class="cm"># Restore from tar</span><br>
+                    docker run --rm -v mydata:/data -v $(pwd):/backup alpine \<br>
+                    &nbsp;&nbsp;tar xzf /backup/mydata-backup.tar.gz -C /data
+                </div>
+                <ul>
+                    <li>The temporary container mounts the volume and a host directory</li>
+                    <li>Uses <code>tar</code> to create/restore the backup</li>
+                    <li>Can also use <code>rsync</code> or other tools</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SLIDE 57: Q57 -->
+        <div class="slide" data-slide="57">
+            <span class="q-badge">Q57</span>
+            <h2><span class="q-num">57.</span><span class="q-text">When should you use bind mounts?</span></h2>
+            <div class="answer-box">
+                <p><strong>Bind mounts</strong> are best for:</p>
+                <ul>
+                    <li><strong>Development</strong> – hot-reload code changes</li>
+                    <li>Mounting configuration files from host</li>
+                    <li>Sharing host directories with containers</li>
+                    <li>Accessing host filesystem from container</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Development: mount source code</span><br>
+                    docker run -v $(pwd):/app -w /app node npm start<br><br>
+                    <span class="cm"># Mount config file</span><br>
+                    docker run -v /host/nginx.conf:/etc/nginx/nginx.conf:ro nginx
+                </div>
+                <div class="comparison-box"><i class="fas fa-exclamation-triangle"></i> <strong>Not recommended</strong> for production due to host dependency.</div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- PART 6: DOCKER SECURITY (Q58-Q64) -->
+        <!-- ===================================================================== -->
+
+        <!-- SLIDE 58: Q58 -->
+        <div class="slide" data-slide="58">
+            <span class="q-badge">Q58</span>
+            <h2><span class="q-num">58.</span><span class="q-text">How do you secure Docker containers?</span></h2>
+            <div class="answer-box">
+                <ul>
+                    <li><strong>Run as non-root</strong> user (<code>USER</code> in Dockerfile, <code>--user</code> in run)</li>
+                    <li><strong>Drop capabilities</strong> (<code>--cap-drop=ALL --cap-add=NET_BIND_SERVICE</code>)</li>
+                    <li>Use <strong>minimal base images</strong> (Alpine, scratch)</li>
+                    <li><strong>Scan images</strong> for vulnerabilities</li>
+                    <li>Use <strong>seccomp</strong> profiles to restrict syscalls</li>
+                    <li>Use <strong>AppArmor</strong> or <strong>SELinux</strong> for MAC</li>
+                    <li>Enable <strong>user namespace remapping</strong> (<code>userns-remap</code>)</li>
+                    <li>Set <strong>resource limits</strong> (memory, CPU)</li>
+                    <li>Use <strong>secrets</strong> instead of environment variables for sensitive data</li>
+                    <li>Keep <strong>images updated</strong> and patched</li>
+                    <li>Use <strong>HTTPS/TLS</strong> for registry communication</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SLIDE 59: Q59 -->
+        <div class="slide" data-slide="59">
+            <span class="q-badge">Q59</span>
+            <h2><span class="q-num">59.</span><span class="q-text">Why should you not run containers as root?</span></h2>
+            <div class="answer-box">
+                <ul>
+                    <li><strong>Security risk:</strong> If container is compromised, attacker gets <strong>root</strong> on the host</li>
+                    <li>Root in container = root on host (if namespaces are escaped)</li>
+                    <li>Can modify host filesystem, install packages, access sensitive data</li>
+                    <li><strong>Principle of least privilege:</strong> Only grant necessary permissions</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># In Dockerfile</span><br>
+                    RUN useradd -m -u 1000 appuser<br>
+                    USER appuser<br>
+                    CMD ["/app/myapp"]<br><br>
+                    <span class="cm"># At runtime</span><br>
+                    docker run --user 1000:1000 myapp
+                </div>
+            </div>
+            <div class="comparison-box"><i class="fas fa-shield-alt"></i> Even if you run as non-root, still use capabilities and seccomp.</div>
+        </div>
+
+        <!-- SLIDE 60: Q60 -->
+        <div class="slide" data-slide="60">
+            <span class="q-badge">Q60</span>
+            <h2><span class="q-num">60.</span><span class="q-text">How do you limit container resources?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># CPU limits</span><br>
+                    docker run --cpus=1.5 nginx<br>
+                    docker run --cpu-shares=512 nginx<br><br>
+                    <span class="cm"># Memory limits</span><br>
+                    docker run --memory=512m nginx<br>
+                    docker run --memory-swap=1g nginx<br><br>
+                    <span class="cm"># Combined</span><br>
+                    docker run --cpus=2 --memory=1g nginx
+                </div>
+                <p><strong>Why:</strong> Prevents "noisy neighbor" issues – one container consuming all host resources.</p>
+                <p><strong>Best practice:</strong> Always set memory and CPU limits in production.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 61: Q61 -->
+        <div class="slide" data-slide="61">
+            <span class="q-badge">Q61</span>
+            <h2><span class="q-num">61.</span><span class="q-text">How do you scan a Docker image for vulnerabilities?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Docker Scan (Snyk)</span><br>
+                    docker scan nginx:latest<br><br>
+                    <span class="cm"># Trivy (open-source, recommended)</span><br>
+                    trivy image myapp:latest<br><br>
+                    <span class="cm"># Scan with severity filter</span><br>
+                    trivy image --severity HIGH,CRITICAL myapp:latest
+                </div>
+                <p><strong>Tools:</strong></p>
+                <ul>
+                    <li><strong>Trivy</strong> – open-source, fast, comprehensive</li>
+                    <li><strong>Snyk</strong> – integrated with Docker</li>
+                    <li><strong>Clair</strong> – open-source, used with registries</li>
+                    <li><strong>Anchore</strong> – enterprise-focused</li>
+                </ul>
+            </div>
+            <div class="comparison-box"><i class="fas fa-sync-alt"></i> Integrate scanning into CI/CD to block vulnerable images from being deployed.</div>
+        </div>
+
+        <!-- SLIDE 62: Q62 -->
+        <div class="slide" data-slide="62">
+            <span class="q-badge">Q62</span>
+            <h2><span class="q-num">62.</span><span class="q-text">What are Docker secrets?</span></h2>
+            <div class="answer-box">
+                <p><strong>Docker secrets</strong> are a way to manage sensitive data (passwords, API keys, TLS certificates) in Docker Swarm.</p>
+                <ul>
+                    <li>Encrypted in <strong>transit</strong> and at <strong>rest</strong></li>
+                    <li>Stored in the Swarm manager</li>
+                    <li>Mounted as files in containers (<code>/run/secrets/</code>)</li>
+                    <li>Not stored in images or environment variables</li>
+                    <li>Only accessible to services that need them</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Create a secret</span><br>
+                    echo "password123" | docker secret create db_password -<br><br>
+                    <span class="cm"># Use secret in service</span><br>
+                    docker service create --secret db_password --name web nginx
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 63: Q63 -->
+        <div class="slide" data-slide="63">
+            <span class="q-badge">Q63</span>
+            <h2><span class="q-num">63.</span><span class="q-text">What is the difference between <code>secrets</code> and environment variables for sensitive data?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><i class="fas fa-env"></i> Environment Variables</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Plain text</li>
+                            <li>Visible in <code>docker inspect</code></li>
+                            <li>Visible in process list</li>
+                            <li>Not encrypted</li>
+                            <li>Easy to leak</li>
+                            <li>Not recommended for secrets</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><i class="fas fa-secret"></i> Secrets</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Encrypted</li>
+                            <li>Not visible in inspect</li>
+                            <li>Mounted as files</li>
+                            <li>Encrypted at rest</li>
+                            <li>Audited</li>
+                            <li><strong>Recommended</strong> for production</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 64: Q64 -->
+        <div class="slide" data-slide="64">
+            <span class="q-badge">Q64</span>
+            <h2><span class="q-num">64.</span><span class="q-text">What is the principle of least privilege in Docker?</span></h2>
+            <div class="answer-box">
+                <p>The <strong>principle of least privilege</strong> means granting only the minimum permissions necessary for a container to function.</p>
+                <ul>
+                    <li><strong>User:</strong> Run as non-root (<code>USER</code>, <code>--user</code>)</li>
+                    <li><strong>Capabilities:</strong> Drop all, add only needed (<code>--cap-drop=ALL --cap-add=NET_BIND_SERVICE</code>)</li>
+                    <li><strong>Resources:</strong> Set memory and CPU limits</li>
+                    <li><strong>Security profiles:</strong> Use seccomp, AppArmor, SELinux</li>
+                    <li><strong>Network:</strong> Use isolated networks, limit exposure</li>
+                    <li><strong>Filesystem:</strong> Use read-only root filesystem (<code>--read-only</code>)</li>
+                    <li><strong>Secrets:</strong> Use Docker secrets, not environment variables</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- PART 7: DOCKER COMPOSE (Q65-Q70) -->
+        <!-- ===================================================================== -->
+
+        <!-- SLIDE 65: Q65 -->
+        <div class="slide" data-slide="65">
+            <span class="q-badge">Q65</span>
+            <h2><span class="q-num">65.</span><span class="q-text">What is Docker Compose and how does it work?</span></h2>
+            <div class="answer-box">
+                <p><strong>Docker Compose</strong> is a tool for defining and running multi-container applications.</p>
+                <ul>
+                    <li>Uses a <strong>docker-compose.yml</strong> file</li>
+                    <li>Defines services, networks, volumes</li>
+                    <li>Single command: <code>docker-compose up</code></li>
+                    <li>Automatically creates networks</li>
+                    <li>Handles dependencies</li>
+                </ul>
+                <p><strong>How it works:</strong></p>
+                <ol>
+                    <li>Parses the Compose file</li>
+                    <li>Creates networks and volumes</li>
+                    <li>Pulls/builds images</li>
+                    <li>Creates and starts containers</li>
+                </ol>
+            </div>
+            <div class="comparison-box"><i class="fas fa-code"></i> <code>docker-compose up -d</code> starts everything in the background.</div>
+        </div>
+
+        <!-- SLIDE 66: Q66 -->
+        <div class="slide" data-slide="66">
+            <span class="q-badge">Q66</span>
+            <h2><span class="q-num">66.</span><span class="q-text">What is a <code>docker-compose.yml</code> file structure?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip" style="font-size:0.7rem;">
+                    version: '3.8'<br>
+                    services:<br>
+                    &nbsp;&nbsp;web:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;build: .<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;ports:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- "8080:80"<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;environment:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- NODE_ENV=production<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;volumes:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- ./app:/app<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;depends_on:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- db<br>
+                    &nbsp;&nbsp;db:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;image: postgres:15<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;environment:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- POSTGRES_PASSWORD=secret<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;volumes:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- db-data:/var/lib/postgresql/data<br>
+                    volumes:<br>
+                    &nbsp;&nbsp;db-data:<br>
+                    &nbsp;&nbsp;networks:<br>
+                    &nbsp;&nbsp;default:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;driver: bridge
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 67: Q67 -->
+        <div class="slide" data-slide="67">
+            <span class="q-badge">Q67</span>
+            <h2><span class="q-num">67.</span><span class="q-text">What are common Docker Compose commands?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Start services</span><br>
+                    docker-compose up -d<br><br>
+                    <span class="cm"># Stop services</span><br>
+                    docker-compose down<br><br>
+                    <span class="cm"># View logs</span><br>
+                    docker-compose logs -f<br><br>
+                    <span class="cm"># List services</span><br>
+                    docker-compose ps<br><br>
+                    <span class="cm"># Execute command in service</span><br>
+                    docker-compose exec web bash<br><br>
+                    <span class="cm"># Build images</span><br>
+                    docker-compose build<br><br>
+                    <span class="cm"># Scale service</span><br>
+                    docker-compose scale web=3
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 68: Q68 -->
+        <div class="slide" data-slide="68">
+            <span class="q-badge">Q68</span>
+            <h2><span class="q-num">68.</span><span class="q-text">What is <code>depends_on</code> in Compose?</span></h2>
+            <div class="answer-box">
+                <p><code>depends_on</code> defines service startup dependencies.</p>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    services:<br>
+                    &nbsp;&nbsp;web:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;depends_on:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- db<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- redis
+                </div>
+                <ul>
+                    <li>Ensures <strong>start order</strong> (db and redis start before web)</li>
+                    <li>Does NOT wait for the service to be <strong>ready</strong></li>
+                    <li>Use <strong>health checks</strong> or <strong>wait-for-it</strong> scripts for readiness</li>
+                    <li>Consider <code>condition: service_healthy</code> in newer versions</li>
+                </ul>
+                <div class="comparison-box"><i class="fas fa-exclamation-triangle"></i> <code>depends_on</code> only ensures containers are running, not that the application is ready.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 69: Q69 -->
+        <div class="slide" data-slide="69">
+            <span class="q-badge">Q69</span>
+            <h2><span class="q-num">69.</span><span class="q-text">How do you set environment variables in Compose?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Option 1: Directly in compose file</span><br>
+                    services:<br>
+                    &nbsp;&nbsp;web:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;environment:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- NODE_ENV=production<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- DB_HOST=db<br><br>
+                    <span class="cm"># Option 2: From env file</span><br>
+                    &nbsp;&nbsp;web:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;env_file:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- .env<br><br>
+                    <span class="cm"># Option 3: Host environment variables</span><br>
+                    &nbsp;&nbsp;web:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;environment:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- MY_VAR=${MY_VAR}
+                </div>
+                <p><strong>.env file format:</strong> <code>KEY=value</code> (one per line).</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 70: Q70 -->
+        <div class="slide" data-slide="70">
+            <span class="q-badge">Q70</span>
+            <h2><span class="q-num">70.</span><span class="q-text">How do you scale services with Compose?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Scale from command line</span><br>
+                    docker-compose up --scale web=3 -d<br><br>
+                    <span class="cm"># Scale an existing service</span><br>
+                    docker-compose scale web=3<br><br>
+                    <span class="cm"># In compose file (v3)</span><br>
+                    services:<br>
+                    &nbsp;&nbsp;web:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;deploy:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;replicas: 3
+                </div>
+                <ul>
+                    <li><strong>Compose</strong> is for single-host development</li>
+                    <li>For production scaling, use <strong>Swarm</strong> or <strong>Kubernetes</strong></li>
+                    <li>Scaling requires services to be <strong>stateless</strong> or use shared storage</li>
+                </ul>
+                <div class="comparison-box"><i class="fas fa-lightbulb"></i> Use <code>deploy</code> section for replicas in Swarm mode.</div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- PART 8: DOCKER SWARM (Q71-Q78) -->
+        <!-- ===================================================================== -->
+
+        <!-- SLIDE 71: Q71 -->
+        <div class="slide" data-slide="71">
+            <span class="q-badge">Q71</span>
+            <h2><span class="q-num">71.</span><span class="q-text">What is Docker Swarm?</span></h2>
+            <div class="answer-box">
+                <p><strong>Docker Swarm</strong> is Docker's native clustering and orchestration solution.</p>
+                <ul>
+                    <li>Groups multiple Docker hosts into a <strong>cluster</strong></li>
+                    <li>Uses <strong>manager nodes</strong> and <strong>worker nodes</strong></li>
+                    <li>Manager nodes use <strong>Raft consensus</strong> for state</li>
+                    <li>Deploys <strong>services</strong> with replicas</li>
+                    <li>Built into Docker Engine (no separate installation)</li>
+                    <li>Supports <strong>rolling updates</strong>, <strong>load balancing</strong>, <strong>failover</strong></li>
+                </ul>
+                <div class="comparison-box"><i class="fas fa-check-circle"></i> Swarm is simpler than Kubernetes but less feature-rich.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 72: Q72 -->
+        <div class="slide" data-slide="72">
+            <span class="q-badge">Q72</span>
+            <h2><span class="q-num">72.</span><span class="q-text">How do you initialize a Swarm cluster?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Initialize Swarm on manager node</span><br>
+                    docker swarm init<br><br>
+                    <span class="cm"># With specific advertise address</span><br>
+                    docker swarm init --advertise-addr 192.168.1.10<br><br>
+                    <span class="cm"># Check swarm status</span><br>
+                    docker info | grep Swarm<br><br>
+                    <span class="cm"># List nodes</span><br>
+                    docker node ls
+                </div>
+                <p>After initialization, you'll get a <strong>join token</strong> for worker and manager nodes.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 73: Q73 -->
+        <div class="slide" data-slide="73">
+            <span class="q-badge">Q73</span>
+            <h2><span class="q-num">73.</span><span class="q-text">How do you add worker nodes to Swarm?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># On manager, get join token</span><br>
+                    docker swarm join-token worker<br><br>
+                    <span class="cm"># On worker node, join the swarm</span><br>
+                    docker swarm join --token SWMTKN-xxx 192.168.1.10:2377<br><br>
+                    <span class="cm"># Add manager nodes</span><br>
+                    docker swarm join --token SWMTKN-yyy --manager 192.168.1.10:2377
+                </div>
+                <ul>
+                    <li>Tokens are secret – keep them safe</li>
+                    <li>Manager tokens allow adding more managers (Raft quorum)</li>
+                    <li>Worker tokens allow adding worker nodes</li>
+                    <li>Use <code>docker node ls</code> to verify nodes are joined</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SLIDE 74: Q74 -->
+        <div class="slide" data-slide="74">
+            <span class="q-badge">Q74</span>
+            <h2><span class="q-num">74.</span><span class="q-text">What is a Docker service in Swarm?</span></h2>
+            <div class="answer-box">
+                <p>A <strong>Docker service</strong> is the definition of a task to be run on Swarm nodes.</p>
+                <ul>
+                    <li>Specifies the <strong>image</strong> to use</li>
+                    <li>Number of <strong>replicas</strong></li>
+                    <li><strong>Ports</strong> to publish</li>
+                    <li><strong>Networks</strong> to connect to</li>
+                    <li><strong>Update strategy</strong> (rolling updates)</li>
+                    <li><strong>Resource limits</strong></li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Create a service</span><br>
+                    docker service create --name web --replicas 3 -p 8080:80 nginx
+                </div>
+                <p><strong>Tasks:</strong> Each running instance of a service is a task.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 75: Q75 -->
+        <div class="slide" data-slide="75">
+            <span class="q-badge">Q75</span>
+            <h2><span class="q-num">75.</span><span class="q-text">How do you deploy a service with replicas?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Deploy service with replicas</span><br>
+                    docker service create --name web --replicas 5 -p 8080:80 nginx<br><br>
+                    <span class="cm"># List services</span><br>
+                    docker service ls<br><br>
+                    <span class="cm"># List tasks</span><br>
+                    docker service ps web<br><br>
+                    <span class="cm"># With resource limits</span><br>
+                    docker service create --name web --replicas 3 \<br>
+                    &nbsp;&nbsp;--limit-memory 512m --limit-cpu 0.5 \<br>
+                    &nbsp;&nbsp;-p 8080:80 nginx
+                </div>
+                <p>Swarm automatically distributes tasks across available worker nodes.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 76: Q76 -->
+        <div class="slide" data-slide="76">
+            <span class="q-badge">Q76</span>
+            <h2><span class="q-num">76.</span><span class="q-text">How do you scale a Swarm service?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Scale up/down</span><br>
+                    docker service scale web=10<br><br>
+                    <span class="cm"># Update with new replicas</span><br>
+                    docker service update --replicas 8 web<br><br>
+                    <span class="cm"># Autoscaling is not built-in</span><br>
+                    <span class="cm"># Use external tools like Docker Swarm Metrics</span>
+                </div>
+                <ul>
+                    <li>Scale up when load increases</li>
+                    <li>Scale down when load decreases</li>
+                    <li>Swarm automatically manages task distribution</li>
+                    <li>Node failures: tasks are re-scheduled to healthy nodes</li>
+                </ul>
+                <div class="comparison-box"><i class="fas fa-lightbulb"></i> Swarm does NOT have built-in autoscaling. Use third-party tools or Kubernetes.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 77: Q77 -->
+        <div class="slide" data-slide="77">
+            <span class="q-badge">Q77</span>
+            <h2><span class="q-num">77.</span><span class="q-text">Docker Swarm vs Kubernetes — key differences?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><i class="fas fa-swarm"></i> Docker Swarm</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li><strong>Simple</strong> – built into Docker</li>
+                            <li>Easy to set up</li>
+                            <li>Less complex</li>
+                            <li>Smaller ecosystem</li>
+                            <li>Good for small/medium deployments</li>
+                            <li>Limited autoscaling</li>
+                            <li>No built-in monitoring</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><i class="fab fa-kubernetes"></i> Kubernetes</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li><strong>Complex</strong> – steep learning curve</li>
+                            <li>Harder to set up</li>
+                            <li>Feature-rich</li>
+                            <li>Vast ecosystem</li>
+                            <li>Standard for enterprise</li>
+                            <li>Built-in HPA (autoscaling)</li>
+                            <li>Built-in monitoring (metrics-server)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 78: Q78 -->
+        <div class="slide" data-slide="78">
+            <span class="q-badge">Q78</span>
+            <h2><span class="q-num">78.</span><span class="q-text">What is high availability in Docker Swarm?</span></h2>
+            <div class="answer-box">
+                <p>High availability in Swarm means the system continues to function even when nodes fail.</p>
+                <ul>
+                    <li><strong>Manager nodes:</strong> Raft consensus (odd number, minimum 3 for HA)</li>
+                    <li><strong>Worker nodes:</strong> Tasks are re-scheduled to healthy nodes</li>
+                    <li><strong>Service replication:</strong> Multiple replicas across different nodes</li>
+                    <li><strong>Rolling updates:</strong> Update without downtime</li>
+                    <li><strong>Health checks:</strong> Unhealthy tasks are replaced</li>
+                </ul>
+                <div class="comparison-box"><i class="fas fa-shield-alt"></i> <strong>Recommendation:</strong> 3 manager nodes, 2+ worker nodes for production.</div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- PART 9: DEBUGGING & TROUBLESHOOTING (Q79-Q89) -->
+        <!-- ===================================================================== -->
+
+        <!-- SLIDE 79: Q79 -->
+        <div class="slide" data-slide="79">
+            <span class="q-badge">Q79</span>
+            <h2><span class="q-num">79.</span><span class="q-text">A container exits immediately after starting — how do you debug?</span></h2>
+            <div class="answer-box">
+                <div class="step-list">
+                    <li><strong>Check logs:</strong> <code>docker logs container</code></li>
+                    <li><strong>Run interactively:</strong> <code>docker run -it image /bin/bash</code> (or entrypoint)</li>
+                    <li><strong>Override CMD:</strong> <code>docker run -it --entrypoint /bin/bash image</code></li>
+                    <li><strong>Check Dockerfile:</strong> Verify CMD/ENTRYPOINT, WORKDIR, permissions</li>
+                    <li><strong>Check environment:</strong> Missing env vars can cause crashes</li>
+                    <li><strong>Check dependencies:</strong> Database, network, file permissions</li>
+                    <li><strong>Check exit code:</strong> <code>docker inspect --format='{{.State.ExitCode}}' container</code></li>
+                </div>
+                <div class="comparison-box"><i class="fas fa-lightbulb"></i> <strong>Common cause:</strong> Process runs in foreground (good) but exits immediately.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 80: Q80 -->
+        <div class="slide" data-slide="80">
+            <span class="q-badge">Q80</span>
+            <h2><span class="q-num">80.</span><span class="q-text">Container works locally but fails in production — why?</span></h2>
+            <div class="answer-box">
+                <ul>
+                    <li><strong>Environment variables:</strong> Production variables may differ</li>
+                    <li><strong>Resource limits:</strong> Production may have lower CPU/memory</li>
+                    <li><strong>Network differences:</strong> Different network configuration, firewalls</li>
+                    <li><strong>Storage:</strong> Permissions, mount points, volume drivers</li>
+                    <li><strong>Dependencies:</strong> External services (DB, cache) not available</li>
+                    <li><strong>Platform differences:</strong> CPU architecture (ARM vs x86) – use multi-arch images</li>
+                    <li><strong>Image version:</strong> Using <code>latest</code> tag – could pull different version</li>
+                </ul>
+                <div class="comparison-box"><i class="fas fa-check-circle"></i> <strong>Best practice:</strong> Use same environment for dev and production (Docker ensures this).</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 81: Q81 -->
+        <div class="slide" data-slide="81">
+            <span class="q-badge">Q81</span>
+            <h2><span class="q-num">81.</span><span class="q-text">How do you debug network issues in containers?</span></h2>
+            <div class="answer-box">
+                <div class="step-list">
+                    <li><strong>Inspect network:</strong> <code>docker inspect container | grep IPAddress</code></li>
+                    <li><strong>Check network connectivity:</strong> <code>docker exec container ping google.com</code></li>
+                    <li><strong>Check DNS:</strong> <code>docker exec container nslookup google.com</code></li>
+                    <li><strong>List networks:</strong> <code>docker network ls</code></li>
+                    <li><strong>Check container networks:</strong> <code>docker inspect --format='{{.NetworkSettings.Networks}}' container</code></li>
+                    <li><strong>Check iptables:</strong> <code>sudo iptables -L -n</code></li>
+                    <li><strong>Use network debugging:</strong> <code>docker run -it --net container:container alpine sh</code></li>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 82: Q82 -->
+        <div class="slide" data-slide="82">
+            <span class="q-badge">Q82</span>
+            <h2><span class="q-num">82.</span><span class="q-text">"Port already in use" error — how to resolve?</span></h2>
+            <div class="answer-box">
+                <div class="step-list">
+                    <li><strong>Find the process:</strong> <code>netstat -tulpn | grep :8080</code> or <code>lsof -i :8080</code></li>
+                    <li><strong>Find Docker containers:</strong> <code>docker ps --filter "publish=8080"</code></li>
+                    <li><strong>Stop the conflicting container:</strong> <code>docker stop container</code></li>
+                    <li><strong>Kill the host process:</strong> <code>sudo kill -9 PID</code></li>
+                    <li><strong>Use a different port:</strong> <code>-p 8081:80</code></li>
+                    <li><strong>Use random port:</strong> <code>-P</code> (or <code>-p 80</code> for random high port)</li>
+                </div>
+                <div class="comparison-box"><i class="fas fa-lightbulb"></i> For local development, use <code>-p 0:80</code> to let Docker pick a random port.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 83: Q83 -->
+        <div class="slide" data-slide="83">
+            <span class="q-badge">Q83</span>
+            <h2><span class="q-num">83.</span><span class="q-text">Container can't reach the internet — possible reasons?</span></h2>
+            <div class="answer-box">
+                <ul>
+                    <li><strong>DNS configuration:</strong> Check <code>/etc/resolv.conf</code> in container</li>
+                    <li><strong>Network driver:</strong> Check if using <code>none</code> or <code>host</code> properly</li>
+                    <li><strong>Firewall:</strong> Host firewall blocking outbound traffic</li>
+                    <li><strong>Proxy:</strong> Container may need HTTP_PROXY/HTTPS_PROXY</li>
+                    <li><strong>Network isolation:</strong> Container on isolated network</li>
+                    <li><strong>DNS server:</strong> Check Docker daemon DNS settings</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Test DNS resolution</span><br>
+                    docker exec container nslookup google.com<br><br>
+                    <span class="cm"># Use custom DNS</span><br>
+                    docker run --dns 8.8.8.8 alpine nslookup google.com
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 84: Q84 -->
+        <div class="slide" data-slide="84">
+            <span class="q-badge">Q84</span>
+            <h2><span class="q-num">84.</span><span class="q-text">How do you persist application logs from a container?</span></h2>
+            <div class="answer-box">
+                <ul>
+                    <li><strong>Use logging drivers:</strong> json-file, syslog, fluentd, awslogs, splunk</li>
+                    <li><strong>Volume mount:</strong> Mount a directory for logs</li>
+                    <li><strong>Log to STDOUT:</strong> Docker captures STDOUT/STDERR</li>
+                    <li><strong>External log collector:</strong> Filebeat, Fluentd, Logstash</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Log to volume</span><br>
+                    docker run -v /host/logs:/var/log/app myapp<br><br>
+                    <span class="cm"># Use json-file driver with rotation</span><br>
+                    docker run --log-driver json-file \<br>
+                    &nbsp;&nbsp;--log-opt max-size=10m --log-opt max-file=3 myapp
+                </div>
+                <div class="comparison-box"><i class="fas fa-lightbulb"></i> <strong>Best practice:</strong> Log to STDOUT and use a log collector.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 85: Q85 -->
+        <div class="slide" data-slide="85">
+            <span class="q-badge">Q85</span>
+            <h2><span class="q-num">85.</span><span class="q-text">You updated a Dockerfile but container still uses old code — why?</span></h2>
+            <div class="answer-box">
+                <ul>
+                    <li><strong>Image not rebuilt:</strong> Forgot to run <code>docker build</code></li>
+                    <li><strong>Same image tag:</strong> Using <code>latest</code> – old image cached</li>
+                    <li><strong>Running old container:</strong> Container was already running from old image</li>
+                    <li><strong>Volume mounted:</strong> Volumes can override application code</li>
+                    <li><strong>Build cache:</strong> Layer cache may have reused old layer</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Force rebuild with no cache</span><br>
+                    docker build --no-cache -t myapp .<br><br>
+                    <span class="cm"># Remove old container and re-run</span><br>
+                    docker rm -f web<br>
+                    docker run -d --name web myapp
+                </div>
+                <div class="comparison-box"><i class="fas fa-lightbulb"></i> Use explicit version tags to avoid <code>latest</code> confusion.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 86: Q86 -->
+        <div class="slide" data-slide="86">
+            <span class="q-badge">Q86</span>
+            <h2><span class="q-num">86.</span><span class="q-text">How do you check environment variables inside a running container?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Option 1: docker exec</span><br>
+                    docker exec container env<br><br>
+                    <span class="cm"># Option 2: docker exec with printenv</span><br>
+                    docker exec container printenv<br><br>
+                    <span class="cm"># Option 3: docker inspect</span><br>
+                    docker inspect --format='{{.Config.Env}}' container<br><br>
+                    <span class="cm"># Option 4: Interactive shell</span><br>
+                    docker exec -it container bash<br>
+                    # then: env or echo $VAR
+                </div>
+                <p><strong>Note:</strong> Environment variables set with <code>-e</code> or <code>--env-file</code> are visible in inspect.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 87: Q87 -->
+        <div class="slide" data-slide="87">
+            <span class="q-badge">Q87</span>
+            <h2><span class="q-num">87.</span><span class="q-text">Container consuming high memory — how to debug?</span></h2>
+            <div class="answer-box">
+                <div class="step-list">
+                    <li><strong>Check stats:</strong> <code>docker stats container</code></li>
+                    <li><strong>Exec into container:</strong> <code>docker exec -it container bash</code></li>
+                    <li><strong>Check processes:</strong> <code>top</code> or <code>ps aux</code></li>
+                    <li><strong>Check memory limit:</strong> <code>docker inspect --format='{{.HostConfig.Memory}}' container</code></li>
+                    <li><strong>Check cgroup stats:</strong> <code>cat /sys/fs/cgroup/memory/memory.usage_in_bytes</code></li>
+                    <li><strong>For Java:</strong> Check heap usage with <code>jmap -heap PID</code></li>
+                    <li><strong>Enable OOM killer:</strong> <code>docker inspect --format='{{.HostConfig.OomKillDisable}}'</code></li>
+                </div>
+                <div class="comparison-box"><i class="fas fa-lightbulb"></i> Set memory limits to prevent OOM kills.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 88: Q88 -->
+        <div class="slide" data-slide="88">
+            <span class="q-badge">Q88</span>
+            <h2><span class="q-num">88.</span><span class="q-text">What do you do if Docker daemon fails?</span></h2>
+            <div class="answer-box">
+                <div class="step-list">
+                    <li><strong>Check daemon logs:</strong> <code>journalctl -u docker.service -f</code></li>
+                    <li><strong>Restart daemon:</strong> <code>sudo systemctl restart docker</code></li>
+                    <li><strong>Check disk space:</strong> <code>df -h</code> (daemon needs space)</li>
+                    <li><strong>Check permissions:</strong> <code>sudo chmod 666 /var/run/docker.sock</code></li>
+                    <li><strong>Check storage driver:</strong> <code>docker info</code> (if daemon starts)</li>
+                    <li><strong>Check daemon.json:</strong> <code>/etc/docker/daemon.json</code> for syntax errors</li>
+                    <li><strong>Live restore:</strong> If enabled, containers survive daemon restart</li>
+                </div>
+                <div class="comparison-box"><i class="fas fa-shield-alt"></i> Enable <code>live-restore</code> in daemon.json for zero downtime.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 89: Q89 -->
+        <div class="slide" data-slide="89">
+            <span class="q-badge">Q89</span>
+            <h2><span class="q-num">89.</span><span class="q-text">How do you rollback a container after a failed upgrade?</span></h2>
+            <div class="answer-box">
+                <div class="code-snip">
+                    <span class="cm"># Manual rollback</span><br>
+                    docker stop web<br>
+                    docker rm web<br>
+                    docker run -d --name web myapp:previous-version<br><br>
+                    <span class="cm"># Swarm service rollback</span><br>
+                    docker service update --rollback web<br><br>
+                    <span class="cm"># Kubernetes rollback</span><br>
+                    kubectl rollout undo deployment web
+                </div>
+                <ul>
+                    <li><strong>Best practice:</strong> Tag images with semantic versions</li>
+                    <li>Keep previous versions available</li>
+                    <li>Use rolling updates (Swarm/K8s) for zero-downtime</li>
+                    <li>Test rollback procedure regularly</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- PART 10: ADVANCED & SCENARIO-BASED (Q90-Q100) -->
+        <!-- ===================================================================== -->
+
+        <!-- SLIDE 90: Q90 -->
+        <div class="slide" data-slide="90">
+            <span class="q-badge">Q90</span>
+            <h2><span class="q-num">90.</span><span class="q-text">How do you implement CI/CD with Docker?</span></h2>
+            <div class="answer-box">
+                <p><strong>CI/CD pipeline with Docker:</strong></p>
+                <div class="step-list">
+                    <li><strong>Build:</strong> Build Docker image from source (<code>docker build</code>)</li>
+                    <li><strong>Test:</strong> Run tests inside containers (<code>docker run --rm image test</code>)</li>
+                    <li><strong>Scan:</strong> Scan image for vulnerabilities (<code>trivy image</code>)</li>
+                    <li><strong>Push:</strong> Tag and push to registry (<code>docker push</code>)</li>
+                    <li><strong>Deploy:</strong> Deploy to staging/production (using Swarm, Kubernetes, or Compose)</li>
+                    <li><strong>Health check:</strong> Verify deployment health</li>
+                    <li><strong>Rollback:</strong> Automated rollback on failure</li>
+                </div>
+                <p><strong>Tools:</strong> GitHub Actions, GitLab CI, Jenkins, CircleCI, ArgoCD.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 91: Q91 -->
+        <div class="slide" data-slide="91">
+            <span class="q-badge">Q91</span>
+            <h2><span class="q-num">91.</span><span class="q-text">What are Docker namespaces and cgroups?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><i class="fas fa-vector-square"></i> Namespaces</strong>
+                        <p style="font-size:0.85rem;">Provide <strong>isolation</strong>.</p>
+                        <ul style="font-size:0.8rem;">
+                            <li>PID – process isolation</li>
+                            <li>NET – network isolation</li>
+                            <li>MNT – mount isolation</li>
+                            <li>UTS – hostname isolation</li>
+                            <li>USER – UID isolation</li>
+                            <li>IPC – IPC isolation</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><i class="fas fa-tachometer-alt"></i> Cgroups</strong>
+                        <p style="font-size:0.85rem;">Provide <strong>resource control</strong>.</p>
+                        <ul style="font-size:0.8rem;">
+                            <li>CPU limits</li>
+                            <li>Memory limits</li>
+                            <li>Disk I/O limits</li>
+                            <li>Network bandwidth limits</li>
+                            <li>Process limits</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="comparison-box"><i class="fas fa-lightbulb"></i> Namespaces + cgroups = the foundation of containers.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 92: Q92 -->
+        <div class="slide" data-slide="92">
+            <span class="q-badge">Q92</span>
+            <h2><span class="q-num">92.</span><span class="q-text">What are Docker layers and how do they work?</span></h2>
+            <div class="answer-box">
+                <p><strong>Docker layers</strong> are the building blocks of images.</p>
+                <ul>
+                    <li>Each instruction in a Dockerfile creates a <strong>layer</strong></li>
+                    <li>Layers are <strong>stacked</strong> using Union File System (OverlayFS)</li>
+                    <li>Layers are <strong>read-only</strong></li>
+                    <li>Container adds a <strong>writable layer</strong> on top</li>
+                    <li><strong>Copy-on-write (CoW):</strong> Files are copied to the writable layer only when modified</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># View layer history</span><br>
+                    docker history nginx
+                </div>
+                <p><strong>Benefits:</strong> Smaller storage, faster pulls, efficient caching.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 93: Q93 -->
+        <div class="slide" data-slide="93">
+            <span class="q-badge">Q93</span>
+            <h2><span class="q-num">93.</span><span class="q-text">What is the difference between an image and a layer?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong>Image</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Complete <strong>stack</strong> of layers</li>
+                            <li>Has a <strong>manifest</strong> and <strong>config</strong></li>
+                            <li>Can be tagged and pushed</li>
+                            <li>Immutable</li>
+                            <li>Example: <code>nginx:latest</code></li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong>Layer</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Single <strong>filesystem delta</strong></li>
+                            <li>Contains changes from previous layer</li>
+                            <li>Has a <strong>digest</strong> (SHA256)</li>
+                            <li>Can be shared between images</li>
+                            <li>Example: <code>RUN apt-get update</code> creates a layer</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 94: Q94 -->
+        <div class="slide" data-slide="94">
+            <span class="q-badge">Q94</span>
+            <h2><span class="q-num">94.</span><span class="q-text">What is "copy-on-write" (COW) in Docker?</span></h2>
+            <div class="answer-box">
+                <p><strong>Copy-on-write (CoW)</strong> is an optimization where files are only copied when they are modified.</p>
+                <ul>
+                    <li>Container's writable layer is initially <strong>empty</strong></li>
+                    <li>When a file is read: it's read from the <strong>image layer</strong></li>
+                    <li>When a file is <strong>modified</strong>: it's copied to the writable layer first</li>
+                    <li>Future reads read from the writable layer</li>
+                    <li>Image layers remain <strong>immutable</strong></li>
+                </ul>
+                <div class="comparison-box"><i class="fas fa-lightbulb"></i> COW makes containers <strong>lightweight</strong> and <strong>fast</strong> to start.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 95: Q95 -->
+        <div class="slide" data-slide="95">
+            <span class="q-badge">Q95</span>
+            <h2><span class="q-num">95.</span><span class="q-text">What are stateless vs stateful applications in Docker?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong>Stateless</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>No persistent data</li>
+                            <li>Can be replaced at any time</li>
+                            <li><strong>Perfect</strong> for containers</li>
+                            <li>Example: Web servers, API gateways</li>
+                            <li>Scale horizontally easily</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong>Stateful</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Has persistent data</li>
+                            <li>Requires volumes</li>
+                            <li><strong>More complex</strong> in containers</li>
+                            <li>Example: Databases, message queues</li>
+                            <li>Need careful backup and recovery</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="comparison-box"><i class="fas fa-database"></i> Stateful apps need volumes, and often StatefulSets in Kubernetes.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 96: Q96 -->
+        <div class="slide" data-slide="96">
+            <span class="q-badge">Q96</span>
+            <h2><span class="q-num">96.</span><span class="q-text">What are Docker logging drivers?</span></h2>
+            <div class="answer-box">
+                <p>Logging drivers control how container logs are handled.</p>
+                <div class="grid-3col">
+                    <div style="background:#e8f0f8; padding:0.4rem; border-radius:0.8rem; text-align:center; font-size:0.8rem;">
+                        <strong>json-file</strong><br>(default)
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.4rem; border-radius:0.8rem; text-align:center; font-size:0.8rem;">
+                        <strong>syslog</strong><br>Syslog server
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.4rem; border-radius:0.8rem; text-align:center; font-size:0.8rem;">
+                        <strong>fluentd</strong><br>Fluentd collector
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.4rem; border-radius:0.8rem; text-align:center; font-size:0.8rem;">
+                        <strong>awslogs</strong><br>CloudWatch
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.4rem; border-radius:0.8rem; text-align:center; font-size:0.8rem;">
+                        <strong>splunk</strong><br>Splunk
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.4rem; border-radius:0.8rem; text-align:center; font-size:0.8rem;">
+                        <strong>gcplogs</strong><br>GCP Logging
+                    </div>
+                </div>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Set driver in docker run</span><br>
+                    docker run --log-driver syslog --log-opt syslog-address=udp://localhost:514 nginx
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 97: Q97 -->
+        <div class="slide" data-slide="97">
+            <span class="q-badge">Q97</span>
+            <h2><span class="q-num">97.</span><span class="q-text">What is the default CPU/memory limit for a container?</span></h2>
+            <div class="answer-box">
+                <ul>
+                    <li><strong>CPU:</strong> <strong>No limit</strong> by default. Container can use all available CPU.</li>
+                    <li><strong>Memory:</strong> <strong>No limit</strong> by default. Container can use all available memory.</li>
+                </ul>
+                <p>This is <strong>dangerous</strong> in production – one container can exhaust host resources.</p>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Always set limits in production</span><br>
+                    docker run --cpus=1.5 --memory=512m myapp
+                </div>
+                <div class="comparison-box"><i class="fas fa-exclamation-triangle"></i> <strong>Best practice:</strong> Always set memory limits. CPU limits are also recommended.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 98: Q98 -->
+        <div class="slide" data-slide="98">
+            <span class="q-badge">Q98</span>
+            <h2><span class="q-num">98.</span><span class="q-text">When should Docker NOT be used?</span></h2>
+            <div class="answer-box">
+                <ul>
+                    <li><strong>High-performance computing:</strong> Bare metal is faster</li>
+                    <li><strong>GUI applications:</strong> Requires special setup (X11 forwarding)</li>
+                    <li><strong>Full OS simulation:</strong> Need VM for different kernel</li>
+                    <li><strong>Windows apps on Linux:</strong> Windows containers need Windows host</li>
+                    <li><strong>Real-time systems:</strong> Container overhead may affect latency</li>
+                    <li><strong>Running multiple kernels:</strong> Containers share host kernel</li>
+                    <li><strong>Very small deployments:</strong> Overhead may not be worth it</li>
+                </ul>
+                <div class="comparison-box"><i class="fas fa-lightbulb"></i> Use VMs when you need full OS isolation. Use bare metal for extreme performance.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 99: Q99 -->
+        <div class="slide" data-slide="99">
+            <span class="q-badge">Q99</span>
+            <h2><span class="q-num">99.</span><span class="q-text">What is Docker Machine?</span></h2>
+            <div class="answer-box">
+                <p><strong>Docker Machine</strong> is a tool for creating Docker hosts on virtual machines or cloud providers.</p>
+                <ul>
+                    <li>Creates Docker daemons on VMs</li>
+                    <li>Supports: VirtualBox, AWS, Azure, GCP, Digital Ocean</li>
+                    <li>Manages <strong>multiple</strong> Docker hosts</li>
+                    <li>Sets up Docker environment variables</li>
+                </ul>
+                <div class="code-snip" style="font-size:0.7rem;">
+                    <span class="cm"># Create a Docker host on VirtualBox</span><br>
+                    docker-machine create --driver virtualbox myvm<br><br>
+                    <span class="cm"># Connect to the host</span><br>
+                    eval $(docker-machine env myvm)<br><br>
+                    <span class="cm"># List machines</span><br>
+                    docker-machine ls
+                </div>
+                <div class="comparison-box"><i class="fas fa-info-circle"></i> Docker Machine is <strong>deprecated</strong> – use Docker Desktop or cloud providers directly.</div>
+            </div>
+        </div>
+
+        <!-- SLIDE 100: Q100 -->
+        <div class="slide" data-slide="100">
+            <span class="q-badge">Q100</span>
+            <h2><span class="q-num">100.</span><span class="q-text">How does Docker differ from Podman?</span></h2>
+            <div class="answer-box">
+                <div class="grid-2col">
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><i class="fab fa-docker"></i> Docker</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Client-server architecture</li>
+                            <li>Daemon (<code>dockerd</code>) runs as root</li>
+                            <li>Requires root privileges (by default)</li>
+                            <li>Single daemon manages all containers</li>
+                            <li>More mature, larger ecosystem</li>
+                        </ul>
+                    </div>
+                    <div style="background:#e8f0f8; padding:0.6rem; border-radius:0.8rem;">
+                        <strong><i class="fas fa-box"></i> Podman</strong>
+                        <ul style="font-size:0.85rem;">
+                            <li>Daemonless architecture</li>
+                            <li>Containers run as <strong>fork/exec</strong></li>
+                            <li>Can run <strong>rootless</strong> by default</li>
+                            <li>More secure out of the box</li>
+                            <li>OCI-compliant, compatible with Docker CLI</li>
+                        </ul>
+                    </div>
+                </div>
+                <p><strong>Key difference:</strong> Podman is daemonless and rootless by default, making it more secure. Docker is more mature with a larger ecosystem.</p>
+                <div class="comparison-box"><i class="fas fa-lightbulb"></i> Both use the same OCI image format and can run the same containers.</div>
+            </div>
+        </div>
+
+        <!-- ========== SLIDE NAVIGATION ========== -->
+        <div class="slide-nav">
+            <button class="nav-btn" id="prevSlide"><i class="fas fa-chevron-left"></i> Prev</button>
+            <div class="dots" id="dotsContainer"></div>
+            <button class="nav-btn" id="nextSlide">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; flex-wrap:wrap; gap:0.5rem;">
+            <span class="slide-counter" id="slideCounter">1 / 100</span>
+            <span style="color:#8fb4cc; font-size:0.7rem;"><i class="fas fa-arrows-alt-h"></i> Use arrow keys or click dots</span>
+        </div>
+
+    </div> <!-- end slide-card -->
+</div> <!-- end slide-wrapper -->
+
+<script>
+    (function() {
+        const slides = document.querySelectorAll('.slide');
+        const dotsContainer = document.getElementById('dotsContainer');
+        const prevBtn = document.getElementById('prevSlide');
+        const nextBtn = document.getElementById('nextSlide');
+        const counter = document.getElementById('slideCounter');
+
+        let current = 0;
+        const total = slides.length;
+        let autoPlayInterval = null;
+        const AUTO_PLAY_DELAY = 4000; // 4 seconds
+
+        // create dots
+        for (let i = 0; i < total; i++) {
+            const dot = document.createElement('button');
+            dot.className = 'dot' + (i === 0 ? ' active' : '');
+            dot.dataset.index = i;
+            dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+            dot.addEventListener('click', function() {
+                goTo(parseInt(this.dataset.index));
+                resetAutoPlay();
+            });
+            dotsContainer.appendChild(dot);
+        }
+
+        const dots = dotsContainer.querySelectorAll('.dot');
+
+        function goTo(index) {
+            if (index < 0) index = 0;
+            if (index >= total) index = total - 1;
+            if (index === current) return;
+
+            slides[current].classList.remove('active');
+            dots[current].classList.remove('active');
+            current = index;
+            slides[current].classList.add('active');
+            dots[current].classList.add('active');
+            updateCounter();
+            updateButtons();
+        }
+
+        function updateCounter() {
+            counter.textContent = (current + 1) + ' / ' + total;
+        }
+
+        function updateButtons() {
+            prevBtn.disabled = (current === 0);
+            nextBtn.disabled = (current === total - 1);
+        }
+
+        function next() {
+            if (current < total - 1) goTo(current + 1);
+            else goTo(0); // Loop back to first slide
+        }
+
+        function prev() {
+            if (current > 0) goTo(current - 1);
+            else goTo(total - 1); // Loop back to last slide
+        }
+
+        function startAutoPlay() {
+            if (autoPlayInterval) clearInterval(autoPlayInterval);
+            autoPlayInterval = setInterval(next, AUTO_PLAY_DELAY);
+        }
+
+        function resetAutoPlay() {
+            startAutoPlay(); // Restart the timer
+        }
+
+        function stopAutoPlay() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+            }
+        }
+
+        prevBtn.addEventListener('click', function() {
+            prev();
+            resetAutoPlay();
+        });
+
+        nextBtn.addEventListener('click', function() {
+            next();
+            resetAutoPlay();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                next();
+                resetAutoPlay();
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                prev();
+                resetAutoPlay();
+            }
+        });
+
+        // Pause autoplay when user hovers over the slide
+        const slideCard = document.querySelector('.slide-card');
+        if (slideCard) {
+            slideCard.addEventListener('mouseenter', stopAutoPlay);
+            slideCard.addEventListener('mouseleave', startAutoPlay);
+        }
+
+        // Initialize
+        updateCounter();
+        updateButtons();
+        startAutoPlay();
+    })();
+</script>
+
+</body>
+</html>

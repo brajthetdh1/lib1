@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform Learning Resources</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Terraform Learning Resources</h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">Explore our collection of Terraform topics to enhance your infrastructure as code skills.</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-6xl mx-auto">
+            <!-- Search and Filter Section -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                <div class="relative w-full md:w-64">
+                    <input type="text" placeholder="Search topics..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">All Topics</button>
+                    <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Beginner</button>
+                    <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Advanced</button>
+                </div>
+            </div>
+
+            <!-- Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-code text-blue-600 text-xl"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-800">Getting Started</h2>
+                        </div>
+                        <p class="text-gray-600 mb-4">Learn the basics of Terraform, including installation, configuration, and your first infrastructure deployment.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Beginner</span>
+                            <a href="terra1.html" class="text-blue-600 font-medium hover:text-blue-800 transition-colors flex items-center">
+                                Explore <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Card 1 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <a href="terratheory.html">
+                                            <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-code text-blue-600 text-xl"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-800">Theory</h2>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Beginner</span>
+                        </div>
+                    </div>
+                    </a>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-cube text-purple-600 text-xl"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-800">Modules</h2>
+                        </div>
+                        <p class="text-gray-600 mb-4">Create reusable, composable infrastructure components with Terraform modules to simplify your codebase.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">Intermediate</span>
+                            <a href="modules.html" class="text-blue-600 font-medium hover:text-blue-800 transition-colors flex items-center">
+                                Explore <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-sitemap text-red-600 text-xl"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-800">State Management</h2>
+                        </div>
+                        <p class="text-gray-600 mb-4">Understand Terraform state files, remote state storage, and state locking for team collaboration.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">Intermediate</span>
+                            <a href="state-management.html" class="text-blue-600 font-medium hover:text-blue-800 transition-colors flex items-center">
+                                Explore <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-lg bg-indigo-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-users text-indigo-600 text-xl"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-800">Collaboration</h2>
+                        </div>
+                        <p class="text-gray-600 mb-4">Learn best practices for working with Terraform in team environments using version control and CI/CD.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">Intermediate</span>
+                            <a href="collab.html" class="text-blue-600 font-medium hover:text-blue-800 transition-colors flex items-center">
+                                Explore <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-shield-alt text-green-600 text-xl"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-800">Security</h2>
+                        </div>
+                        <p class="text-gray-600 mb-4">Implement security best practices in your Terraform code and infrastructure deployments.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">Advanced</span>
+                            <a href="security.html" class="text-blue-600 font-medium hover:text-blue-800 transition-colors flex items-center">
+                                Explore <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center mr-4">
+                                <i class="fas fa-rocket text-orange-600 text-xl"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-800">Advanced Patterns</h2>
+                        </div>
+                        <p class="text-gray-600 mb-4">Explore advanced Terraform patterns for complex infrastructure scenarios and enterprise use cases.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">Advanced</span>
+                            <a href="advanced-patterns.html" class="text-blue-600 font-medium hover:text-blue-800 transition-colors flex items-center">
+                                Explore <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="mt-12 text-center">
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-8 text-white shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4">Ready to master Terraform?</h2>
+                    <p class="mb-6 max-w-2xl mx-auto">Join thousands of DevOps engineers who have transformed their infrastructure management with our comprehensive Terraform guides.</p>
+                    <button class="bg-white text-blue-600 font-bold py-3 px-8 rounded-lg hover:bg-blue-50 transition-colors shadow-md">
+                        Get Started Today
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-gray-600">
+            <p>© 2023 Terraform Learning Resources. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docker Images – 30 Slides Deep Dive</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    /* ----- RESET & BASE ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #0a1a2a 0%, #1a3348 100%);
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .slide-wrapper {
+      max-width: 1100px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(4px);
+      border-radius: 3rem;
+      padding: 1.8rem 1.8rem 2rem 1.8rem;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .slide-card {
+      background: #ffffff;
+      border-radius: 2.2rem;
+      padding: 2.8rem 3rem;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), 0 20px 40px -10px rgba(0,0,0,0.5);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    /* ----- SLIDE NAVIGATION ----- */
+    .slide-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.8rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .slide-nav .dots {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      max-width: 60%;
+    }
+
+    .slide-nav .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 40px;
+      background: rgba(255, 255, 255, 0.25);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .slide-nav .dot.active {
+      background: #5ba9e0;
+      width: 28px;
+      box-shadow: 0 0 12px #3f9ad6;
+    }
+
+    .slide-nav .dot:hover {
+      background: #80c0f0;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #eef4fa;
+      padding: 0.6rem 1.5rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(2px);
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: #6bb4ed;
+      color: white;
+      transform: scale(1.02);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      pointer-events: none;
+      filter: grayscale(0.6);
+    }
+
+    .slide-counter {
+      color: #b0cfe0;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* ----- SLIDE CONTENT STYLES ----- */
+    .slide {
+      display: none;
+      animation: fadeSlide 0.3s ease;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0.4; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #0a263b;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 3px solid #dce7f0;
+      padding-bottom: 0.6rem;
+    }
+
+    .slide h2 i {
+      color: #1b6d9e;
+      font-size: 2rem;
+    }
+
+    .slide .sub {
+      font-size: 1.05rem;
+      color: #2e4a66;
+      margin-bottom: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .slide .sub .tag {
+      background: #e3edf5;
+      padding: 0.1rem 1.2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #1e5580;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.8rem;
+      margin: 1.5rem 0;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .image-card {
+      background: #f5f9fe;
+      border-radius: 1.5rem;
+      padding: 1.5rem 1.6rem;
+      border-left: 6px solid #2d7fb0;
+      box-shadow: 0 4px 12px rgba(0, 20, 40, 0.04);
+      transition: 0.2s;
+    }
+
+    .image-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(27, 109, 158, 0.10);
+    }
+
+    .image-card h3 {
+      font-size: 1.3rem;
+      color: #0e2c47;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.5rem;
+    }
+
+    .image-card h3 i {
+      color: #1f6e9b;
+      font-size: 1.4rem;
+      width: 2rem;
+    }
+
+    .image-card p {
+      color: #1f3a55;
+      line-height: 1.6;
+      font-size: 0.98rem;
+    }
+
+    .image-card .highlight {
+      background: #dcebf7;
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #00407a;
+      display: inline-block;
+      margin-top: 0.4rem;
+    }
+
+    .code-snip {
+      background: #0d1f2e;
+      color: #d6e6f5;
+      padding: 1rem 1.5rem;
+      border-radius: 1.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      margin: 1.2rem 0;
+      border-left: 5px solid #3b9bd6;
+      overflow-x: auto;
+    }
+
+    .code-snip .cm { color: #6a8faa; }
+    .code-snip .kw { color: #f5a97f; }
+    .code-snip .str { color: #a6da95; }
+    .code-snip .fn { color: #8fc5e8; }
+    .code-snip .num { color: #f5c2a0; }
+
+    .icon-big {
+      font-size: 2.6rem;
+      color: #1b6d9e;
+      margin-right: 10px;
+    }
+
+    .flex-row {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      margin: 1.2rem 0;
+    }
+
+    .badge {
+      background: #d1e2f0;
+      color: #124064;
+      padding: 0.2rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .footnote {
+      margin-top: 1.8rem;
+      padding-top: 1.2rem;
+      border-top: 2px solid #e2eaf2;
+      color: #3b5e7a;
+      font-size: 0.95rem;
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .comparison-box {
+      background: #f0f6fd;
+      border-radius: 1.2rem;
+      padding: 1.2rem 1.8rem;
+      margin: 1rem 0;
+      border: 1px solid #d4e2ef;
+    }
+
+    .comparison-box strong {
+      color: #0a2b47;
+    }
+
+    .comparison-box i {
+      color: #1b6d9e;
+      width: 1.8rem;
+    }
+
+    .layer-visual {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin: 1rem 0;
+      padding: 1rem;
+      background: #eaf1f9;
+      border-radius: 1rem;
+    }
+
+    .layer-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.4rem 0.8rem;
+      background: white;
+      border-radius: 0.5rem;
+      border-left: 4px solid #2d7fb0;
+    }
+
+    .layer-row .layer-label {
+      font-weight: 600;
+      color: #0a263b;
+      min-width: 100px;
+    }
+
+    .layer-row .layer-desc {
+      color: #2e4a66;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 780px) {
+      .slide-card {
+        padding: 1.8rem 1.2rem;
+      }
+      .grid-2col, .grid-3col {
+        grid-template-columns: 1fr;
+      }
+      .slide h2 {
+        font-size: 1.6rem;
+      }
+      .slide-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .nav-btn {
+        justify-content: center;
+      }
+      .slide-nav .dots {
+        max-width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="slide-wrapper">
+  <div class="slide-card">
+
+    <!-- ========== SLIDE 1 ========== -->
+    <div class="slide active" data-slide="0">
+      <h2><i class="fas fa-cube"></i> Docker Images – The Foundation</h2>
+      <div class="sub">
+        <span><i class="fas fa-layer-group"></i> Read-only templates for containers</span>
+        <span class="tag"><i class="far fa-file-alt"></i> 30 Slides</span>
+      </div>
+
+      <p style="font-size:1.05rem; margin-bottom:1.8rem;">
+        A <strong>Docker image</strong> is a lightweight, standalone, executable package that includes everything needed to run a piece of software:
+        code, runtime, system tools, libraries, and settings.
+      </p>
+
+      <div class="grid-3col">
+        <div class="image-card">
+          <h3><i class="fas fa-file-archive"></i> Immutable</h3>
+          <p>Images are <strong>read-only</strong>. Once built, they never change. Any modifications go to the container's writable layer.</p>
+          <span class="highlight">📦 Immutable artifacts</span>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-layer-group"></i> Layered</h3>
+          <p>Images are composed of <strong>layers</strong>. Each instruction in a Dockerfile creates a new layer.</p>
+          <span class="highlight">🧅 Union File System</span>
+        </div>
+        <div class="image-card" style="border-left-color: #8a4d9e;">
+          <h3><i class="fas fa-code-branch"></i> Portable</h3>
+          <p>Images can be shared via registries (Docker Hub, private registries) and run anywhere Docker runs.</p>
+          <span class="highlight">🚀 Build once, run anywhere</span>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Analogy:</strong> An image is like a <em>class</em> in programming. A container is an <em>instance</em> of that class.
+      </div>
+
+      <div class="footnote">
+        <span><i class="fas fa-code"></i> Built from a <code>Dockerfile</code></span>
+        <span><i class="fas fa-cloud"></i> Stored in registries</span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 2 ========== -->
+    <div class="slide" data-slide="1">
+      <h2><i class="fas fa-layer-group"></i> Image Layers – The Building Blocks</h2>
+      <div class="sub">
+        <span><i class="fas fa-cubes"></i> Each instruction creates a layer</span>
+      </div>
+
+      <p>Every command in a <code>Dockerfile</code> creates a new layer. Layers are stacked on top of each other.</p>
+
+      <div class="layer-visual">
+        <div class="layer-row" style="border-left-color: #b34d4d;">
+          <span class="layer-label">Layer 4</span>
+          <span class="layer-desc"><code>CMD ["nginx", "-g", "daemon off;"]</code> – Container startup command</span>
+        </div>
+        <div class="layer-row" style="border-left-color: #b36b2d;">
+          <span class="layer-label">Layer 3</span>
+          <span class="layer-desc"><code>COPY ./site /usr/share/nginx/html</code> – Application code</span>
+        </div>
+        <div class="layer-row" style="border-left-color: #8a4d9e;">
+          <span class="layer-label">Layer 2</span>
+          <span class="layer-desc"><code>RUN apt-get update &amp;&amp; apt-get install -y nginx</code> – Dependencies</span>
+        </div>
+        <div class="layer-row" style="border-left-color: #2a7a3e;">
+          <span class="layer-label">Layer 1</span>
+          <span class="layer-desc"><code>FROM ubuntu:22.04</code> – Base image</span>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-info-circle"></i> <strong>Layer Reuse:</strong> If you build the same image multiple times, unchanged layers are reused from cache.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 3 ========== -->
+    <div class="slide" data-slide="2">
+      <h2><i class="fas fa-file-code"></i> Dockerfile – The Image Blueprint</h2>
+      <div class="sub">
+        <span><i class="fas fa-pen"></i> Instructions for building images</span>
+      </div>
+
+      <p>A <code>Dockerfile</code> is a text file containing instructions that define how to build an image.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Example Dockerfile for a Node.js app</span><br>
+        FROM node:18-alpine          <span class="cm"># Base image</span><br>
+        WORKDIR /app                 <span class="cm"># Set working directory</span><br>
+        COPY package*.json ./        <span class="cm"># Copy package files</span><br>
+        RUN npm install              <span class="cm"># Install dependencies</span><br>
+        COPY . .                     <span class="cm"># Copy application code</span><br>
+        EXPOSE 3000                  <span class="cm"># Document port</span><br>
+        CMD ["npm", "start"]         <span class="cm"># Default command</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-arrow-down"></i> FROM</h3>
+          <p>Sets the base image. All images start from a base.</p>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-copy"></i> COPY / ADD</h3>
+          <p>Copies files from host to image.</p>
+        </div>
+        <div class="image-card" style="border-left-color: #8a4d9e;">
+          <h3><i class="fas fa-play"></i> RUN / CMD</h3>
+          <p><code>RUN</code> – executes during build. <code>CMD</code> – executes when container starts.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 4 ========== -->
+    <div class="slide" data-slide="3">
+      <h2><i class="fas fa-tags"></i> Image Naming &amp; Tagging</h2>
+      <div class="sub">
+        <span><i class="fas fa-hashtag"></i> Identifying images</span>
+      </div>
+
+      <p>Images are identified by <strong>repository</strong> and <strong>tag</strong>.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Full image name format</span><br>
+        [registry/][namespace/]repository:tag<br><br>
+        <span class="cm"># Examples</span><br>
+        nginx:latest                  <span class="cm"># Official image, latest tag</span><br>
+        ubuntu:22.04                  <span class="cm"># Specific version</span><br>
+        myapp:v1.2.3                  <span class="cm"># Custom tag</span><br>
+        docker.io/library/nginx:1.21  <span class="cm"># Full registry path</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card">
+          <h3><i class="fas fa-tag"></i> Tags</h3>
+          <p>Tags are like version numbers. <code>latest</code> is the default tag.</p>
+          <span class="highlight">🏷️ Version control</span>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-fingerprint"></i> Digests</h3>
+          <p>Images also have a <strong>digest</strong> (SHA256 hash) for immutable identification.</p>
+          <span class="highlight">🔐 Content-addressable</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 5 ========== -->
+    <div class="slide" data-slide="4">
+      <h2><i class="fas fa-cloud"></i> Image Registries – Distribution</h2>
+      <div class="sub">
+        <span><i class="fas fa-server"></i> Storing and sharing images</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fab fa-docker"></i> Docker Hub</h3>
+          <p>The default public registry. Contains official images and community images.</p>
+          <span class="highlight">🌐 docker.io</span>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-building"></i> Private Registries</h3>
+          <p>Host your own registry (e.g., Amazon ECR, Google Container Registry, Azure ACR, or self-hosted).</p>
+          <span class="highlight">🔒 Secure distribution</span>
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Login to a registry</span><br>
+        $ docker login registry.example.com<br><br>
+        <span class="cm"># Push image to registry</span><br>
+        $ docker tag myapp registry.example.com/myapp:v1<br>
+        $ docker push registry.example.com/myapp:v1<br><br>
+        <span class="cm"># Pull image from registry</span><br>
+        $ docker pull registry.example.com/myapp:v1
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 6 ========== -->
+    <div class="slide" data-slide="5">
+      <h2><i class="fas fa-hammer"></i> Building Images – <code>docker build</code></h2>
+      <div class="sub">
+        <span><i class="fas fa-play"></i> The build process</span>
+      </div>
+
+      <p>The <code>docker build</code> command builds an image from a Dockerfile and context.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Basic build</span><br>
+        $ docker build -t myapp:latest .<br><br>
+        <span class="cm"># Build with specific Dockerfile</span><br>
+        $ docker build -f Dockerfile.prod -t myapp:prod .<br><br>
+        <span class="cm"># Build with BuildKit (modern builder)</span><br>
+        $ DOCKER_BUILDKIT=1 docker build -t myapp .
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-bolt"></i> <strong>BuildKit:</strong> The modern builder with parallel execution, cache mounts, and secret handling.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 7 ========== -->
+    <div class="slide" data-slide="6">
+      <h2><i class="fas fa-cache"></i> Layer Caching – Speed Up Builds</h2>
+      <div class="sub">
+        <span><i class="fas fa-rocket"></i> Build faster with cache</span>
+      </div>
+
+      <p>Docker caches layers. If a layer hasn't changed, Docker reuses it, skipping re-execution.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Efficient Dockerfile – order matters!</span><br>
+        FROM node:18-alpine<br>
+        WORKDIR /app<br>
+        <span class="cm"># COPY package files first – cache dependencies</span><br>
+        COPY package*.json ./<br>
+        RUN npm install              <span class="cm"># Cached unless package.json changes</span><br>
+        <span class="cm"># Copy source code last</span><br>
+        COPY . .<br>
+        CMD ["npm", "start"]
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Cache Benefits</h3>
+          <p>✅ Faster builds<br>✅ Less bandwidth<br>✅ Efficient CI/CD</p>
+        </div>
+        <div class="image-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Cache Invalidation</h3>
+          <p>⚠️ Any change breaks cache for that layer and all subsequent layers<br>💡 Order layers from least to most frequently changing</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 8 ========== -->
+    <div class="slide" data-slide="7">
+      <h2><i class="fas fa-code-branch"></i> Multi-Stage Builds – Optimize Images</h2>
+      <div class="sub">
+        <span><i class="fas fa-cut"></i> Separate build and runtime environments</span>
+      </div>
+
+      <p>Multi-stage builds allow you to use multiple <code>FROM</code> statements in one Dockerfile, reducing final image size.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Build stage</span><br>
+        FROM golang:1.19 AS builder<br>
+        WORKDIR /app<br>
+        COPY . .<br>
+        RUN go build -o myapp .<br><br>
+        <span class="cm"># Runtime stage (much smaller)</span><br>
+        FROM alpine:latest<br>
+        COPY --from=builder /app/myapp /usr/local/bin/<br>
+        CMD ["myapp"]
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-arrow-down"></i> <strong>Result:</strong> Final image contains only the binary (~10MB) instead of full Go toolchain (~500MB).
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 9 ========== -->
+    <div class="slide" data-slide="8">
+      <h2><i class="fas fa-archive"></i> Image Size Optimization</h2>
+      <div class="sub">
+        <span><i class="fas fa-weight-hanging"></i> Keep images small</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Optimization Tips</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Use Alpine-based images</li>
+            <li>Combine RUN commands</li>
+            <li>Remove package manager cache</li>
+            <li>Use multi-stage builds</li>
+            <li>Use <code>.dockerignore</code></li>
+          </ul>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-table"></i> Size Comparison</h3>
+          <div style="margin:0.5rem 0; font-size:0.9rem;">
+            <p><strong>Ubuntu</strong>: ~77 MB</p>
+            <p><strong>Alpine</strong>: ~5 MB</p>
+            <p><strong>Node.js (full)</strong>: ~900 MB</p>
+            <p><strong>Node.js Alpine</strong>: ~170 MB</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Combine RUN commands to reduce layers</span><br>
+        RUN apt-get update &amp;&amp; \<br>
+        &nbsp;&nbsp;apt-get install -y python3 &amp;&amp; \<br>
+        &nbsp;&nbsp;apt-get clean &amp;&amp; \<br>
+        &nbsp;&nbsp;rm -rf /var/lib/apt/lists/*
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 10 ========== -->
+    <div class="slide" data-slide="9">
+      <h2><i class="fas fa-file-alt"></i> .dockerignore – Exclude Unnecessary Files</h2>
+      <div class="sub">
+        <span><i class="fas fa-ban"></i> Keep build context small</span>
+      </div>
+
+      <p>The <code>.dockerignore</code> file excludes files and directories from the build context, speeding up builds and keeping images smaller.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Example .dockerignore</span><br>
+        node_modules/<br>
+        .git/<br>
+        .env<br>
+        *.log<br>
+        Dockerfile<br>
+        .dockerignore<br>
+        README.md<br>
+        tests/
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-info-circle"></i> <strong>Benefit:</strong> Prevents sending large files (like <code>node_modules</code>) to the Docker daemon, and avoids accidentally embedding secrets.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 11 ========== -->
+    <div class="slide" data-slide="10">
+      <h2><i class="fas fa-fingerprint"></i> Image Digests – Immutable Identification</h2>
+      <div class="sub">
+        <span><i class="fas fa-hash"></i> Content-addressable storage</span>
+      </div>
+
+      <p>Every image has a <strong>digest</strong> – a SHA256 hash of the image manifest. This provides immutable identification.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Get image digest</span><br>
+        $ docker images --digests<br>
+        REPOSITORY   TAG      DIGEST<br>
+        nginx        latest   sha256:abc123...<br><br>
+        <span class="cm"># Pull by digest (ensures exact image)</span><br>
+        $ docker pull nginx@sha256:abc123...<br><br>
+        <span class="cm"># Inspect digest</span><br>
+        $ docker inspect nginx --format='{{.RepoDigests}}'
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-shield-alt"></i> <strong>Security:</strong> Using digests ensures you get exactly the image you expect, protecting against tag tampering.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 12 ========== -->
+    <div class="slide" data-slide="11">
+      <h2><i class="fas fa-history"></i> Image History – See How It Was Built</h2>
+      <div class="sub">
+        <span><i class="fas fa-clock"></i> Inspect layer history</span>
+      </div>
+
+      <p><code>docker history</code> shows the layers and commands used to build an image.</p>
+
+      <div class="code-snip">
+        $ docker history nginx<br>
+        IMAGE          CREATED       CREATED BY                                      SIZE<br>
+        abc123...     2 weeks ago   CMD ["nginx" "-g" "daemon off;"]                0B<br>
+        def456...     2 weeks ago   STOPSIGNAL SIGQUIT                              0B<br>
+        ghi789...     2 weeks ago   EXPOSE 80                                       0B<br>
+        jkl012...     2 weeks ago   RUN /bin/sh -c apt-get update && apt-get...     25MB<br>
+        mno345...     2 weeks ago   COPY file:... /etc/nginx/nginx.conf             1.2KB<br>
+        pqr678...     2 weeks ago   FROM debian:bullseye-slim                       69MB
+      </div>
+
+      <div class="footnote">
+        <span><i class="fas fa-info-circle"></i> Useful for debugging and understanding image composition.</span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 13 ========== -->
+    <div class="slide" data-slide="12">
+      <h2><i class="fas fa-sync-alt"></i> Image Pull &amp; Push – Registry Operations</h2>
+      <div class="sub">
+        <span><i class="fas fa-arrow-down"></i> <i class="fas fa-arrow-up"></i> Moving images</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-download"></i> Pulling</h3>
+          <p>Download images from a registry.</p>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+            $ docker pull nginx:latest<br>
+            $ docker pull alpine:3.18
+          </div>
+          <span class="highlight">📥 Layers are downloaded in parallel</span>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-upload"></i> Pushing</h3>
+          <p>Upload images to a registry.</p>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+            $ docker tag myapp user/myapp:v1<br>
+            $ docker push user/myapp:v1
+          </div>
+          <span class="highlight">📤 Only uploads missing layers</span>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Use <code>docker pull --platform linux/amd64</code> to pull a specific architecture.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 14 ========== -->
+    <div class="slide" data-slide="13">
+      <h2><i class="fas fa-copy"></i> Copying Images Between Registries</h2>
+      <div class="sub">
+        <span><i class="fas fa-exchange-alt"></i> Migrate images</span>
+      </div>
+
+      <p>Tag and push images to move them between registries.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Pull from source registry</span><br>
+        $ docker pull source-registry.com/myapp:v1<br><br>
+        <span class="cm"># Tag for destination</span><br>
+        $ docker tag source-registry.com/myapp:v1 dest-registry.com/myapp:v1<br><br>
+        <span class="cm"># Push to destination</span><br>
+        $ docker push dest-registry.com/myapp:v1
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-cloud"></i> Cross-Cloud Migration</h3>
+          <p>Move images between AWS ECR, GCR, ACR, Docker Hub, and self-hosted registries.</p>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-sync-alt"></i> Registry Sync</h3>
+          <p>Use <code>docker pull</code> + <code>docker push</code> for manual sync, or tools like <code>skopeo</code> for advanced migration.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 15 ========== -->
+    <div class="slide" data-slide="14">
+      <h2><i class="fas fa-trash"></i> Removing Images – Clean Up</h2>
+      <div class="sub">
+        <span><i class="fas fa-broom"></i> Free up disk space</span>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Remove specific image</span><br>
+        $ docker rmi myapp:v1<br>
+        $ docker rmi abc123def456  <span class="cm"># Remove by image ID</span><br><br>
+        <span class="cm"># Remove all unused images</span><br>
+        $ docker image prune<br><br>
+        <span class="cm"># Remove all unused images (force)</span><br>
+        $ docker image prune -a -f<br><br>
+        <span class="cm"># Remove all images</span><br>
+        $ docker rmi -f $(docker images -q)
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-exclamation-triangle" style="color:#b34d4d;"></i> <strong>Warning:</strong> Removing images in use by containers will fail. Use <code>-f</code> to force removal.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 16 ========== -->
+    <div class="slide" data-slide="15">
+      <h2><i class="fas fa-image"></i> Base Images – The Starting Point</h2>
+      <div class="sub">
+        <span><i class="fas fa-flag"></i> Choosing the right foundation</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fab fa-ubuntu"></i> Ubuntu</h3>
+          <p>Full-featured Linux distribution. Large but familiar.</p>
+          <span class="highlight">📦 ~77 MB</span>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-mountain"></i> Alpine</h3>
+          <p>Minimal, security-focused. Uses <code>musl</code> libc. Very small.</p>
+          <span class="highlight">📦 ~5 MB</span>
+        </div>
+        <div class="image-card" style="border-left-color: #8a4d9e;">
+          <h3><i class="fas fa-box"></i> Scratch</h3>
+          <p>Empty image. For static binaries. Minimal attack surface.</p>
+          <span class="highlight">📦 0 MB</span>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Use <code>scratch</code> for Go/static binaries. Use <code>alpine</code> for most applications. Use <code>ubuntu</code> when you need full compatibility.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 17 ========== -->
+    <div class="slide" data-slide="16">
+      <h2><i class="fas fa-shield-alt"></i> Image Security – Best Practices</h2>
+      <div class="sub">
+        <span><i class="fas fa-lock"></i> Secure your images</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Do's</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Use official/base images from trusted sources</li>
+            <li>Run as non-root user</li>
+            <li>Keep images up to date</li>
+            <li>Scan for vulnerabilities (<code>docker scan</code>)</li>
+            <li>Use minimal base images</li>
+          </ul>
+        </div>
+        <div class="image-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Don'ts</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Don't embed secrets</li>
+            <li>Don't use <code>latest</code> tag in production</li>
+            <li>Don't run as root</li>
+            <li>Don't use outdated base images</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Create a non-root user in Dockerfile</span><br>
+        FROM ubuntu:22.04<br>
+        RUN useradd -m -u 1000 appuser<br>
+        USER appuser<br>
+        CMD ["/app/myapp"]
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 18 ========== -->
+    <div class="slide" data-slide="17">
+      <h2><i class="fas fa-scan"></i> Vulnerability Scanning</h2>
+      <div class="sub">
+        <span><i class="fas fa-bug"></i> Detect known vulnerabilities</span>
+      </div>
+
+      <p>Docker provides built-in scanning to detect CVEs in images.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Scan an image for vulnerabilities</span><br>
+        $ docker scan nginx:latest<br><br>
+        <span class="cm"># Output example</span><br>
+        Testing nginx:latest...<br>
+        ✓ Downloaded image<br>
+        ✓ Found 12 vulnerabilities<br>
+        &nbsp;&nbsp;✗ High: CVE-2023-1234 (package: openssl)<br>
+        &nbsp;&nbsp;✗ Medium: CVE-2023-5678 (package: curl)
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-tools"></i> Tools</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li><code>docker scan</code> (Snyk)</li>
+            <li>Trivy</li>
+            <li>Clair</li>
+            <li>Anchore</li>
+          </ul>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-sync-alt"></i> CI/CD Integration</h3>
+          <p>Scan images in your CI pipeline to block vulnerable images from being deployed.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 19 ========== -->
+    <div class="slide" data-slide="18">
+      <h2><i class="fas fa-save"></i> Saving &amp; Loading Images – Offline Transfer</h2>
+      <div class="sub">
+        <span><i class="fas fa-archive"></i> Move images without a registry</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-download"></i> Save</h3>
+          <p>Export image(s) to a tar file.</p>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+            $ docker save -o myapp.tar myapp:latest<br>
+            $ docker save myapp:latest &gt; myapp.tar
+          </div>
+          <span class="highlight">📦 Single file</span>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-upload"></i> Load</h3>
+          <p>Import image(s) from a tar file.</p>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+            $ docker load -i myapp.tar<br>
+            $ docker load &lt; myapp.tar
+          </div>
+          <span class="highlight">📥 Restore images</span>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-info-circle"></i> <strong>Use Case:</strong> Transfer images between air-gapped environments or when no registry is available.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 20 ========== -->
+    <div class="slide" data-slide="19">
+      <h2><i class="fas fa-export"></i> Exporting vs Saving – Differences</h2>
+      <div class="sub">
+        <span><i class="fas fa-code-branch"></i> Two export methods</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-save"></i> <code>docker save</code></h3>
+          <p><strong>Preserves:</strong> Image layers, metadata, tags, and history.</p>
+          <p><strong>Output:</strong> Tar file with layers and manifest.</p>
+          <p><strong>Use:</strong> Backing up or transferring images.</p>
+          <span class="highlight">📦 Full image backup</span>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-file-export"></i> <code>docker export</code></h3>
+          <p><strong>Preserves:</strong> Only the container filesystem (flattened).</p>
+          <p><strong>Output:</strong> Tar file of container's filesystem.</p>
+          <p><strong>Use:</strong> Inspecting filesystem, not for image distribution.</p>
+          <span class="highlight">📁 Filesystem snapshot</span>
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Export container filesystem (flattened)</span><br>
+        $ docker export container1 &gt; container1.tar<br><br>
+        <span class="cm"># Import as image (loses history)</span><br>
+        $ docker import container1.tar myapp:flat
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 21 ========== -->
+    <div class="slide" data-slide="20">
+      <h2><i class="fas fa-code-branch"></i> Image Manifest – Understanding the JSON</h2>
+      <div class="sub">
+        <span><i class="fas fa-json"></i> The blueprint of an image</span>
+      </div>
+
+      <p>The image manifest is a JSON file that describes the image composition.</p>
+
+      <div class="code-snip" style="font-size:0.75rem;">
+        {<br>
+        &nbsp;&nbsp;"schemaVersion": 2,<br>
+        &nbsp;&nbsp;"mediaType": "application/vnd.docker.distribution.manifest.v2+json",<br>
+        &nbsp;&nbsp;"config": {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;"mediaType": "application/vnd.docker.container.image.v1+json",<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;"size": 7023,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;"digest": "sha256:abc123..."<br>
+        &nbsp;&nbsp;},<br>
+        &nbsp;&nbsp;"layers": [<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;{<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"mediaType": "application/vnd.docker.image.rootfs.diff.tar.gzip",<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"size": 2797541,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"digest": "sha256:def456..."<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;},<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;{ ... }<br>
+        &nbsp;&nbsp;]<br>
+        }
+      </div>
+
+      <div class="footnote">
+        <span><i class="fas fa-info-circle"></i> The manifest links to the config and layer digests.</span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 22 ========== -->
+    <div class="slide" data-slide="21">
+      <h2><i class="fas fa-multi"></i> Multi-Architecture Images – Manifest Lists</h2>
+      <div class="sub">
+        <span><i class="fas fa-cpu"></i> Support multiple CPU architectures</span>
+      </div>
+
+      <p>Images can support multiple architectures using <strong>manifest lists</strong> (fat manifests).</p>
+
+      <div class="code-snip">
+        <span class="cm"># Official images support multiple architectures</span><br>
+        $ docker manifest inspect nginx:latest<br><br>
+        <span class="cm"># Build multi-arch image</span><br>
+        $ docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 \<br>
+        &nbsp;&nbsp;-t user/myapp:latest --push .
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-microchip"></i> Supported Platforms</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>linux/amd64 (x86_64)</li>
+            <li>linux/arm64 (ARM64)</li>
+            <li>linux/arm/v7 (ARM32)</li>
+            <li>linux/ppc64le</li>
+            <li>linux/s390x</li>
+          </ul>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-tools"></i> Tools</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li><code>docker buildx</code> – Modern builder</li>
+            <li><code>docker manifest</code> – Manage manifests</li>
+            <li>QEMU for emulation</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 23 ========== -->
+    <div class="slide" data-slide="22">
+      <h2><i class="fas fa-cogs"></i> BuildKit – The Modern Builder</h2>
+      <div class="sub">
+        <span><i class="fas fa-bolt"></i> Next-generation build engine</span>
+      </div>
+
+      <p>BuildKit replaces the legacy builder with advanced features.</p>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Features</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Parallel execution of independent stages</li>
+            <li>Cache mounts (persistent across builds)</li>
+            <li>Secrets mounting (without embedding)</li>
+            <li>Skip unused stages</li>
+            <li>Better cache invalidation</li>
+          </ul>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-play"></i> Usage</h3>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+            <span class="cm"># Enable BuildKit</span><br>
+            $ DOCKER_BUILDKIT=1 docker build -t myapp .<br><br>
+            <span class="cm"># Use cache mount</span><br>
+            RUN --mount=type=cache,target=/root/.m2 mvn package
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 24 ========== -->
+    <div class="slide" data-slide="23">
+      <h2><i class="fas fa-secret"></i> Secrets in Builds – BuildKit</h2>
+      <div class="sub">
+        <span><i class="fas fa-lock"></i> Secure secret handling</span>
+      </div>
+
+      <p>BuildKit allows mounting secrets during build without embedding them in the image.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Dockerfile with secret mount</span><br>
+        FROM python:3.9<br>
+        WORKDIR /app<br>
+        RUN --mount=type=secret,id=github_token \<br>
+        &nbsp;&nbsp;export GITHUB_TOKEN=$(cat /run/secrets/github_token) &amp;&amp; \<br>
+        &nbsp;&nbsp;pip install --extra-index-url https://$GITHUB_TOKEN@private.pypi.com/ mypackage<br><br>
+        <span class="cm"># Build with secret</span><br>
+        $ DOCKER_BUILDKIT=1 docker build \<br>
+        &nbsp;&nbsp;--secret id=github_token,src=./token.txt \<br>
+        &nbsp;&nbsp;-t myapp .
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-shield-alt"></i> <strong>Security:</strong> Secrets are never stored in the image layers, protecting sensitive data.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 25 ========== -->
+    <div class="slide" data-slide="24">
+      <h2><i class="fas fa-arrow-left"></i> Image Rollback – Revert to Previous Versions</h2>
+      <div class="sub">
+        <span><i class="fas fa-undo"></i> Deploying older versions</span>
+      </div>
+
+      <p>Docker images are immutable, making rollback simple – just run an older tag.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Deploy specific version</span><br>
+        $ docker run -d myapp:v1.2.3<br><br>
+        <span class="cm"># Rollback to previous version</span><br>
+        $ docker stop myapp-container<br>
+        $ docker run -d myapp:v1.2.2  <span class="cm"># Previous version</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Best Practices</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Tag images with semantic versions</li>
+            <li>Keep previous versions available</li>
+            <li>Use <code>docker images</code> to list available versions</li>
+          </ul>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-sync-alt"></i> CI/CD Integration</h3>
+          <p>Tag every build with commit hash or build number for easy rollback.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 26 ========== -->
+    <div class="slide" data-slide="25">
+      <h2><i class="fas fa-puzzle-piece"></i> Image Customization – Dockerfile Patterns</h2>
+      <div class="sub">
+        <span><i class="fas fa-tools"></i> Common Dockerfile patterns</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-python"></i> Python</h3>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+            FROM python:3.9-slim<br>
+            WORKDIR /app<br>
+            COPY requirements.txt .<br>
+            RUN pip install -r requirements.txt<br>
+            COPY . .<br>
+            CMD ["python", "app.py"]
+          </div>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fa-brands fa-java"></i> Java</h3>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+            FROM openjdk:11-jre-slim<br>
+            WORKDIR /app<br>
+            COPY target/app.jar app.jar<br>
+            CMD ["java", "-jar", "app.jar"]
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2col" style="margin-top:1rem;">
+        <div class="image-card" style="border-left-color: #8a4d9e;">
+          <h3><i class="fa-brands fa-golang"></i> Go (Multi-stage)</h3>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+            FROM golang:1.19 AS builder<br>
+            WORKDIR /app<br>
+            COPY . .<br>
+            RUN go build -o app<br>
+            FROM alpine<br>
+            COPY --from=builder /app/app /app<br>
+            CMD ["/app"]
+          </div>
+        </div>
+        <div class="image-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fa-brands fa-node"></i> Node.js</h3>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.3rem 0;">
+            FROM node:18-alpine<br>
+            WORKDIR /app<br>
+            COPY package*.json .<br>
+            RUN npm ci --only=production<br>
+            COPY . .<br>
+            CMD ["node", "server.js"]
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 27 ========== -->
+    <div class="slide" data-slide="26">
+      <h2><i class="fas fa-tachometer-alt"></i> Image Performance – Optimizing Builds</h2>
+      <div class="sub">
+        <span><i class="fas fa-rocket"></i> Faster builds &amp; smaller images</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-arrow-up"></i> Speed Up Builds</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Use layer caching effectively</li>
+            <li>Order Dockerfile from least to most frequently changing</li>
+            <li>Use BuildKit for parallel execution</li>
+            <li>Use registry mirrors</li>
+            <li>Use local cache with <code>--cache-from</code></li>
+          </ul>
+        </div>
+        <div class="image-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-weight-hanging"></i> Reduce Image Size</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Use Alpine or <code>slim</code> variants</li>
+            <li>Use multi-stage builds</li>
+            <li>Remove package manager caches</li>
+            <li>Combine RUN commands</li>
+            <li>Use <code>.dockerignore</code></li>
+            <li>Avoid installing build dependencies in runtime</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Use cache from previous build</span><br>
+        $ docker build --cache-from myapp:latest -t myapp:new .
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 28 ========== -->
+    <div class="slide" data-slide="27">
+      <h2><i class="fas fa-file-export"></i> Image Export Formats – OCI vs Docker</h2>
+      <div class="sub">
+        <span><i class="fas fa-code-branch"></i> Standard image formats</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="image-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fab fa-docker"></i> Docker Format</h3>
+          <p>The original Docker image format. Used by default in Docker.</p>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>Manifest v2 schema</li>
+            <li>Widely supported</li>
+            <li>Backward compatible</li>
+          </ul>
+          <span class="highlight">📦 Legacy but standard</span>
+        </div>
+        <div class="image-card" style="border-left-color: #8a4d9e;">
+          <h3><i class="fas fa-box-open"></i> OCI Format</h3>
+          <p>Open Container Initiative standard. Used by containerd, CR-O, and modern tools.</p>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55;">
+            <li>OCI image spec</li>
+            <li>More flexible</li>
+            <li>Future-proof</li>
+          </ul>
+          <span class="highlight">📦 Industry standard</span>
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Build OCI-compliant image</span><br>
+        $ docker build --oci -t myapp:latest .<br><br>
+        <span class="cm"># Convert to OCI layout</span><br>
+        $ docker buildx build --output type=oci,dest=myapp.oci.tar .
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 29 ========== -->
+    <div class="slide" data-slide="28">
+      <h2><i class="fas fa-stamp"></i> Image Signing &amp; Content Trust</h2>
+      <div class="sub">
+        <span><i class="fas fa-certificate"></i> Verify image authenticity</span>
+      </div>
+
+      <p>Docker Content Trust (DCT) allows publishers to sign images using TUF (The Update Framework) via Notary.</p>
+
+      <div class="code-snip">
+        <span class="cm"># Enable content trust</span><br>
+        $ export DOCKER_CONTENT_TRUST=1<br><br>
+        <span class="cm"># Push signed image</span><br>
+        $ docker push user/myapp:latest<br>
+        Signing and pushing trust metadata...<br><br>
+        <span class="cm"># Pull only signed images</span><br>
+        $ docker pull user/myapp:latest<br>
+        ✓ Signed by: user@example.com
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-shield-alt"></i> <strong>Benefits:</strong> Prevent tampering, ensure authenticity, and enable audit trails for image deployment.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 30 ========== -->
+    <div class="slide" data-slide="29">
+      <h2><i class="fas fa-flag-checkered"></i> Recap – Docker Images Mastered</h2>
+      <div class="sub">
+        <span><i class="fas fa-check-double"></i> 30 slides – key takeaways</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.2rem 0;">
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-cube" style="color:#1f6e9b; width:2rem;"></i> 
+          <div><strong>Images are Templates</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Read-only, layered, immutable</span></div>
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-layer-group" style="color:#b36b2d; width:2rem;"></i> 
+          <div><strong>Layered Architecture</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Each instruction = one layer</span></div>
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-cloud" style="color:#8a4d9e; width:2rem;"></i> 
+          <div><strong>Registries</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Distribution and sharing</span></div>
+        </div>
+        <div style="background:#dcebf7; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-shield-alt" style="color:#1d7a3e; width:2rem;"></i> 
+          <div><strong>Security</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Scan, sign, and secure images</span></div>
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-hammer" style="color:#b34d4d; width:2rem;"></i> 
+          <div><strong>Build Optimizations</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Caching, multi-stage, BuildKit</span></div>
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-tags" style="color:#9b5f2d; width:2rem;"></i> 
+          <div><strong>Tags &amp; Versions</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Semantic versioning, digests</span></div>
+        </div>
+      </div>
+
+      <div style="background:#0d1f2e; color:#d6e6f5; border-radius:1.5rem; padding:1.2rem 1.8rem; margin-top:1rem;">
+        <i class="fas fa-quote-left" style="color:#5ba9e0; margin-right:8px;"></i>
+        "Docker images are the <strong>blueprint</strong> for your containers. Master them, and you master application delivery."
+      </div>
+
+      <div class="footnote">
+        <span><i class="fas fa-docker" style="color:#0e7cbb;"></i> Build → Push → Deploy → Repeat</span>
+        <span><i class="fas fa-code"></i> Dockerfile is the source of truth</span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE NAVIGATION ========== -->
+    <div class="slide-nav">
+      <button class="nav-btn" id="prevSlide"><i class="fas fa-chevron-left"></i> Prev</button>
+      <div class="dots" id="dotsContainer"></div>
+      <button class="nav-btn" id="nextSlide">Next <i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; flex-wrap:wrap; gap:0.5rem;">
+      <span class="slide-counter" id="slideCounter">1 / 30</span>
+      <span style="color:#8fb4cc; font-size:0.8rem;"><i class="fas fa-arrows-alt-h"></i> Use arrow keys or click dots</span>
+    </div>
+
+  </div> <!-- end slide-card -->
+</div> <!-- end slide-wrapper -->
+
+<script>
+  (function() {
+    const slides = document.querySelectorAll('.slide');
+    const dotsContainer = document.getElementById('dotsContainer');
+    const prevBtn = document.getElementById('prevSlide');
+    const nextBtn = document.getElementById('nextSlide');
+    const counter = document.getElementById('slideCounter');
+
+    let current = 0;
+    const total = slides.length;
+
+    // create dots
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.dataset.index = i;
+      dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+      dot.addEventListener('click', function() {
+        goTo(parseInt(this.dataset.index));
+      });
+      dotsContainer.appendChild(dot);
+    }
+
+    const dots = dotsContainer.querySelectorAll('.dot');
+
+    function goTo(index) {
+      if (index < 0) index = 0;
+      if (index >= total) index = total - 1;
+      if (index === current) return;
+
+      slides[current].classList.remove('active');
+      dots[current].classList.remove('active');
+      current = index;
+      slides[current].classList.add('active');
+      dots[current].classList.add('active');
+      updateCounter();
+      updateButtons();
+    }
+
+    function updateCounter() {
+      counter.textContent = (current + 1) + ' / ' + total;
+    }
+
+    function updateButtons() {
+      prevBtn.disabled = (current === 0);
+      nextBtn.disabled = (current === total - 1);
+    }
+
+    function next() {
+      if (current < total - 1) goTo(current + 1);
+    }
+
+    function prev() {
+      if (current > 0) goTo(current - 1);
+    }
+
+    prevBtn.addEventListener('click', prev);
+    nextBtn.addEventListener('click', next);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        next();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        prev();
+      }
+    });
+
+    updateCounter();
+    updateButtons();
+  })();
+</script>
+
+</body>
+</html>

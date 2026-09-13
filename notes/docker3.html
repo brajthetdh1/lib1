@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docker Mounting – Interactive Slides</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    /* ----- RESET & BASE ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #0a1a2a 0%, #1a3348 100%);
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    /* ----- SLIDE CONTAINER ----- */
+    .slide-wrapper {
+      max-width: 1100px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(4px);
+      border-radius: 3rem;
+      padding: 1.8rem 1.8rem 2rem 1.8rem;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .slide-card {
+      background: #ffffff;
+      border-radius: 2.2rem;
+      padding: 2.8rem 3rem;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), 0 20px 40px -10px rgba(0,0,0,0.5);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    /* ----- SLIDE NAVIGATION ----- */
+    .slide-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.8rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .slide-nav .dots {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .slide-nav .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 40px;
+      background: rgba(255, 255, 255, 0.25);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 0;
+    }
+
+    .slide-nav .dot.active {
+      background: #5ba9e0;
+      width: 32px;
+      box-shadow: 0 0 12px #3f9ad6;
+    }
+
+    .slide-nav .dot:hover {
+      background: #80c0f0;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #eef4fa;
+      padding: 0.6rem 1.5rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(2px);
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: #6bb4ed;
+      color: white;
+      transform: scale(1.02);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      pointer-events: none;
+      filter: grayscale(0.6);
+    }
+
+    .slide-counter {
+      color: #b0cfe0;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* ----- SLIDE CONTENT STYLES ----- */
+    .slide {
+      display: none;
+      animation: fadeSlide 0.3s ease;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0.4; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #0a263b;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 3px solid #dce7f0;
+      padding-bottom: 0.6rem;
+    }
+
+    .slide h2 i {
+      color: #1b6d9e;
+      font-size: 2rem;
+    }
+
+    .slide .sub {
+      font-size: 1.05rem;
+      color: #2e4a66;
+      margin-bottom: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .slide .sub .tag {
+      background: #e3edf5;
+      padding: 0.1rem 1.2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #1e5580;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.8rem;
+      margin: 1.5rem 0;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .mount-card {
+      background: #f5f9fe;
+      border-radius: 1.5rem;
+      padding: 1.5rem 1.6rem;
+      border-left: 6px solid #2d7fb0;
+      box-shadow: 0 4px 12px rgba(0, 20, 40, 0.04);
+      transition: 0.2s;
+    }
+
+    .mount-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(27, 109, 158, 0.10);
+    }
+
+    .mount-card h3 {
+      font-size: 1.3rem;
+      color: #0e2c47;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.5rem;
+    }
+
+    .mount-card h3 i {
+      color: #1f6e9b;
+      font-size: 1.4rem;
+      width: 2rem;
+    }
+
+    .mount-card p {
+      color: #1f3a55;
+      line-height: 1.6;
+      font-size: 0.98rem;
+    }
+
+    .mount-card .highlight {
+      background: #dcebf7;
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #00407a;
+      display: inline-block;
+      margin-top: 0.4rem;
+    }
+
+    .code-snip {
+      background: #0d1f2e;
+      color: #d6e6f5;
+      padding: 1rem 1.5rem;
+      border-radius: 1.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      margin: 1.2rem 0;
+      border-left: 5px solid #3b9bd6;
+      overflow-x: auto;
+    }
+
+    .code-snip .cm { color: #6a8faa; }
+    .code-snip .kw { color: #f5a97f; }
+    .code-snip .str { color: #a6da95; }
+    .code-snip .fn { color: #8fc5e8; }
+
+    .icon-big {
+      font-size: 2.6rem;
+      color: #1b6d9e;
+      margin-right: 10px;
+    }
+
+    .flex-row {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      margin: 1.2rem 0;
+    }
+
+    .badge {
+      background: #d1e2f0;
+      color: #124064;
+      padding: 0.2rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .footnote {
+      margin-top: 1.8rem;
+      padding-top: 1.2rem;
+      border-top: 2px solid #e2eaf2;
+      color: #3b5e7a;
+      font-size: 0.95rem;
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .comparison-box {
+      background: #f0f6fd;
+      border-radius: 1.2rem;
+      padding: 1.2rem 1.8rem;
+      margin: 1rem 0;
+      border: 1px solid #d4e2ef;
+    }
+
+    .comparison-box strong {
+      color: #0a2b47;
+    }
+
+    .comparison-box i {
+      color: #1b6d9e;
+      width: 1.8rem;
+    }
+
+    @media (max-width: 780px) {
+      .slide-card {
+        padding: 1.8rem 1.2rem;
+      }
+      .grid-2col, .grid-3col {
+        grid-template-columns: 1fr;
+      }
+      .slide h2 {
+        font-size: 1.6rem;
+      }
+      .slide-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .nav-btn {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="slide-wrapper">
+  <div class="slide-card">
+
+    <!-- ========== SLIDE 1 ========== -->
+    <div class="slide active" data-slide="0">
+      <h2><i class="fas fa-mount"></i> Mounting in Docker – Overview</h2>
+      <div class="sub">
+        <span><i class="fas fa-database"></i> Data persistence &amp; sharing</span>
+        <span class="tag"><i class="far fa-file-alt"></i> 3 main types</span>
+      </div>
+
+      <p style="font-size:1.05rem; margin-bottom:1.8rem;">
+        By default, data written inside a container is <strong>ephemeral</strong>. When the container is removed, all its data is lost.
+        Docker provides <strong>mounts</strong> to persist data, share files between containers, and access host files.
+      </p>
+
+      <div class="grid-3col">
+        <div class="mount-card">
+          <h3><i class="fas fa-folder"></i> Volumes</h3>
+          <p>Managed entirely by Docker. Stored in <code>/var/lib/docker/volumes/</code>. Survive container deletion.</p>
+          <span class="highlight">✅ Recommended for production</span>
+        </div>
+        <div class="mount-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-link"></i> Bind Mounts</h3>
+          <p>Mount a host directory directly into the container. Bypasses the Union File System.</p>
+          <span class="highlight">⚡ Fast for development</span>
+        </div>
+        <div class="mount-card" style="border-left-color: #8a4d9e;">
+          <h3><i class="fas fa-memory"></i> tmpfs Mounts</h3>
+          <p>In‑memory filesystem. Data is lost on container stop. Perfect for caches and secrets.</p>
+          <span class="highlight">🔐 No disk persistence</span>
+        </div>
+      </div>
+
+      <div class="footnote">
+        <span><i class="fas fa-check-circle" style="color:#1d7a3e;"></i> Volumes are the preferred way for persistent data</span>
+        <span><i class="fas fa-code"></i> <code>docker volume create</code> + <code>--mount</code></span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 2 ========== -->
+    <div class="slide" data-slide="1">
+      <h2><i class="fas fa-folder-open"></i> Volumes – The Preferred Way</h2>
+      <div class="sub">
+        <span><i class="fas fa-check-circle" style="color:#1d7a3e;"></i> Managed by Docker, decoupled from the container</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="mount-card">
+          <h3><i class="fas fa-plus-circle"></i> Create &amp; Use</h3>
+          <p><code>docker volume create mydata</code></p>
+          <p><code>docker run -v mydata:/app/data nginx</code></p>
+          <span class="highlight">📦 Named volumes</span>
+        </div>
+        <div class="mount-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-trash-alt"></i> Lifecycle</h3>
+          <p>Volumes survive container removal. They are only deleted when you run <code>docker volume rm</code> or <code>docker system prune</code>.</p>
+          <span class="highlight">♻️ Persistent storage</span>
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Create a volume</span><br>
+        $ docker volume create postgres-data<br><br>
+        <span class="cm"># Run a container with the volume</span><br>
+        $ docker run -d \<br>
+          &nbsp;&nbsp;--name postgres \<br>
+          &nbsp;&nbsp;-v <span class="kw">postgres-data</span>:/var/lib/postgresql/data \<br>
+          &nbsp;&nbsp;postgres:13
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-info-circle"></i> <strong>Why volumes?</strong> They are more portable, secure, and easier to back up than bind mounts. Volume drivers also support remote storage (NFS, AWS EBS, etc.).
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 3 ========== -->
+    <div class="slide" data-slide="2">
+      <h2><i class="fas fa-link"></i> Bind Mounts – Host Access</h2>
+      <div class="sub">
+        <span><i class="fas fa-folder"></i> Mount a host directory into the container</span>
+        <span class="tag">Development &amp; testing</span>
+      </div>
+
+      <div class="flex-row">
+        <i class="fas fa-arrow-right icon-big"></i>
+        <p><strong>Bind mounts</strong> map a host path (absolute or relative) to a container path. Changes are immediately visible on both sides.</p>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Mount current directory to /app in container</span><br>
+        $ docker run -v <span class="str">$(pwd)</span>:/app -w /app node npm start<br><br>
+        <span class="cm"># Using --mount syntax (more explicit)</span><br>
+        $ docker run --mount type=bind,src=<span class="str">/host/data</span>,dst=<span class="str">/container/data</span> alpine
+      </div>
+
+      <div class="grid-2col">
+        <div class="mount-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-check"></i> Pros</h3>
+          <p>✅ Great for development – edit code on host, see changes instantly in container.</p>
+          <p>✅ Access host configuration files.</p>
+        </div>
+        <div class="mount-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Cons</h3>
+          <p>⚠️ Host filesystem dependency – less portable.</p>
+          <p>⚠️ Permissions issues (UID/GID mismatches).</p>
+          <p>⚠️ Not ideal for production.</p>
+        </div>
+      </div>
+
+      <div class="footnote">
+        <span><i class="fas fa-shield-alt"></i> Use <code>:ro</code> to make bind mounts read‑only: <code>-v /host:/container:ro</code></span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 4 ========== -->
+    <div class="slide" data-slide="3">
+      <h2><i class="fas fa-memory"></i> tmpfs Mounts – In‑Memory Storage</h2>
+      <div class="sub">
+        <span><i class="fas fa-bolt"></i> Ephemeral, fast, and secure</span>
+      </div>
+
+      <div class="flex-row">
+        <i class="fas fa-ram icon-big"></i>
+        <p><strong>tmpfs</strong> mounts store data only in the host's memory (RAM). Nothing is written to disk.</p>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Mount tmpfs to /tmp inside container</span><br>
+        $ docker run --tmpfs /tmp:rw,size=512m alpine<br><br>
+        <span class="cm"># Using --mount syntax</span><br>
+        $ docker run --mount type=tmpfs,dst=<span class="str">/cache</span>,tmpfs-size=256m nginx
+      </div>
+
+      <div class="grid-2col">
+        <div class="mount-card" style="border-left-color: #8a4d9e;">
+          <h3><i class="fas fa-check-circle"></i> Use Cases</h3>
+          <p>🔹 Temporary caches</p>
+          <p>🔹 Session data</p>
+          <p>🔹 Secrets that should never hit disk</p>
+          <p>🔹 High‑performance scratch space</p>
+        </div>
+        <div class="mount-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-circle"></i> Limitations</h3>
+          <p>⚠️ Data is lost on container stop/restart</p>
+          <p>⚠️ Limited by host RAM</p>
+          <p>⚠️ Not suitable for persistent data</p>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lock" style="color:#b36b2d;"></i> <strong>Security:</strong> tmpfs is ideal for storing sensitive tokens or credentials that should never be persisted to disk.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 5 ========== -->
+    <div class="slide" data-slide="4">
+      <h2><i class="fas fa-code"></i> Mount Syntax – <code>-v</code> vs <code>--mount</code></h2>
+      <div class="sub">
+        <span><i class="fas fa-exchange-alt"></i> Two ways to mount data</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="mount-card" style="border-left-color: #2d7fb0;">
+          <h3><i class="fas fa-terminal"></i> <code>-v</code> or <code>--volume</code></h3>
+          <p><strong>Older, shorter syntax</strong></p>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.5rem 0;">
+            <span class="cm"># Volume</span><br>
+            -v myvol:/app<br>
+            <span class="cm"># Bind mount</span><br>
+            -v /host:/container<br>
+            <span class="cm"># tmpfs</span><br>
+            --tmpfs /tmp
+          </div>
+          <span class="highlight">⚡ Quick &amp; simple</span>
+        </div>
+        <div class="mount-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-list-ul"></i> <code>--mount</code></h3>
+          <p><strong>Newer, explicit, recommended</strong></p>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.5rem 0;">
+            <span class="cm"># Volume</span><br>
+            --mount type=volume,src=myvol,dst=/app<br>
+            <span class="cm"># Bind mount</span><br>
+            --mount type=bind,src=/host,dst=/container<br>
+            <span class="cm"># tmpfs</span><br>
+            --mount type=tmpfs,dst=/tmp,tmpfs-size=512m
+          </div>
+          <span class="highlight">📖 More readable &amp; feature‑rich</span>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Use <code>--mount</code> in scripts and production for clarity. Use <code>-v</code> for quick local testing.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 6 ========== -->
+    <div class="slide" data-slide="5">
+      <h2><i class="fas fa-cogs"></i> Mount Propagation – Sharing Mounts</h2>
+      <div class="sub">
+        <span><i class="fas fa-share-alt"></i> How mounts appear in nested containers</span>
+      </div>
+
+      <p>When you mount a volume into a container, you can control how that mount is propagated to <strong>sub‑mounts</strong> inside the container (or to other containers).</p>
+
+      <div class="grid-3col">
+        <div class="mount-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-arrow-right"></i> shared</h3>
+          <p>Mounts propagate from the host to the container and <strong>back</strong> to the host. Changes in the container are visible on the host.</p>
+        </div>
+        <div class="mount-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-arrow-left"></i> slave</h3>
+          <p>Mounts propagate from the host to the container, but <strong>not</strong> back from container to host.</p>
+        </div>
+        <div class="mount-card" style="border-left-color: #8a4d9e;">
+          <h3><i class="fas fa-ban"></i> private</h3>
+          <p>No propagation in either direction. The container's mount is completely isolated.</p>
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Set propagation with --mount</span><br>
+        $ docker run --mount type=bind,src=/host,dst=/container,<span class="kw">bind-propagation=shared</span> alpine
+      </div>
+
+      <div class="footnote">
+        <span><i class="fas fa-info-circle"></i> Default propagation is <code>rslave</code> on Linux</span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 7 ========== -->
+    <div class="slide" data-slide="6">
+      <h2><i class="fas fa-tools"></i> Managing Volumes – CLI Commands</h2>
+      <div class="sub">
+        <span><i class="fas fa-terminal"></i> Full lifecycle control</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="mount-card" style="border-left-color: #2d7fb0;">
+          <h3><i class="fas fa-list"></i> Inspect &amp; List</h3>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.5rem 0;">
+            $ docker volume ls<br>
+            $ docker volume inspect myvol
+          </div>
+        </div>
+        <div class="mount-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-trash"></i> Remove</h3>
+          <div class="code-snip" style="font-size:0.75rem; margin:0.5rem 0;">
+            $ docker volume rm myvol<br>
+            $ docker volume prune  <span class="cm"># remove unused</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mount-card" style="border-left-color: #2a7a3e; margin-top:1rem;">
+        <h3><i class="fas fa-sync-alt"></i> Backup &amp; Restore</h3>
+        <div class="code-snip" style="font-size:0.75rem; margin:0.5rem 0;">
+          <span class="cm"># Backup volume to tar</span><br>
+          $ docker run --rm -v myvol:/data -v $(pwd):/backup alpine \<br>
+          &nbsp;&nbsp;tar czf /backup/myvol-backup.tar.gz -C /data .<br><br>
+          <span class="cm"># Restore from tar</span><br>
+          $ docker run --rm -v myvol:/data -v $(pwd):/backup alpine \<br>
+          &nbsp;&nbsp;tar xzf /backup/myvol-backup.tar.gz -C /data
+        </div>
+        <span class="highlight">💾 Volume backup using a temporary container</span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 8 ========== -->
+    <div class="slide" data-slide="7">
+      <h2><i class="fas fa-plug"></i> Volume Drivers – External Storage</h2>
+      <div class="sub">
+        <span><i class="fas fa-cloud"></i> Plugins for cloud &amp; network storage</span>
+      </div>
+
+      <p>Docker volumes can be backed by <strong>volume drivers</strong> (plugins) that provide access to remote storage systems.</p>
+
+      <div class="grid-3col">
+        <div class="mount-card" style="border-left-color: #1f6e9b;">
+          <h3><i class="fab fa-aws"></i> AWS EBS</h3>
+          <p><code>docker volume create --driver=aws</code></p>
+          <span class="highlight">☁️ Elastic Block Storage</span>
+        </div>
+        <div class="mount-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-network-wired"></i> NFS</h3>
+          <p><code>docker volume create --driver=local --opt type=nfs</code></p>
+          <span class="highlight">📂 Network File System</span>
+        </div>
+        <div class="mount-card" style="border-left-color: #8a4d9e;">
+          <h3><i class="fas fa-server"></i> Azure File</h3>
+          <p><code>docker volume create --driver=azurefile</code></p>
+          <span class="highlight">☁️ Azure Files</span>
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Create volume with NFS driver</span><br>
+        $ docker volume create --driver local \<br>
+        &nbsp;&nbsp;--opt type=nfs \<br>
+        &nbsp;&nbsp;--opt o=addr=192.168.1.100,rw \<br>
+        &nbsp;&nbsp;--opt device=:/exports/data \<br>
+        &nbsp;&nbsp;nfs-data
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-star" style="color:#d48f2b;"></i> <strong>CSI integration:</strong> Docker supports the Container Storage Interface (CSI) for advanced volume plugins.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 9 ========== -->
+    <div class="slide" data-slide="8">
+      <h2><i class="fas fa-sync-alt"></i> Recap – Choosing the Right Mount</h2>
+      <div class="sub">
+        <span><i class="fas fa-check-double"></i> Decision guide</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.2rem 0;">
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-folder" style="color:#1f6e9b; width:2rem;"></i> 
+          <div><strong>Volumes</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Production, persistence, backups</span></div>
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-link" style="color:#b36b2d; width:2rem;"></i> 
+          <div><strong>Bind Mounts</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Development, hot-reload, host access</span></div>
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-memory" style="color:#8a4d9e; width:2rem;"></i> 
+          <div><strong>tmpfs</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Caches, secrets, ephemeral data</span></div>
+        </div>
+        <div style="background:#dcebf7; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-plug" style="color:#1d7a3e; width:2rem;"></i> 
+          <div><strong>Volume Drivers</strong><br><span style="font-size:0.85rem; color:#2e4a66;">Cloud storage, NFS, distributed systems</span></div>
+        </div>
+      </div>
+
+      <div style="background:#0d1f2e; color:#d6e6f5; border-radius:1.5rem; padding:1.2rem 1.8rem; margin-top:1rem;">
+        <i class="fas fa-quote-left" style="color:#5ba9e0; margin-right:8px;"></i>
+        “<strong>Volumes</strong> for data you care about. <strong>Bind mounts</strong> for code you're writing. <strong>tmpfs</strong> for things you don't want to store.”
+      </div>
+
+      <div class="footnote">
+        <span><i class="fas fa-docker" style="color:#0e7cbb;"></i> Mounts are defined in <code>docker run</code>, <code>docker compose</code>, or Dockerfiles with <code>VOLUME</code></span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE NAVIGATION ========== -->
+    <div class="slide-nav">
+      <button class="nav-btn" id="prevSlide"><i class="fas fa-chevron-left"></i> Prev</button>
+      <div class="dots" id="dotsContainer"></div>
+      <button class="nav-btn" id="nextSlide">Next <i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; flex-wrap:wrap; gap:0.5rem;">
+      <span class="slide-counter" id="slideCounter">1 / 9</span>
+      <span style="color:#8fb4cc; font-size:0.8rem;"><i class="fas fa-arrows-alt-h"></i> Use arrow keys or click dots</span>
+    </div>
+
+  </div> <!-- end slide-card -->
+</div> <!-- end slide-wrapper -->
+
+<script>
+  (function() {
+    const slides = document.querySelectorAll('.slide');
+    const dotsContainer = document.getElementById('dotsContainer');
+    const prevBtn = document.getElementById('prevSlide');
+    const nextBtn = document.getElementById('nextSlide');
+    const counter = document.getElementById('slideCounter');
+
+    let current = 0;
+    const total = slides.length;
+
+    // create dots
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.dataset.index = i;
+      dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+      dot.addEventListener('click', function() {
+        goTo(parseInt(this.dataset.index));
+      });
+      dotsContainer.appendChild(dot);
+    }
+
+    const dots = dotsContainer.querySelectorAll('.dot');
+
+    function goTo(index) {
+      if (index < 0) index = 0;
+      if (index >= total) index = total - 1;
+      if (index === current) return;
+
+      slides[current].classList.remove('active');
+      dots[current].classList.remove('active');
+      current = index;
+      slides[current].classList.add('active');
+      dots[current].classList.add('active');
+      updateCounter();
+      updateButtons();
+    }
+
+    function updateCounter() {
+      counter.textContent = (current + 1) + ' / ' + total;
+    }
+
+    function updateButtons() {
+      prevBtn.disabled = (current === 0);
+      nextBtn.disabled = (current === total - 1);
+    }
+
+    function next() {
+      if (current < total - 1) goTo(current + 1);
+    }
+
+    function prev() {
+      if (current > 0) goTo(current - 1);
+    }
+
+    prevBtn.addEventListener('click', prev);
+    nextBtn.addEventListener('click', next);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        next();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        prev();
+      }
+    });
+
+    updateCounter();
+    updateButtons();
+  })();
+</script>
+
+</body>
+</html>

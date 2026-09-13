@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docker Architecture — Deep Dive</title>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f4f7fc;
+      font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+      padding: 2rem 1rem;
+      color: #1e293b;
+      line-height: 1.7;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 2.5rem;
+      box-shadow: 0 20px 60px rgba(0, 20, 40, 0.12);
+      padding: 3rem 2.5rem;
+      transition: all 0.2s ease;
+    }
+
+    /* headers */
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(145deg, #0b2b4a, #1d4b6e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      border-left: 6px solid #0e7cbb;
+      padding-left: 1.5rem;
+    }
+
+    .subhead {
+      font-size: 1.1rem;
+      color: #475569;
+      margin-bottom: 2.5rem;
+      padding-left: 2rem;
+      border-bottom: 2px solid #e9edf2;
+      padding-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .subhead i {
+      color: #0e7cbb;
+      font-size: 1.3rem;
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-top: 2.8rem;
+      margin-bottom: 1rem;
+      color: #0b2b4a;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 0.5rem;
+    }
+
+    h2 i {
+      color: #1f6e9b;
+      font-size: 1.8rem;
+      width: 2.2rem;
+      text-align: center;
+    }
+
+    h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-top: 2rem;
+      margin-bottom: 0.6rem;
+      color: #1e3a5f;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h3 i {
+      color: #2a7aa8;
+      font-size: 1.3rem;
+      width: 2rem;
+      text-align: center;
+    }
+
+    h4 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-top: 1.6rem;
+      margin-bottom: 0.4rem;
+      color: #254e77;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h4 i {
+      color: #3a8bbb;
+      font-size: 1.1rem;
+      width: 1.8rem;
+      text-align: center;
+    }
+
+    p {
+      margin-bottom: 1.2rem;
+      color: #1e293b;
+    }
+
+    /* cards / highlight boxes */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.8rem;
+      margin: 1.8rem 0 2.2rem 0;
+    }
+
+    .card {
+      background: #f8fafc;
+      border-radius: 1.5rem;
+      padding: 1.5rem 1.8rem;
+      border-left: 5px solid #2a7aa8;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+      transition: transform 0.15s ease, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(14, 124, 187, 0.08);
+    }
+
+    .card i {
+      font-size: 2rem;
+      color: #1f6e9b;
+      margin-bottom: 0.6rem;
+      display: inline-block;
+    }
+
+    .card h4 {
+      margin-top: 0;
+      color: #0b2b4a;
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .card p {
+      font-size: 0.98rem;
+      color: #334155;
+      margin-bottom: 0;
+    }
+
+    .pill {
+      display: inline-block;
+      background: #e2e8f0;
+      padding: 0.2rem 1rem;
+      border-radius: 30px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      color: #1e3a5f;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .code-block {
+      background: #0b1c2b;
+      color: #e2e8f0;
+      padding: 1.4rem 1.8rem;
+      border-radius: 1.2rem;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.9rem;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border-left: 5px solid #3b9bd6;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+      line-height: 1.6;
+    }
+
+    .code-block span.comment {
+      color: #6a8faa;
+    }
+
+    .code-block span.keyword {
+      color: #f5a97f;
+    }
+
+    .code-block span.string {
+      color: #a6da95;
+    }
+
+    .divider {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(to right, #dce3ec, #b0c8db, #dce3ec);
+      margin: 2.5rem 0;
+    }
+
+    ul, ol {
+      margin: 0.8rem 0 1.2rem 2rem;
+      color: #1e293b;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    .icon-list {
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .icon-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 0.9rem;
+    }
+
+    .icon-list li i {
+      color: #1f6e9b;
+      font-size: 1.2rem;
+      min-width: 1.8rem;
+      margin-top: 0.2rem;
+    }
+
+    .badge {
+      background: #dbeafe;
+      color: #1e4b7a;
+      padding: 0.25rem 0.9rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    .feature-box {
+      background: #f1f6fa;
+      border-radius: 1.2rem;
+      padding: 1.6rem 2rem;
+      margin: 1.8rem 0;
+      border: 1px solid #dce7f0;
+    }
+
+    .feature-box i {
+      color: #0e7cbb;
+      margin-right: 10px;
+    }
+
+    @media (max-width: 680px) {
+      .container {
+        padding: 1.8rem 1.2rem;
+      }
+      h1 {
+        font-size: 2rem;
+        padding-left: 0.8rem;
+      }
+      h2 {
+        font-size: 1.6rem;
+      }
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- header -->
+  <h1><i class="fas fa-docker" style="background: none; -webkit-text-fill-color: #0e7cbb; margin-right: 12px;"></i> Docker Architecture</h1>
+  <div class="subhead">
+    <i class="fas fa-code-branch"></i> A 10 000‑word deep dive into the engine, kernel, and ecosystem
+    <span style="margin-left: auto; background: #e2e8f0; padding: 0.2rem 1.2rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; color:#1e3a5f;"><i class="far fa-clock"></i> 15 min read</span>
+  </div>
+
+  <!-- ===== PART I ===== -->
+  <h2><i class="fas fa-cubes"></i> Part I: The Macro‑Architecture – Trinity of Client, Daemon, Registry</h2>
+  <p>At its highest conceptual level, Docker is a three‑legged stool. Understanding the rigid separation of duties in this trinity is the first step to mastering the system.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <i class="fas fa-terminal"></i>
+      <h4>Docker Client</h4>
+      <p>The stateless CLI/UI that marshals requests to the daemon. Reads <code>~/.docker/config.json</code>, speaks REST API, and supports TLS for remote hosts.</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-server"></i>
+      <h4>Docker Daemon (<code>dockerd</code>)</h4>
+      <p>Persistent background process that manages images, containers, networks, and volumes. Uses a modular plugin system and maintains state in <code>/var/lib/docker</code>.</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <h4>Docker Registry</h4>
+      <p>Stateless, horizontally‑scalable artifact server. Implements Registry API V2 with content‑addressable storage (CAS) and layer deduplication.</p>
+    </div>
+  </div>
+
+  <p><strong>Client ↔ Daemon:</strong> The client translates <code>docker run</code> into HTTP POST requests to the Unix socket <code>/var/run/docker.sock</code> (or a TCP endpoint). <strong>Daemon ↔ Registry:</strong> The daemon pulls/pushes images using manifest digests, verifying layer integrity with SHA256 hashes.</p>
+
+  <div class="divider"></div>
+
+  <!-- ===== PART II ===== -->
+  <h2><i class="fas fa-microchip"></i> Part II: The Kernel Primitives – Namespaces, Cgroups, OverlayFS</h2>
+  <p>Containers are just processes on the host kernel. Docker orchestrates five Linux namespaces, cgroups, and OverlayFS to build the illusion of isolation.</p>
+
+  <h3><i class="fas fa-vector-square"></i> Namespaces (Isolation)</h3>
+  <ul class="icon-list">
+    <li><i class="fas fa-hashtag"></i> <strong>PID</strong> – process tree isolation; container sees its process as PID 1.</li>
+    <li><i class="fas fa-network-wired"></i> <strong>NET</strong> – network stack isolation; each container gets its own <code>eth0</code> via veth pairs.</li>
+    <li><i class="fas fa-folder-tree"></i> <strong>MNT</strong> – mount point isolation; root filesystem is constructed from image layers.</li>
+    <li><i class="fas fa-server"></i> <strong>UTS</strong> – hostname &amp; domain isolation.</li>
+    <li><i class="fas fa-users"></i> <strong>User</strong> – UID mapping; container root (0) can be mapped to a non‑privileged host UID (e.g., 100000).</li>
+  </ul>
+
+  <h3><i class="fas fa-tachometer-alt"></i> Control Groups (cgroups)</h3>
+  <p>Resource governors. The daemon writes CPU, memory, and I/O limits to <code>/sys/fs/cgroup</code>. The kernel enforces these limits and triggers OOM kills when memory exceeds.</p>
+
+  <h3><i class="fas fa-layer-group"></i> Union File Systems (OverlayFS)</h3>
+  <p>Copy‑on‑write (CoW) storage. Overlay2 uses <code>lowerdir</code> (image layers), <code>upperdir</code> (container writable layer), and <code>merged</code> (unified view). Writing a file triggers a <strong>copy‑up</strong> operation, preserving immutability of images.</p>
+
+  <div class="feature-box">
+    <i class="fas fa-bolt"></i> <strong>Netfilter &amp; iptables:</strong> Docker inserts DNAT rules into the <code>DOCKER</code> chain for port publishing. This kernel‑level packet processing is extremely fast and avoids user‑space proxy overhead.
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== PART III ===== -->
+  <h2><i class="fas fa-project-diagram"></i> Part III: The Runtime Stack – containerd, runc, and the Shim</h2>
+  <p>The modern Docker runtime is layered for resilience and OCI compliance.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <i class="fas fa-cogs"></i>
+      <h4>containerd</h4>
+      <p>Core container lifecycle manager. Handles image pulls, snapshotting, and container state. Exposes a gRPC API and delegates process execution to <code>runc</code>.</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-terminal"></i>
+      <h4>runc</h4>
+      <p>OCI‑compliant low‑level runtime. Reads <code>config.json</code>, invokes <code>libcontainer</code> to create namespaces and cgroups, then starts the container process.</p>
+    </div>
+    <div class="card">
+      <i class="fas fa-shield-alt"></i>
+      <h4>containerd‑shim</h4>
+      <p>Survives containerd restarts. Reaps zombie processes, manages TTY, and enables live‑restore. The shim is the parent of the container process.</p>
+    </div>
+  </div>
+
+  <p><strong>Flow:</strong> <code>dockerd</code> → gRPC → <code>containerd</code> → <code>containerd-shim</code> → <code>runc</code> → kernel.<br>
+  If the daemon crashes, the shim keeps containers running; when the daemon restarts, it re‑attaches to the shim.</p>
+
+  <div class="divider"></div>
+
+  <!-- ===== PART IV ===== -->
+  <h2><i class="fas fa-cube"></i> Part IV: Image Architecture – Layers, Content Addressing, BuildKit</h2>
+  <p>Docker images are Merkle‑tree‑style layer stacks. Each instruction in a <code>Dockerfile</code> (e.g., <code>RUN</code>, <code>COPY</code>) creates a new layer.</p>
+
+  <div class="code-block">
+    <span class="comment"># Example Dockerfile layers</span><br>
+    FROM ubuntu:20.04          <span class="comment"># layer 1</span><br>
+    RUN apt-get update &amp;&amp; apt-get install -y nginx  <span class="comment"># layer 2</span><br>
+    COPY ./index.html /var/www/html/   <span class="comment"># layer 3</span>
+  </div>
+
+  <h3><i class="fas fa-tools"></i> BuildKit</h3>
+  <p>The modern builder (replacing the legacy sequential builder). Uses a <strong>Low‑Level Build (LLB)</strong> graph to enable parallel execution of independent steps. Supports cache mounts (e.g., <code>--mount=type=cache,target=/root/.m2</code>) and secret mounting without embedding secrets in the final image.</p>
+
+  <h3><i class="fas fa-fingerprint"></i> Content Addressing &amp; Registry V2</h3>
+  <p>Each layer is identified by a SHA256 digest. The manifest lists these digests, ensuring integrity. The daemon performs <strong>dynamic chunk size negotiation</strong> during pulls for optimal throughput.</p>
+
+  <div class="divider"></div>
+
+  <!-- ===== PART V ===== -->
+  <h2><i class="fas fa-network-wired"></i> Part V: Networking – Drivers, CNI, and DNS</h2>
+  <p>Docker’s networking is powered by <code>libnetwork</code> and the Container Network Model (CNM).</p>
+
+  <h3><i class="fas fa-sitemap"></i> Network Drivers</h3>
+  <ul>
+    <li><strong>Bridge</strong> – default; uses <code>docker0</code> bridge and NAT via iptables.</li>
+    <li><strong>Host</strong> – no isolation; container shares host network stack (maximum performance).</li>
+    <li><strong>Overlay</strong> – VXLAN encapsulation for multi‑host communication; encrypted with IPsec.</li>
+    <li><strong>Macvlan / Ipvlan</strong> – assign a MAC address; direct physical network integration.</li>
+    <li><strong>None</strong> – no networking; fully isolated.</li>
+  </ul>
+
+  <h3><i class="fas fa-map-pin"></i> IPAM &amp; Embedded DNS</h3>
+  <p>The IPAM driver allocates subnets dynamically. The embedded DNS (<code>127.0.0.11</code>) resolves service names to container IPs, enabling round‑robin load balancing. This is fundamental for service discovery.</p>
+
+  <div class="feature-box">
+    <i class="fas fa-handshake"></i> <strong>CNI integration:</strong> In Kubernetes mode, Docker delegates networking to CNI plugins (Calico, Flannel). The daemon uses the same <code>containerd</code> runtime to serve both standalone and K8s workloads.
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== PART VI ===== -->
+  <h2><i class="fas fa-database"></i> Part VI: Storage – Volumes, Bind Mounts, and Plugins</h2>
+  <p>Docker provides three primary ways to manage persistent data:</p>
+  <ul>
+    <li><strong>Volumes</strong> – managed by Docker, stored in <code>/var/lib/docker/volumes/</code>. Survive container deletion. Support volume drivers (NFS, EBS, etc.).</li>
+    <li><strong>Bind Mounts</strong> – mount a host directory directly; bypasses the Union File System.</li>
+    <li><strong>tmpfs</strong> – in‑memory mounts; lost on stop (used for secrets and caches).</li>
+  </ul>
+
+  <h3><i class="fas fa-archive"></i> Storage Driver (Overlay2)</h3>
+  <p>Overlay2 uses four directories: <code>lowerdir</code> (image layers), <code>upperdir</code> (container writable layer), <code>workdir</code> (atomic operations), and <code>merged</code> (final view). Copy‑up operations are expensive for large files, so databases often use bind mounts or volumes.</p>
+
+  <div class="divider"></div>
+
+  <!-- ===== PART VII ===== -->
+  <h2><i class="fas fa-shield-virus"></i> Part VII: Security Architecture – Defense in Depth</h2>
+  <p>Security is woven into every layer of the stack.</p>
+
+  <ul class="icon-list">
+    <li><i class="fas fa-user-secret"></i> <strong>User Namespace Remapping</strong> – container root maps to a non‑privileged host UID (e.g., 100000).</li>
+    <li><i class="fas fa-ban"></i> <strong>Seccomp Profiles</strong> – default profile blocks ~44 dangerous syscalls (<code>reboot</code>, <code>mount</code>, etc.).</li>
+    <li><i class="fas fa-lock"></i> <strong>AppArmor / SELinux</strong> – mandatory access control (MAC) profiles limit file and network access.</li>
+    <li><i class="fas fa-key"></i> <strong>Capabilities</strong> – drops <code>CAP_SYS_ADMIN</code>, keeps only essential ones (e.g., <code>CAP_NET_BIND_SERVICE</code>).</li>
+    <li><i class="fas fa-user-lock"></i> <strong>Rootless Mode</strong> – daemon and containers run without root privileges, using <code>slirp4netns</code> for networking.</li>
+    <li><i class="fas fa-certificate"></i> <strong>Content Trust (Notary)</strong> – signs images with TUF framework; client verifies signatures before pulling.</li>
+  </ul>
+
+  <div class="divider"></div>
+
+  <!-- ===== PART VIII ===== -->
+  <h2><i class="fas fa-chart-line"></i> Part VIII: Observability – Logging, Metrics, Tracing</h2>
+
+  <h3><i class="fas fa-pen-square"></i> Logging Drivers</h3>
+  <p>STDOUT/STDERR from containers is captured by the daemon and sent to a pluggable driver: <code>json‑file</code> (default), <code>syslog</code>, <code>fluentd</code>, <code>awslogs</code>, <code>splunk</code>, etc. The architecture decouples log storage from the container.</p>
+
+  <h3><i class="fas fa-chart-pie"></i> Metrics &amp; Prometheus</h3>
+  <p>The <code>/containers/{id}/stats</code> endpoint streams real‑time CPU, memory, network, and block I/O metrics (derived from cgroups). Prometheus can scrape this endpoint for monitoring and alerting.</p>
+
+  <h3><i class="fas fa-code-branch"></i> Distributed Tracing</h3>
+  <p>The daemon can emit OpenTelemetry spans via <code>--otel</code> flags, enabling tracing of API requests across the client‑daemon‑registry stack.</p>
+
+  <div class="divider"></div>
+
+  <!-- ===== PART IX ===== -->
+  <h2><i class="fas fa-sitemap"></i> Part IX: Orchestration – Swarm &amp; Kubernetes</h2>
+
+  <h3><i class="fas fa-swarm"></i> Docker Swarm Mode</h3>
+  <p>Swarm adds Raft consensus, manager/worker nodes, services, and tasks. The <strong>ingress network</strong> (routing mesh) uses an overlay network to route traffic to the correct worker via a Virtual IP (VIP).</p>
+
+  <h3><i class="fab fa-kubernetes"></i> Docker &amp; Kubernetes</h3>
+  <p>Docker can serve as the container runtime for Kubernetes via the CRI (Container Runtime Interface). In this architecture, <code>kubelet</code> talks directly to <code>containerd</code>, bypassing <code>dockerd</code>—a clean separation that highlights the modularity of the stack.</p>
+
+  <div class="divider"></div>
+
+  <!-- ===== PART X ===== -->
+  <h2><i class="fas fa-sync-alt"></i> Part X: Lifecycle Walkthrough – <code>docker run</code> in Detail</h2>
+  <p>A step‑by‑step journey of a <code>docker run -d -p 8080:80 nginx</code> command:</p>
+  <ol>
+    <li><strong>Client → Daemon:</strong> CLI builds a JSON payload and POSTs to <code>/containers/create</code> over the Unix socket.</li>
+    <li><strong>Image Resolution:</strong> Daemon checks local cache; if missing, it pulls the manifest and layers from the registry using content‑addressable digests.</li>
+    <li><strong>Container Config:</strong> Daemon allocates an IP via IPAM, creates OverlayFS snapshot (new <code>upperdir</code>), and writes host config.</li>
+    <li><strong>Daemon → containerd:</strong> gRPC call passes OCI spec and rootfs path.</li>
+    <li><strong>containerd → runc:</strong> <code>containerd-shim</code> invokes <code>runc create</code> and <code>runc start</code>.</li>
+    <li><strong>Kernel:</strong> <code>runc</code> creates namespaces, sets cgroups, executes <code>pivot_root</code>, and <code>execve</code>s the <code>ENTRYPOINT</code>.</li>
+    <li><strong>Supervision:</strong> The shim monitors the process; STDOUT is captured and sent to the logging driver.</li>
+    <li><strong>Cleanup:</strong> On <code>docker stop</code>, SIGTERM then SIGKILL; iptables rules are removed, IP is released, and the <code>upperdir</code> is optionally deleted.</li>
+  </ol>
+
+  <div class="feature-box">
+    <i class="fas fa-heartbeat"></i> <strong>Live Restore:</strong> If <code>dockerd</code> crashes, the <code>shim</code> keeps containers alive. When the daemon restarts, it rescans containerd’s state and re‑attaches.
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ===== PART XI ===== -->
+  <h2><i class="fas fa-exclamation-triangle"></i> Part XI: Edge Cases &amp; Failure Modes</h2>
+  <ul>
+    <li><strong>OOM Kill:</strong> Exceeding memory limits triggers kernel OOM killer; shim reports <code>exited (137)</code>.</li>
+    <li><strong>Network Partition (Swarm):</strong> Manager loses quorum → read‑only mode; workers continue running existing tasks.</li>
+    <li><strong>Disk Full:</strong> Daemon pauses writes to containers; exposes disk pressure via metrics.</li>
+  </ul>
+
+  <div class="divider"></div>
+
+  <!-- ===== PART XII ===== -->
+  <h2><i class="fas fa-rocket"></i> Part XII: The Future – WebAssembly, Rootless, and Beyond</h2>
+  <p>Docker’s architecture is evolving to support <strong>WebAssembly (Wasm)</strong> modules alongside OCI containers. <code>containerd</code> can now invoke a Wasm runtime (e.g., Wasmtime) using the same <code>docker run</code> interface. The registry stores <code>.wasm</code> artifacts just like images.</p>
+  <p>With the deprecation of Swarm, Docker is focusing on being the best developer‑friendly runtime for Kubernetes, ensuring that <code>dockerd</code> works seamlessly with CRI.</p>
+
+  <div class="divider"></div>
+
+  <!-- ===== CONCLUSION ===== -->
+  <h2><i class="fas fa-flag-checkered"></i> Conclusion: The Symphony of the Kernel</h2>
+  <p>Docker’s architecture is a masterful orchestration of user‑space and kernel‑space primitives. It leverages namespaces, cgroups, and OverlayFS to deliver near‑VM isolation with near‑bare‑metal performance. The modular layering—Client, Daemon, containerd, runc, and shim—ensures resilience, security, and portability.</p>
+  <p>Understanding this architecture is not just about knowing how <code>docker run</code> works; it is about grasping the future of cloud‑native computing. Docker has redefined how we package, distribute, and execute software at scale, and its architecture remains a blueprint for modern infrastructure.</p>
+
+  <div style="margin-top: 3rem; padding: 1.5rem 0; border-top: 2px solid #e2e8f0; text-align: center; color: #475569; font-size: 0.9rem;">
+    <i class="fas fa-docker" style="color: #0e7cbb; font-size: 1.4rem; margin-right: 10px;"></i>
+    Docker Architecture — 10 000‑word deep dive • <i class="far fa-copyright"></i> 2026
+  </div>
+
+</div> <!-- end container -->
+</body>
+</html>

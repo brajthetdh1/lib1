@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docker Namespaces – Interactive Slides</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    /* ----- RESET & BASE ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #0b1a2a 0%, #1a2f44 100%);
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    /* ----- SLIDE CONTAINER ----- */
+    .slide-wrapper {
+      max-width: 1100px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(4px);
+      border-radius: 3rem;
+      padding: 1.8rem 1.8rem 2rem 1.8rem;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .slide-card {
+      background: #ffffff;
+      border-radius: 2.2rem;
+      padding: 2.8rem 3rem;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), 0 20px 40px -10px rgba(0,0,0,0.5);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    /* ----- SLIDE NAVIGATION ----- */
+    .slide-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.8rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .slide-nav .dots {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .slide-nav .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 40px;
+      background: rgba(255, 255, 255, 0.25);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 0;
+    }
+
+    .slide-nav .dot.active {
+      background: #5ba9e0;
+      width: 32px;
+      box-shadow: 0 0 12px #3f9ad6;
+    }
+
+    .slide-nav .dot:hover {
+      background: #80c0f0;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #eef4fa;
+      padding: 0.6rem 1.5rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(2px);
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: #6bb4ed;
+      color: white;
+      transform: scale(1.02);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      pointer-events: none;
+      filter: grayscale(0.6);
+    }
+
+    .slide-counter {
+      color: #b0cfe0;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* ----- SLIDE CONTENT STYLES ----- */
+    .slide {
+      display: none;
+      animation: fadeSlide 0.3s ease;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0.4; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #0a263b;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 3px solid #dce7f0;
+      padding-bottom: 0.6rem;
+    }
+
+    .slide h2 i {
+      color: #1b6d9e;
+      font-size: 2rem;
+    }
+
+    .slide .sub {
+      font-size: 1.05rem;
+      color: #2e4a66;
+      margin-bottom: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .slide .sub .tag {
+      background: #e3edf5;
+      padding: 0.1rem 1.2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #1e5580;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.8rem;
+      margin: 1.5rem 0;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .ns-card {
+      background: #f5f9fe;
+      border-radius: 1.5rem;
+      padding: 1.5rem 1.6rem;
+      border-left: 6px solid #2d7fb0;
+      box-shadow: 0 4px 12px rgba(0, 20, 40, 0.04);
+      transition: 0.2s;
+    }
+
+    .ns-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(27, 109, 158, 0.10);
+    }
+
+    .ns-card h3 {
+      font-size: 1.3rem;
+      color: #0e2c47;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.5rem;
+    }
+
+    .ns-card h3 i {
+      color: #1f6e9b;
+      font-size: 1.4rem;
+      width: 2rem;
+    }
+
+    .ns-card p {
+      color: #1f3a55;
+      line-height: 1.6;
+      font-size: 0.98rem;
+    }
+
+    .ns-card .highlight {
+      background: #dcebf7;
+      padding: 0.2rem 0.8rem;
+      border-radius: 40px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #00407a;
+      display: inline-block;
+      margin-top: 0.4rem;
+    }
+
+    .code-snip {
+      background: #0d1f2e;
+      color: #d6e6f5;
+      padding: 1rem 1.5rem;
+      border-radius: 1.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      margin: 1.2rem 0;
+      border-left: 5px solid #3b9bd6;
+      overflow-x: auto;
+    }
+
+    .code-snip .cm { color: #6a8faa; }
+    .code-snip .kw { color: #f5a97f; }
+    .code-snip .str { color: #a6da95; }
+
+    .icon-big {
+      font-size: 2.6rem;
+      color: #1b6d9e;
+      margin-right: 10px;
+    }
+
+    .flex-row {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      margin: 1.2rem 0;
+    }
+
+    .badge {
+      background: #d1e2f0;
+      color: #124064;
+      padding: 0.2rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .footnote {
+      margin-top: 1.8rem;
+      padding-top: 1.2rem;
+      border-top: 2px solid #e2eaf2;
+      color: #3b5e7a;
+      font-size: 0.95rem;
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 780px) {
+      .slide-card {
+        padding: 1.8rem 1.2rem;
+      }
+      .grid-2col, .grid-3col {
+        grid-template-columns: 1fr;
+      }
+      .slide h2 {
+        font-size: 1.6rem;
+      }
+      .slide-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .nav-btn {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="slide-wrapper">
+  <div class="slide-card">
+
+    <!-- ========== SLIDE 1 ========== -->
+    <div class="slide active" data-slide="0">
+      <h2><i class="fas fa-cube"></i> Linux Namespaces – The Isolation Wall</h2>
+      <div class="sub">
+        <span><i class="fas fa-microchip"></i> Kernel primitives that make containers possible</span>
+        <span class="tag"><i class="far fa-file-alt"></i> 6 namespaces</span>
+      </div>
+
+      <p style="font-size:1.05rem; margin-bottom:1.8rem;">
+        Namespaces wrap global system resources — like process IDs, network interfaces, and user IDs — 
+        in an abstraction that makes each container think it has its own dedicated OS.
+      </p>
+
+      <div class="grid-3col">
+        <div class="ns-card">
+          <h3><i class="fas fa-hashtag"></i> PID</h3>
+          <p>Process ID isolation. The container sees its main process as PID 1, while the host sees a high-numbered PID.</p>
+          <span class="highlight">🔒 prevents host process visibility</span>
+        </div>
+        <div class="ns-card">
+          <h3><i class="fas fa-network-wired"></i> NET</h3>
+          <p>Network stack isolation. Each container gets its own <code>eth0</code>, IP address, routing tables, and iptables.</p>
+          <span class="highlight">🌐 veth pairs + bridge</span>
+        </div>
+        <div class="ns-card">
+          <h3><i class="fas fa-folder-tree"></i> MNT</h3>
+          <p>Mount point isolation. The container root filesystem is assembled from image layers via OverlayFS.</p>
+          <span class="highlight">📂 copy‑on‑write</span>
+        </div>
+        <div class="ns-card">
+          <h3><i class="fas fa-server"></i> UTS</h3>
+          <p>Hostname &amp; domain name isolation. A container can set its hostname without affecting the host.</p>
+          <span class="highlight">🏷️ <code>hostname web-01</code></span>
+        </div>
+        <div class="ns-card">
+          <h3><i class="fas fa-users"></i> User</h3>
+          <p>UID/GID mapping. Container root (UID 0) can be mapped to a non‑privileged host UID (e.g., 100000).</p>
+          <span class="highlight">🛡️ privilege escalation protection</span>
+        </div>
+        <div class="ns-card">
+          <h3><i class="fas fa-exchange-alt"></i> IPC</h3>
+          <p>Inter‑process communication isolation. Prevents containers from accessing each other’s shared memory or message queues.</p>
+          <span class="highlight">🚫 System V / POSIX isolation</span>
+        </div>
+      </div>
+
+      <div class="footnote">
+        <span><i class="fas fa-check-circle" style="color:#1d7a3e;"></i> Together, these namespaces create the “container” illusion</span>
+        <span><i class="fas fa-linux"></i> Managed by <code>runc</code> + <code>libcontainer</code></span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 2 ========== -->
+    <div class="slide" data-slide="1">
+      <h2><i class="fas fa-sitemap"></i> PID Namespace – Process Tree Isolation</h2>
+      <div class="sub">
+        <span><i class="fas fa-code-branch"></i> Each container gets its own process hierarchy</span>
+      </div>
+
+      <div class="flex-row">
+        <i class="fas fa-diagram-project icon-big"></i>
+        <p style="flex:1;"><strong>Inside the container</strong> the main process is PID 1 (like an init system). 
+        Outside, the kernel maps it to a random high PID (e.g., 23456) on the host.</p>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># On the host</span><br>
+        $ ps aux | grep nginx<br>
+        root  <span class="kw">23456</span>  0.0  0.1  ... nginx: master<br><br>
+        <span class="cm"># Inside the container</span><br>
+        $ docker exec web ps aux<br>
+        root  <span class="kw">1</span>  0.0  0.1  ... nginx: master
+      </div>
+
+      <p><i class="fas fa-shield-alt" style="color:#1b6d9e;"></i> <strong>Security benefit:</strong> a compromised container cannot see or signal host processes.</p>
+
+      <div class="ns-card" style="margin-top:1.2rem; border-left-color:#b36b2d;">
+        <h3><i class="fas fa-info-circle"></i> Why it matters</h3>
+        <p>Each container can run its own <code>systemd</code> or <code>init</code> without conflicts. 
+        The kernel handles the PID translation transparently.</p>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 3 ========== -->
+    <div class="slide" data-slide="2">
+      <h2><i class="fas fa-network-wired"></i> NET Namespace – Network Isolation</h2>
+      <div class="sub">
+        <span><i class="fas fa-ethernet"></i> Full network stack per container</span>
+        <span class="tag">veth pairs + iptables</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="ns-card" style="border-left-color:#2a7a3e;">
+          <h3><i class="fas fa-plug"></i> Virtual Ethernet (veth)</h3>
+          <p>Docker creates a pair of virtual interfaces: one in the container (<code>eth0</code>), the other attached to the host bridge (<code>docker0</code>).</p>
+        </div>
+        <div class="ns-card" style="border-left-color:#9b5f2d;">
+          <h3><i class="fas fa-firewall"></i> iptables &amp; NAT</h3>
+          <p>The daemon inserts DNAT rules to forward host ports to container IPs. This enables <code>-p 8080:80</code>.</p>
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Host network bridge</span><br>
+        $ ip link show docker0<br>
+        3: docker0: &lt;BROADCAST,MULTICAST,UP&gt; mtu 1500<br>
+        <span class="cm"># Container sees its own eth0</span><br>
+        $ docker exec web ip addr<br>
+        15: eth0@if16: &lt;BROADCAST,MULTICAST,UP&gt;  <span class="kw">inet 172.17.0.2/16</span>
+      </div>
+
+      <p><i class="fas fa-arrow-right" style="color:#1b6d9e;"></i> <strong>Overlay networks</strong> use VXLAN to extend NET namespaces across hosts.</p>
+    </div>
+
+    <!-- ========== SLIDE 4 ========== -->
+    <div class="slide" data-slide="3">
+      <h2><i class="fas fa-folder-tree"></i> MNT Namespace – Mount Isolation</h2>
+      <div class="sub">
+        <span><i class="fas fa-layer-group"></i> Root filesystem from image layers</span>
+      </div>
+
+      <div class="flex-row">
+        <i class="fas fa-copy icon-big"></i>
+        <p><strong>OverlayFS</strong> combines <code>lowerdir</code> (image layers) and <code>upperdir</code> (writable layer) 
+        into a single <code>merged</code> view. Each container has its own mount namespace.</p>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Container root filesystem</span><br>
+        $ docker exec web ls /<br>
+        bin   dev   etc   home   lib   <span class="str">proc</span>   root   sys   tmp   usr   var<br><br>
+        <span class="cm"># Host mounts are invisible inside the container</span><br>
+        $ docker exec web mount<br>
+        overlay on / type overlay (rw,relatime,...)
+      </div>
+
+      <div class="ns-card" style="border-left-color:#8a4d9e;">
+        <h3><i class="fas fa-lock"></i> Security &amp; Performance</h3>
+        <p>Mount namespace prevents containers from accessing host filesystems. 
+        Copy‑on‑write (CoW) makes starting containers fast and disk‑efficient.</p>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 5 ========== -->
+    <div class="slide" data-slide="4">
+      <h2><i class="fas fa-users"></i> User Namespace – UID Mapping</h2>
+      <div class="sub">
+        <span><i class="fas fa-user-shield"></i> The strongest security isolation</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="ns-card" style="border-left-color:#b34d4d;">
+          <h3><i class="fas fa-exchange-alt"></i> Mapping</h3>
+          <p>Container UID 0 (root) is mapped to a non‑privileged host UID, e.g., <code>100000</code>. 
+          Even if a container is compromised, the attacker only has user‑level privileges on the host.</p>
+        </div>
+        <div class="ns-card" style="border-left-color:#2d7f7f;">
+          <h3><i class="fas fa-file-alt"></i> Configuration</h3>
+          <p>Enable with <code>dockerd --userns-remap=default</code>. All files written to volumes are owned by the remapped UID.</p>
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Inside container – root</span><br>
+        $ docker exec web whoami<br>
+        root<br><br>
+        <span class="cm"># On the host – the process is owned by UID 100000</span><br>
+        $ ps -eo uid,pid,cmd | grep nginx<br>
+        <span class="kw">100000</span>  23456  nginx: master
+      </div>
+
+      <div class="feature-box" style="background:#e5f1fa; border-radius:1.2rem; padding:1rem 1.6rem; margin-top:0.8rem;">
+        <i class="fas fa-star" style="color:#d48f2b;"></i> <strong>Rootless mode</strong> takes this further: the entire daemon runs without root privileges.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 6 ========== -->
+    <div class="slide" data-slide="5">
+      <h2><i class="fas fa-exchange-alt"></i> IPC &amp; UTS Namespaces</h2>
+      <div class="sub">
+        <span><i class="fas fa-code"></i> Hostname &amp; inter‑process communication</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="ns-card" style="border-left-color:#6b4f8a;">
+          <h3><i class="fas fa-server"></i> UTS (Hostname)</h3>
+          <p>Each container can set its own hostname using <code>--hostname</code>. The host’s hostname remains untouched.</p>
+          <div class="code-snip" style="margin:0.6rem 0; font-size:0.75rem;">
+            $ docker run --hostname web-01 alpine hostname<br>
+            web-01
+          </div>
+        </div>
+        <div class="ns-card" style="border-left-color:#a0612b;">
+          <h3><i class="fas fa-comment"></i> IPC (Inter‑Process Communication)</h3>
+          <p>Isolates System V semaphores, shared memory, and POSIX message queues. Prevents containers from interfering with each other’s IPC resources.</p>
+          <span class="highlight">🧩 separate /dev/shm</span>
+        </div>
+      </div>
+
+      <div class="footnote" style="margin-top:1.5rem;">
+        <span><i class="fas fa-check"></i> Together with PID, NET, MNT, and User, these six namespaces form the complete isolation boundary.</span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 7 ========== -->
+    <div class="slide" data-slide="6">
+      <h2><i class="fas fa-cogs"></i> How Docker Orchestrates Namespaces</h2>
+      <div class="sub">
+        <span><i class="fas fa-project-diagram"></i> From <code>docker run</code> to kernel</span>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:0.6rem; margin:1.2rem 0;">
+        <div style="background:#eaf1f9; padding:0.8rem 1.4rem; border-radius:60px; display:flex; align-items:center; gap:12px;">
+          <span class="badge">1</span> <code>dockerd</code> receives API request
+        </div>
+        <div style="background:#eaf1f9; padding:0.8rem 1.4rem; border-radius:60px; display:flex; align-items:center; gap:12px; margin-left:1.5rem;">
+          <span class="badge">2</span> <code>containerd</code> prepares OCI spec
+        </div>
+        <div style="background:#eaf1f9; padding:0.8rem 1.4rem; border-radius:60px; display:flex; align-items:center; gap:12px; margin-left:3rem;">
+          <span class="badge">3</span> <code>runc</code> reads <code>config.json</code> and creates namespaces
+        </div>
+        <div style="background:#eaf1f9; padding:0.8rem 1.4rem; border-radius:60px; display:flex; align-items:center; gap:12px; margin-left:4.5rem;">
+          <span class="badge">4</span> Kernel instantiates PID, NET, MNT, UTS, User, IPC
+        </div>
+        <div style="background:#dcebf7; padding:0.8rem 1.4rem; border-radius:60px; display:flex; align-items:center; gap:12px; margin-left:6rem;">
+          <span class="badge">✅</span> Container process starts inside the namespaces
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Check namespaces of a running container</span><br>
+        $ ls -l /proc/<span class="kw">$(docker inspect -f '{{.State.Pid}}' web)</span>/ns/<br>
+        ipc → ipc:[4026532441]<br>
+        net → net:[4026532477]<br>
+        pid → pid:[4026532456]<br>
+        user → user:[4026532361]<br>
+        uts → uts:[4026532442]
+      </div>
+
+      <p><i class="fas fa-gem" style="color:#1b6d9e;"></i> Each namespace type has a unique inode number — proof of isolation.</p>
+    </div>
+
+    <!-- ========== SLIDE 8 ========== -->
+    <div class="slide" data-slide="7">
+      <h2><i class="fas fa-shield-virus"></i> Security &amp; Best Practices</h2>
+      <div class="sub">
+        <span><i class="fas fa-lock"></i> Hardening namespace usage</span>
+      </div>
+
+      <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:1rem;">
+        <li style="background:#f3f8ff; border-radius:1.2rem; padding:1rem 1.6rem; display:flex; gap:16px; align-items:flex-start;">
+          <i class="fas fa-user-secret" style="color:#1f6e9b; font-size:1.6rem;"></i>
+          <div><strong>Enable user namespace remapping</strong> — maps container root to a non‑privileged host UID.</div>
+        </li>
+        <li style="background:#f3f8ff; border-radius:1.2rem; padding:1rem 1.6rem; display:flex; gap:16px; align-items:flex-start;">
+          <i class="fas fa-ban" style="color:#1f6e9b; font-size:1.6rem;"></i>
+          <div><strong>Drop capabilities</strong> — avoid <code>CAP_SYS_ADMIN</code> which can allow namespace manipulation.</div>
+        </li>
+        <li style="background:#f3f8ff; border-radius:1.2rem; padding:1rem 1.6rem; display:flex; gap:16px; align-items:flex-start;">
+          <i class="fas fa-network-wired" style="color:#1f6e9b; font-size:1.6rem;"></i>
+          <div><strong>Use non‑default networks</strong> — user‑defined bridge networks provide automatic DNS and better isolation.</div>
+        </li>
+        <li style="background:#f3f8ff; border-radius:1.2rem; padding:1rem 1.6rem; display:flex; gap:16px; align-items:flex-start;">
+          <i class="fas fa-eye-slash" style="color:#1f6e9b; font-size:1.6rem;"></i>
+          <div><strong>Seccomp / AppArmor</strong> — restrict syscalls even within the namespace.</div>
+        </li>
+      </ul>
+
+      <div class="footnote" style="margin-top:1.2rem;">
+        <span><i class="fas fa-check-circle" style="color:#1d7a3e;"></i> Namespaces are the foundation, but security requires layers (cgroups, capabilities, seccomp).</span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 9 ========== -->
+    <div class="slide" data-slide="8">
+      <h2><i class="fas fa-sync-alt"></i> Recap – The Six Namespaces</h2>
+      <div class="sub">
+        <span><i class="fas fa-list-ul"></i> At a glance</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.2rem 0;">
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-hashtag" style="color:#1f6e9b; width:1.8rem;"></i> <strong>PID</strong> – Process isolation
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-network-wired" style="color:#1f6e9b; width:1.8rem;"></i> <strong>NET</strong> – Network stack
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-folder-tree" style="color:#1f6e9b; width:1.8rem;"></i> <strong>MNT</strong> – Mount points
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-server" style="color:#1f6e9b; width:1.8rem;"></i> <strong>UTS</strong> – Hostname
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-users" style="color:#1f6e9b; width:1.8rem;"></i> <strong>User</strong> – UID mapping
+        </div>
+        <div style="background:#e4eff8; border-radius:1rem; padding:0.8rem 1.2rem; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-exchange-alt" style="color:#1f6e9b; width:1.8rem;"></i> <strong>IPC</strong> – Inter‑process communication
+        </div>
+      </div>
+
+      <div style="background:#0d1f2e; color:#d6e6f5; border-radius:1.5rem; padding:1.2rem 1.8rem; margin-top:1rem;">
+        <i class="fas fa-quote-left" style="color:#5ba9e0; margin-right:8px;"></i>
+        “Namespaces are the <strong>isolation wall</strong>; cgroups are the <strong>resource governor</strong>. Together they make containers possible.”
+      </div>
+
+      <div class="footnote">
+        <span><i class="fas fa-docker" style="color:#0e7cbb;"></i> Docker orchestrates namespaces via <code>runc</code> + <code>libcontainer</code></span>
+      </div>
+    </div>
+
+    <!-- ===== SLIDE NAVIGATION ===== -->
+    <div class="slide-nav">
+      <button class="nav-btn" id="prevSlide"><i class="fas fa-chevron-left"></i> Prev</button>
+      <div class="dots" id="dotsContainer"></div>
+      <button class="nav-btn" id="nextSlide">Next <i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; flex-wrap:wrap; gap:0.5rem;">
+      <span class="slide-counter" id="slideCounter">1 / 9</span>
+      <span style="color:#8fb4cc; font-size:0.8rem;"><i class="fas fa-arrows-alt-h"></i> Use arrow keys or click dots</span>
+    </div>
+
+  </div> <!-- end slide-card -->
+</div> <!-- end slide-wrapper -->
+
+<script>
+  (function() {
+    const slides = document.querySelectorAll('.slide');
+    const dotsContainer = document.getElementById('dotsContainer');
+    const prevBtn = document.getElementById('prevSlide');
+    const nextBtn = document.getElementById('nextSlide');
+    const counter = document.getElementById('slideCounter');
+
+    let current = 0;
+    const total = slides.length;
+
+    // create dots
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.dataset.index = i;
+      dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+      dot.addEventListener('click', function() {
+        goTo(parseInt(this.dataset.index));
+      });
+      dotsContainer.appendChild(dot);
+    }
+
+    const dots = dotsContainer.querySelectorAll('.dot');
+
+    function goTo(index) {
+      if (index < 0) index = 0;
+      if (index >= total) index = total - 1;
+      if (index === current) return;
+
+      slides[current].classList.remove('active');
+      dots[current].classList.remove('active');
+      current = index;
+      slides[current].classList.add('active');
+      dots[current].classList.add('active');
+      updateCounter();
+      updateButtons();
+    }
+
+    function updateCounter() {
+      counter.textContent = (current + 1) + ' / ' + total;
+    }
+
+    function updateButtons() {
+      prevBtn.disabled = (current === 0);
+      nextBtn.disabled = (current === total - 1);
+    }
+
+    function next() {
+      if (current < total - 1) goTo(current + 1);
+    }
+
+    function prev() {
+      if (current > 0) goTo(current - 1);
+    }
+
+    // event listeners
+    prevBtn.addEventListener('click', prev);
+    nextBtn.addEventListener('click', next);
+
+    // keyboard
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        next();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        prev();
+      }
+    });
+
+    // initial state
+    updateCounter();
+    updateButtons();
+  })();
+</script>
+
+</body>
+</html>

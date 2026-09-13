@@ -1,0 +1,2452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docker in Java – 60 Slides Complete Guide</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #0a1a2a 0%, #1a3348 100%);
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .slide-wrapper {
+      max-width: 1100px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(4px);
+      border-radius: 3rem;
+      padding: 1.8rem 1.8rem 2rem 1.8rem;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .slide-card {
+      background: #ffffff;
+      border-radius: 2.2rem;
+      padding: 2.8rem 3rem;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,0.6), 0 20px 40px -10px rgba(0,0,0,0.5);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .slide-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.8rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .slide-nav .dots {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+      flex-wrap: wrap;
+      max-width: 50%;
+    }
+
+    .slide-nav .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 40px;
+      background: rgba(255, 255, 255, 0.25);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .slide-nav .dot.active {
+      background: #5ba9e0;
+      width: 20px;
+      box-shadow: 0 0 12px #3f9ad6;
+    }
+
+    .slide-nav .dot:hover {
+      background: #80c0f0;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #eef4fa;
+      padding: 0.4rem 1rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(2px);
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: #6bb4ed;
+      color: white;
+      transform: scale(1.02);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      pointer-events: none;
+      filter: grayscale(0.6);
+    }
+
+    .slide-counter {
+      color: #b0cfe0;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .slide {
+      display: none;
+      animation: fadeSlide 0.3s ease;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0.4; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide h2 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: #0a263b;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 3px solid #dce7f0;
+      padding-bottom: 0.5rem;
+    }
+
+    .slide h2 i {
+      color: #1b6d9e;
+      font-size: 1.7rem;
+    }
+
+    .slide h2 .java-icon {
+      color: #f89820;
+    }
+
+    .slide .sub {
+      font-size: 0.95rem;
+      color: #2e4a66;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .slide .sub .tag {
+      background: #e3edf5;
+      padding: 0.1rem 1rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.7rem;
+      color: #1e5580;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+      margin: 1rem 0;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .java-card {
+      background: #f5f9fe;
+      border-radius: 1.2rem;
+      padding: 1.2rem 1.4rem;
+      border-left: 5px solid #2d7fb0;
+      box-shadow: 0 4px 12px rgba(0, 20, 40, 0.04);
+      transition: 0.2s;
+    }
+
+    .java-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(27, 109, 158, 0.10);
+    }
+
+    .java-card h3 {
+      font-size: 1.1rem;
+      color: #0e2c47;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 0.4rem;
+    }
+
+    .java-card h3 i {
+      color: #1f6e9b;
+      font-size: 1.2rem;
+      width: 1.6rem;
+    }
+
+    .java-card h3 .fa-java {
+      color: #f89820;
+    }
+
+    .java-card p {
+      color: #1f3a55;
+      line-height: 1.5;
+      font-size: 0.9rem;
+    }
+
+    .java-card .highlight {
+      background: #dcebf7;
+      padding: 0.15rem 0.6rem;
+      border-radius: 40px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #00407a;
+      display: inline-block;
+      margin-top: 0.3rem;
+    }
+
+    .code-snip {
+      background: #0d1f2e;
+      color: #d6e6f5;
+      padding: 0.8rem 1.2rem;
+      border-radius: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      margin: 0.8rem 0;
+      border-left: 4px solid #3b9bd6;
+      overflow-x: auto;
+    }
+
+    .code-snip .cm { color: #6a8faa; }
+    .code-snip .kw { color: #f5a97f; }
+    .code-snip .str { color: #a6da95; }
+    .code-snip .fn { color: #8fc5e8; }
+    .code-snip .num { color: #f5c2a0; }
+    .code-snip .java-kw { color: #c792ea; }
+    .code-snip .java-str { color: #c3e88d; }
+    .code-snip .java-ann { color: #f78c6c; }
+
+    .comparison-box {
+      background: #f0f6fd;
+      border-radius: 1rem;
+      padding: 0.8rem 1.2rem;
+      margin: 0.8rem 0;
+      border: 1px solid #d4e2ef;
+    }
+
+    .comparison-box strong {
+      color: #0a2b47;
+    }
+    .comparison-box i {
+      color: #1b6d9e;
+      width: 1.6rem;
+    }
+
+    .footnote {
+      margin-top: 1.2rem;
+      padding-top: 0.8rem;
+      border-top: 2px solid #e2eaf2;
+      color: #3b5e7a;
+      font-size: 0.85rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .step-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.6rem 0;
+    }
+
+    .step-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 0.3rem 0;
+      color: #1f3a55;
+      border-bottom: 1px solid #e8eff6;
+      font-size: 0.9rem;
+    }
+
+    .step-list li .step-num {
+      background: #1b6d9e;
+      color: white;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-list li i {
+      color: #1b6d9e;
+      width: 1.2rem;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+    }
+
+    .badge {
+      background: #d1e2f0;
+      color: #124064;
+      padding: 0.15rem 0.8rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-java {
+      background: #f89820;
+      color: white;
+    }
+
+    @media (max-width: 780px) {
+      .slide-card {
+        padding: 1.2rem 0.8rem;
+      }
+      .grid-2col, .grid-3col {
+        grid-template-columns: 1fr;
+      }
+      .slide h2 {
+        font-size: 1.3rem;
+      }
+      .slide-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .nav-btn {
+        justify-content: center;
+      }
+      .slide-nav .dots {
+        max-width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="slide-wrapper">
+  <div class="slide-card">
+
+    <!-- ========== SLIDE 1 ========== -->
+    <div class="slide active" data-slide="0">
+      <h2><i class="fab fa-docker"></i> <i class="fab fa-java java-icon"></i> Docker in Java – Complete Guide</h2>
+      <div class="sub">
+        <span><i class="fas fa-code"></i> 60 slides on Java + Docker</span>
+        <span class="tag"><i class="far fa-file-alt"></i> From basics to production</span>
+      </div>
+
+      <p style="font-size:1.05rem; margin-bottom:1.5rem;">
+        This comprehensive guide covers everything Java developers need to know about Docker –
+        from containerizing Spring Boot apps to advanced JVM tuning, multi-stage builds,
+        Docker Compose, Kubernetes, and production best practices.
+      </p>
+
+      <div class="grid-3col">
+        <div class="java-card">
+          <h3><i class="fas fa-play"></i> Getting Started</h3>
+          <p>Java Dockerfiles, base images, JVM basics</p>
+          <span class="highlight">📦 Slides 2-12</span>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-cube"></i> Spring Boot</h3>
+          <p>Containerizing Spring Boot applications</p>
+          <span class="highlight">🍃 Slides 13-22</span>
+        </div>
+        <div class="java-card" style="border-left-color: #8a4d9e;">
+          <h3><i class="fas fa-cogs"></i> Advanced JVM</h3>
+          <p>Memory tuning, GC, performance</p>
+          <span class="highlight">⚡ Slides 23-30</span>
+        </div>
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-hdd"></i> Multi-Stage &amp; Build</h3>
+          <p>Maven/Gradle, build optimizations</p>
+          <span class="highlight">🔨 Slides 31-38</span>
+        </div>
+        <div class="java-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-network-wired"></i> Compose &amp; K8s</h3>
+          <p>Orchestration for Java microservices</p>
+          <span class="highlight">☸️ Slides 39-48</span>
+        </div>
+        <div class="java-card" style="border-left-color: #9b5f2d;">
+          <h3><i class="fas fa-shield-alt"></i> Production</h3>
+          <p>Security, monitoring, best practices</p>
+          <span class="highlight">🔒 Slides 49-60</span>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-info-circle"></i> <strong>Navigation:</strong> Use arrow keys, click dots, or Prev/Next buttons.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 2 ========== -->
+    <div class="slide" data-slide="1">
+      <h2><i class="fab fa-java java-icon"></i> Java Base Images – Choosing the Right One</h2>
+      <div class="sub"><span><i class="fas fa-cube"></i> OpenJDK, Eclipse Temurin, Amazon Corretto</span></div>
+
+      <div class="grid-3col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Eclipse Temurin</h3>
+          <p>Open-source JDK from the Eclipse Foundation. Community-supported.</p>
+          <div class="code-snip" style="font-size:0.7rem;">
+            FROM eclipse-temurin:17-jre-alpine
+          </div>
+          <span class="highlight">📦 Recommended</span>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fab fa-amazon"></i> Amazon Corretto</h3>
+          <p>Amazon's no-cost, multi-platform distribution. Long-term support.</p>
+          <div class="code-snip" style="font-size:0.7rem;">
+            FROM amazoncorretto:17-alpine
+          </div>
+          <span class="highlight">☁️ AWS-friendly</span>
+        </div>
+        <div class="java-card" style="border-left-color: #8a4d9e;">
+          <h3><i class="fab fa-openjdk"></i> OpenJDK</h3>
+          <p>Official OpenJDK images. Deprecated in favor of Temurin.</p>
+          <div class="code-snip" style="font-size:0.7rem;">
+            FROM openjdk:17-jdk-slim
+          </div>
+          <span class="highlight">⚠️ Legacy</span>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Always use <code>-jre</code> variants for smaller images. Use <code>-alpine</code> for smallest footprint.
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-weight-hanging"></i> Image Size Comparison</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Full JDK: ~500-800MB</li>
+            <li>JRE slim: ~200-300MB</li>
+            <li>JRE alpine: ~150-200MB</li>
+            <li>Alpine + JRE: ~80-120MB</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-flag"></i> Version Compatibility</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Java 8: <code>eclipse-temurin:8</code></li>
+            <li>Java 11: <code>eclipse-temurin:11</code></li>
+            <li>Java 17: <code>eclipse-temurin:17</code></li>
+            <li>Java 21: <code>eclipse-temurin:21</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 3 ========== -->
+    <div class="slide" data-slide="2">
+      <h2><i class="fas fa-file-code"></i> Simple Java Dockerfile</h2>
+      <div class="sub"><span><i class="fas fa-pen"></i> Basic structure</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Basic Java Dockerfile</span><br>
+        FROM eclipse-temurin:17-jre-alpine<br><br>
+        WORKDIR /app<br>
+        COPY target/myapp.jar app.jar<br>
+        EXPOSE 8080<br>
+        CMD ["java", "-jar", "app.jar"]
+      </div>
+
+      <div class="step-list">
+        <li><span class="step-num">1</span> Use a JRE base image (not JDK)</li>
+        <li><span class="step-num">2</span> Set working directory to <code>/app</code></li>
+        <li><span class="step-num">3</span> Copy the built JAR file</li>
+        <li><span class="step-num">4</span> <code>EXPOSE</code> the application port</li>
+        <li><span class="step-num">5</span> Define the <code>CMD</code> to run the JAR</li>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-play"></i> <strong>Build &amp; Run:</strong>
+        <div class="code-snip" style="font-size:0.7rem; margin:0.3rem 0;">
+          $ docker build -t myapp .<br>
+          $ docker run -p 8080:8080 myapp
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 4 ========== -->
+    <div class="slide" data-slide="3">
+      <h2><i class="fas fa-cog"></i> JVM Options in Docker</h2>
+      <div class="sub"><span><i class="fas fa-sliders-h"></i> Optimizing Java in containers</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Passing JVM options</span><br>
+        CMD ["java", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]<br><br>
+        <span class="cm"># Using environment variables</span><br>
+        ENV JAVA_OPTS="-Xmx512m -Xms256m"<br>
+        CMD ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Important JVM Flags</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li><code>-Xmx</code> – Max heap size</li>
+            <li><code>-Xms</code> – Initial heap size</li>
+            <li><code>-XX:+UseContainerSupport</code> – JVM sees container limits (Java 10+)</li>
+            <li><code>-XX:MaxRAMPercentage</code> – Heap as % of container memory</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-info-circle"></i> Java 8 vs 10+</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Java 8: Manually set heap</li>
+            <li>Java 10+: JVM auto-detects container limits</li>
+            <li>Java 8u191+: <code>-XX:+UseContainerSupport</code> available</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 5 ========== -->
+    <div class="slide" data-slide="4">
+      <h2><i class="fas fa-chart-bar"></i> Memory Tuning for Java in Containers</h2>
+      <div class="sub"><span><i class="fas fa-memory"></i> Avoiding OOM kills</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Using MaxRAMPercentage (Java 10+)</span><br>
+        CMD ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]<br><br>
+        <span class="cm"># With container memory limit of 1GB</span><br>
+        $ docker run --memory=1g -e JAVA_OPTS="-XX:MaxRAMPercentage=70.0" myapp
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Recommended Settings</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li><code>-XX:MaxRAMPercentage=70.0</code> (70% of container memory)</li>
+            <li><code>-XX:InitialRAMPercentage=50.0</code></li>
+            <li><code>-XX:+UseG1GC</code> – Good for container environments</li>
+            <li>Reserve 30% for OS, JVM overhead</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Common Pitfalls</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Setting heap too high → OOM kill</li>
+            <li>Ignoring container memory limits</li>
+            <li>Using old JVM that doesn't support container detection</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Best Practice:</strong> Set <code>--memory</code> on container and use <code>-XX:MaxRAMPercentage</code> in JVM.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 6 ========== -->
+    <div class="slide" data-slide="5">
+      <h2><i class="fas fa-microchip"></i> CPU Tuning for Java in Containers</h2>
+      <div class="sub"><span><i class="fas fa-cpu"></i> Optimizing CPU usage</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># JVM sees container CPU limits (Java 10+)</span><br>
+        <span class="cm"># No extra flags needed – auto-detects CPU count</span><br>
+        <span class="cm"># But you can explicitly set:</span><br>
+        CMD ["java", "-XX:ActiveProcessorCount=4", "-jar", "app.jar"]
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> JVM CPU Settings</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>JVM auto-detects CPU shares</li>
+            <li>Parallel GC threads = CPU cores</li>
+            <li>ForkJoin pool = CPU cores</li>
+            <li>Java 10+ detects cgroup limits</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-sliders-h"></i> Manual Override</h3>
+          <div class="code-snip" style="font-size:0.7rem;">
+            $ docker run --cpus=2 myapp<br>
+            <span class="cm"># JVM automatically adjusts</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-info-circle"></i> <strong>Note:</strong> Garbage Collector threads = number of CPUs. For small containers, use <code>-XX:ParallelGCThreads=2</code> to limit GC overhead.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 7 ========== -->
+    <div class="slide" data-slide="6">
+      <h2><i class="fas fa-file-alt"></i> Java 8 in Containers – Special Considerations</h2>
+      <div class="sub"><span><i class="fas fa-exclamation-triangle"></i> Legacy Java 8 support</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Java 8 needs explicit container support (8u191+)</span><br>
+        FROM eclipse-temurin:8-jre-alpine<br>
+        CMD ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=70.0", "-jar", "app.jar"]
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Java 8 Limitations</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Pre-8u191: No container awareness</li>
+            <li>Must manually set <code>-Xmx</code></li>
+            <li>Must set <code>-XX:ParallelGCThreads</code></li>
+            <li>Default GC is Parallel GC (not G1)</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Java 8 Best Practices</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Use 8u192 or later</li>
+            <li>Explicitly set <code>-Xmx</code></li>
+            <li>Consider upgrading to Java 11+</li>
+            <li>Use <code>-XX:+UseG1GC</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 8 ========== -->
+    <div class="slide" data-slide="7">
+      <h2><i class="fas fa-garbage"></i> Garbage Collection in Containers</h2>
+      <div class="sub"><span><i class="fas fa-sync-alt"></i> Choosing the right GC</span></div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> G1GC (Recommended)</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Adaptive, low pause times</li>
+            <li>Good for multi-core systems</li>
+            <li>Best for containers</li>
+            <li><code>-XX:+UseG1GC</code></li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-check-circle"></i> ZGC (Java 11+)</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Ultra-low latency</li>
+            <li>Sub-millisecond pauses</li>
+            <li>Requires more memory</li>
+            <li><code>-XX:+UseZGC</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># GC options in Dockerfile</span><br>
+        ENV JAVA_OPTS="-XX:+UseG1GC -XX:MaxGCPauseMillis=200"<br>
+        CMD ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Recommendation:</strong> G1GC for most applications. ZGC for latency-sensitive, high-memory apps.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 9 ========== -->
+    <div class="slide" data-slide="8">
+      <h2><i class="fas fa-file-archive"></i> JAR Packaging – Fat JAR vs Thin JAR</h2>
+      <div class="sub"><span><i class="fas fa-cube"></i> Packaging strategies</span></div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-box"></i> Fat JAR (Uber JAR)</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>All dependencies bundled</li>
+            <li>Single file to copy</li>
+            <li>Larger image size</li>
+            <li>Spring Boot default</li>
+          </ul>
+          <span class="highlight">📦 Simple, but larger</span>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-layer-group"></i> Thin JAR</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Dependencies in separate layers</li>
+            <li>Better cache reuse</li>
+            <li>Smaller image size</li>
+            <li>Spring Boot layered JAR</li>
+          </ul>
+          <span class="highlight">🧅 Better for Docker cache</span>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Spring Boot 2.3+ supports layered JARs for optimal Docker layer caching.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 10 ========== -->
+    <div class="slide" data-slide="9">
+      <h2><i class="fas fa-layer-group"></i> Spring Boot Layered JARs</h2>
+      <div class="sub"><span><i class="fas fa-cache"></i> Optimal Docker caching</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Spring Boot plugin configuration (pom.xml)</span><br>
+        &lt;plugin&gt;<br>
+        &nbsp;&nbsp;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;<br>
+        &nbsp;&nbsp;&lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;<br>
+        &nbsp;&nbsp;&lt;configuration&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&lt;layers&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;enabled&gt;true&lt;/enabled&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&lt;/layers&gt;<br>
+        &nbsp;&nbsp;&lt;/configuration&gt;<br>
+        &lt;/plugin&gt;
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Dockerfile with layered JAR</span><br>
+        FROM eclipse-temurin:17-jre-alpine<br>
+        WORKDIR /app<br>
+        COPY target/*.jar app.jar<br>
+        <span class="cm"># Extract layers</span><br>
+        RUN java -Djarmode=layertools -jar app.jar extract<br>
+        COPY --from=builder /app/dependencies/ ./<br>
+        COPY --from=builder /app/snapshot-dependencies/ ./<br>
+        COPY --from=builder /app/spring-boot-loader/ ./<br>
+        COPY --from=builder /app/application/ ./<br>
+        CMD ["java", "-jar", "app.jar"]
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-rocket"></i> <strong>Benefit:</strong> Dependencies layer is cached. Only application layer changes on code updates.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 11 ========== -->
+    <div class="slide" data-slide="10">
+      <h2><i class="fas fa-maven"></i> Maven Dockerfile – Multi-Stage</h2>
+      <div class="sub"><span><i class="fas fa-build"></i> Build and runtime separation</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Multi-stage Maven build</span><br>
+        <span class="cm"># Build stage</span><br>
+        FROM maven:3.8-openjdk-17 AS builder<br>
+        WORKDIR /app<br>
+        COPY pom.xml .<br>
+        RUN mvn dependency:go-offline  <span class="cm"># Download dependencies</span><br>
+        COPY src ./src<br>
+        RUN mvn package -DskipTests<br><br>
+        <span class="cm"># Runtime stage</span><br>
+        FROM eclipse-temurin:17-jre-alpine<br>
+        WORKDIR /app<br>
+        COPY --from=builder /app/target/*.jar app.jar<br>
+        CMD ["java", "-jar", "app.jar"]
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Benefits</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>✅ No Maven in final image</li>
+            <li>✅ Smaller image</li>
+            <li>✅ Better security</li>
+            <li>✅ Faster builds with caching</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-sync-alt"></i> Cache Optimization</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li><code>dependency:go-offline</code> caches dependencies</li>
+            <li>Copies pom.xml first for cache reuse</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 12 ========== -->
+    <div class="slide" data-slide="11">
+      <h2><i class="fas fa-gradle"></i> Gradle Dockerfile – Multi-Stage</h2>
+      <div class="sub"><span><i class="fas fa-build"></i> Gradle build in container</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Multi-stage Gradle build</span><br>
+        <span class="cm"># Build stage</span><br>
+        FROM gradle:7.6-jdk17 AS builder<br>
+        WORKDIR /app<br>
+        COPY build.gradle settings.gradle .<br>
+        RUN gradle dependencies --no-daemon  <span class="cm"># Cache dependencies</span><br>
+        COPY src ./src<br>
+        RUN gradle build -x test --no-daemon<br><br>
+        <span class="cm"># Runtime stage</span><br>
+        FROM eclipse-temurin:17-jre-alpine<br>
+        WORKDIR /app<br>
+        COPY --from=builder /app/build/libs/*.jar app.jar<br>
+        CMD ["java", "-jar", "app.jar"]
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Use Gradle's <code>--no-daemon</code> to avoid leaving processes running.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 13 ========== -->
+    <div class="slide" data-slide="12">
+      <h2><i class="fas fa-spring"></i> Spring Boot Dockerfile – Complete Example</h2>
+      <div class="sub"><span><i class="fab fa-java java-icon"></i> Production-ready</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Production Spring Boot Dockerfile</span><br>
+        FROM eclipse-temurin:17-jre-alpine AS builder<br>
+        WORKDIR /app<br>
+        COPY --chown=appuser:appuser target/*.jar app.jar<br>
+        RUN java -Djarmode=layertools -jar app.jar extract<br><br>
+        FROM eclipse-temurin:17-jre-alpine<br>
+        RUN addgroup -S appgroup &amp;&amp; adduser -S appuser -G appgroup<br>
+        USER appuser<br>
+        WORKDIR /app<br>
+        COPY --from=builder --chown=appuser:appuser /app/dependencies/ ./<br>
+        COPY --from=builder --chown=appuser:appuser /app/spring-boot-loader/ ./<br>
+        COPY --from=builder --chown=appuser:appuser /app/snapshot-dependencies/ ./<br>
+        COPY --from=builder --chown=appuser:appuser /app/application/ ./<br>
+        EXPOSE 8080<br>
+        ENV JAVA_OPTS="-XX:MaxRAMPercentage=70.0 -XX:+UseG1GC"<br>
+        ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.JarLauncher"]
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-star" style="color:#d48f2b;"></i> <strong>Production Ready:</strong> Non-root user, layered JAR, optimized JVM settings.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 14 ========== -->
+    <div class="slide" data-slide="13">
+      <h2><i class="fas fa-database"></i> Java + Database – Docker Compose</h2>
+      <div class="sub"><span><i class="fas fa-code-branch"></i> Spring Boot + PostgreSQL</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># docker-compose.yml</span><br>
+        version: '3'<br>
+        services:<br>
+        &nbsp;&nbsp;db:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;image: postgres:15-alpine<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;environment:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- POSTGRES_DB=mydb<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- POSTGRES_USER=myuser<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- POSTGRES_PASSWORD=secret<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;volumes:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- postgres-data:/var/lib/postgresql/data<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;ports:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- "5432:5432"<br>
+        &nbsp;&nbsp;app:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;build: .<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;ports:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- "8080:8080"<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;environment:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/mydb<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- SPRING_DATASOURCE_USERNAME=myuser<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- SPRING_DATASOURCE_PASSWORD=secret<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;depends_on:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- db<br>
+        volumes:<br>
+        &nbsp;&nbsp;postgres-data:
+      </div>
+
+      <div class="code-snip" style="font-size:0.7rem;">
+        $ docker-compose up -d
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 15 ========== -->
+    <div class="slide" data-slide="14">
+      <h2><i class="fas fa-env"></i> Spring Boot Environment Variables</h2>
+      <div class="sub"><span><i class="fas fa-cog"></i> 12-factor app configuration</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Spring Boot environment variable mapping</span><br>
+        <span class="cm"># application.properties → SPRING_* env vars</span><br>
+        <span class="cm"># server.port → SERVER_PORT</span><br>
+        <span class="cm"># spring.datasource.url → SPRING_DATASOURCE_URL</span><br><br>
+        <span class="cm"># Docker run with env vars</span><br>
+        $ docker run -e SERVER_PORT=9090 -e SPRING_PROFILES_ACTIVE=prod myapp
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Common Env Vars</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li><code>SPRING_PROFILES_ACTIVE</code></li>
+            <li><code>SERVER_PORT</code></li>
+            <li><code>SPRING_DATASOURCE_URL</code></li>
+            <li><code>SPRING_DATASOURCE_USERNAME</code></li>
+            <li><code>SPRING_DATASOURCE_PASSWORD</code></li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-file-alt"></i> Env File</h3>
+          <div class="code-snip" style="font-size:0.7rem;">
+            <span class="cm"># .env file</span><br>
+            SPRING_PROFILES_ACTIVE=prod<br>
+            SERVER_PORT=8080
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 16 ========== -->
+    <div class="slide" data-slide="15">
+      <h2><i class="fas fa-microchip"></i> Java Heap Monitoring</h2>
+      <div class="sub"><span><i class="fas fa-chart-pie"></i> Observability in containers</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Enable JMX for monitoring</span><br>
+        ENV JAVA_OPTS="-Dcom.sun.management.jmxremote \<br>
+        &nbsp;&nbsp;-Dcom.sun.management.jmxremote.port=9010 \<br>
+        &nbsp;&nbsp;-Dcom.sun.management.jmxremote.local.only=true \<br>
+        &nbsp;&nbsp;-Dcom.sun.management.jmxremote.authenticate=false \<br>
+        &nbsp;&nbsp;-Dcom.sun.management.jmxremote.ssl=false"<br><br>
+        <span class="cm"># Or use JVM metrics with Micrometer</span><br>
+        <span class="cm"># Add to build.gradle: implementation 'io.micrometer:micrometer-registry-prometheus'</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-chart-line"></i> Prometheus + JMX</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Export JVM metrics via JMX</li>
+            <li>Use <code>jmx_prometheus_javaagent</code></li>
+            <li>Spring Boot Actuator + Micrometer</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-eye"></i> VisualVM / JConsole</h3>
+          <p>Connect remotely via JMX to monitor heap, GC, threads.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 17 ========== -->
+    <div class="slide" data-slide="16">
+      <h2><i class="fas fa-shield-alt"></i> Java Container Security</h2>
+      <div class="sub"><span><i class="fas fa-lock"></i> Secure Java applications</span></div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Security Best Practices</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Run as non-root user</li>
+            <li>Use minimal base images (Alpine)</li>
+            <li>Keep JDK/JRE updated</li>
+            <li>Scan for vulnerabilities</li>
+            <li>Drop unnecessary capabilities</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Common Risks</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Running as root</li>
+            <li>Outdated JVM with CVEs</li>
+            <li>Embedding secrets in image</li>
+            <li>No memory limits</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Secure Java Dockerfile</span><br>
+        FROM eclipse-temurin:17-jre-alpine<br>
+        RUN addgroup -S appgroup &amp;&amp; adduser -S appuser -G appgroup<br>
+        USER appuser<br>
+        <span class="cm"># Drop capabilities</span><br>
+        <span class="cm"># docker run --cap-drop=ALL --cap-add=NET_BIND_SERVICE ...</span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 18 ========== -->
+    <div class="slide" data-slide="17">
+      <h2><i class="fas fa-scan"></i> Scanning Java Images</h2>
+      <div class="sub"><span><i class="fas fa-bug"></i> Vulnerability detection</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Scan with Trivy (recommended for Java)</span><br>
+        $ trivy image myapp:latest<br><br>
+        <span class="cm"># Scan with Docker Scan (Snyk)</span><br>
+        $ docker scan myapp:latest<br><br>
+        <span class="cm"># Scan specific JAR file</span><br>
+        $ trivy fs --severity HIGH,CRITICAL .
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Common Java Vulnerabilities</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Log4Shell (CVE-2021-44228)</li>
+            <li>Spring4Shell (CVE-2022-22965)</li>
+            <li>Outdated dependencies</li>
+            <li>Vulnerable JVM versions</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-sync-alt"></i> CI/CD Integration</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Scan in CI pipeline</li>
+            <li>Block builds with high severity CVEs</li>
+            <li>Use Snyk or Trivy in GitHub Actions</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 19 ========== -->
+    <div class="slide" data-slide="18">
+      <h2><i class="fas fa-heartbeat"></i> Health Checks for Java Apps</h2>
+      <div class="sub"><span><i class="fas fa-stethoscope"></i> Spring Boot Actuator</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Dockerfile health check</span><br>
+        HEALTHCHECK --interval=30s --timeout=3s --retries=3 \<br>
+        &nbsp;&nbsp;CMD wget --no-verbose --tries=1 --spider \ <br>
+        &nbsp;&nbsp;http://localhost:8080/actuator/health || exit 1
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-spring"></i> Spring Boot Actuator</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Add <code>spring-boot-starter-actuator</code></li>
+            <li>Enable <code>/actuator/health</code></li>
+            <li>Add <code>/actuator/metrics</code> for monitoring</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-code"></i> Custom Health Checks</h3>
+          <div class="code-snip" style="font-size:0.7rem;">
+            @Component<br>
+            public class DatabaseHealthCheck implements HealthIndicator {<br>
+            &nbsp;&nbsp;@Override<br>
+            &nbsp;&nbsp;public Health health() { ... }<br>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 20 ========== -->
+    <div class="slide" data-slide="19">
+      <h2><i class="fas fa-tachometer-alt"></i> Performance Tuning – Summary</h2>
+      <div class="sub"><span><i class="fas fa-bolt"></i> Optimize Java in containers</span></div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Do's</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Use <code>-XX:MaxRAMPercentage=70.0</code></li>
+            <li>Use G1GC or ZGC</li>
+            <li>Set container memory limits</li>
+            <li>Use Alpine base images</li>
+            <li>Enable layered JARs</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Don'ts</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Don't set fixed heap in containers</li>
+            <li>Don't use <code>latest</code> base images</li>
+            <li>Don't run as root</li>
+            <li>Don't ignore memory limits</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-star" style="color:#d48f2b;"></i> <strong>Golden Rule:</strong> Test performance under load. Adjust heap and GC based on application behavior.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 21 ========== -->
+    <div class="slide" data-slide="20">
+      <h2><i class="fas fa-swarm"></i> Java Microservices with Swarm</h2>
+      <div class="sub"><span><i class="fas fa-sitemap"></i> Docker Swarm orchestration</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># docker-compose.yml for Swarm</span><br>
+        version: '3'<br>
+        services:<br>
+        &nbsp;&nbsp;discovery:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;image: myregistry/eureka:latest<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;deploy:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;replicas: 2<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resources:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limits:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memory: 512M<br>
+        &nbsp;&nbsp;api-gateway:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;image: myregistry/gateway:latest<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;ports:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- "8080:8080"<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;deploy:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;replicas: 3<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resources:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limits:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memory: 1G<br>
+        &nbsp;&nbsp;service:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;image: myregistry/service:latest<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;deploy:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;replicas: 5<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resources:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limits:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memory: 1G
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 22 ========== -->
+    <div class="slide" data-slide="21">
+      <h2><i class="fas fa-spring"></i> Spring Cloud Kubernetes</h2>
+      <div class="sub"><span><i class="fas fa-kubernetes"></i> Kubernetes integration</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># application.yml for Kubernetes</span><br>
+        spring:<br>
+        &nbsp;&nbsp;cloud:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;kubernetes:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;enabled: true<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;config:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;enabled: true<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;secrets:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;enabled: true<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;discovery:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;enabled: true<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reload:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;enabled: true
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Spring Cloud K8s Features</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>ConfigMap integration</li>
+            <li>Secret management</li>
+            <li>Service discovery</li>
+            <li>Load balancing</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-code"></i> Dependencies</h3>
+          <div class="code-snip" style="font-size:0.7rem;">
+            implementation 'org.springframework.cloud:spring-cloud-starter-kubernetes'
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 23 ========== -->
+    <div class="slide" data-slide="22">
+      <h2><i class="fas fa-file-export"></i> Kubernetes Deployment for Java</h2>
+      <div class="sub"><span><i class="fas fa-kubernetes"></i> YAML configuration</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># deployment.yaml</span><br>
+        apiVersion: apps/v1<br>
+        kind: Deployment<br>
+        metadata:<br>
+        &nbsp;&nbsp;name: myapp<br>
+        spec:<br>
+        &nbsp;&nbsp;replicas: 3<br>
+        &nbsp;&nbsp;selector:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;matchLabels:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;app: myapp<br>
+        &nbsp;&nbsp;template:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;metadata:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;labels:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;app: myapp<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;spec:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;containers:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- name: myapp<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;image: myregistry/myapp:latest<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ports:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- containerPort: 8080<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resources:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;requests:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memory: "512Mi"<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cpu: "250m"<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limits:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memory: "1Gi"<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cpu: "500m"<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;env:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- name: JAVA_OPTS<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value: "-XX:MaxRAMPercentage=70.0 -XX:+UseG1GC"<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- name: SPRING_PROFILES_ACTIVE<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value: "k8s"
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 24 ========== -->
+    <div class="slide" data-slide="23">
+      <h2><i class="fas fa-service"></i> Kubernetes Service for Java</h2>
+      <div class="sub"><span><i class="fas fa-network-wired"></i> Expose Java app</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># service.yaml</span><br>
+        apiVersion: v1<br>
+        kind: Service<br>
+        metadata:<br>
+        &nbsp;&nbsp;name: myapp-service<br>
+        spec:<br>
+        &nbsp;&nbsp;selector:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;app: myapp<br>
+        &nbsp;&nbsp;ports:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;- port: 80<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;targetPort: 8080<br>
+        &nbsp;&nbsp;type: LoadBalancer<br><br>
+        <span class="cm"># Ingress for routing</span><br>
+        apiVersion: networking.k8s.io/v1<br>
+        kind: Ingress<br>
+        metadata:<br>
+        &nbsp;&nbsp;name: myapp-ingress<br>
+        spec:<br>
+        &nbsp;&nbsp;rules:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;- host: myapp.example.com<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;paths:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- path: /<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pathType: Prefix<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;backend:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;service:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: myapp-service<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;port:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number: 80
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 25 ========== -->
+    <div class="slide" data-slide="24">
+      <h2><i class="fas fa-cog"></i> ConfigMap for Java Apps</h2>
+      <div class="sub"><span><i class="fas fa-kubernetes"></i> External configuration</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># configmap.yaml</span><br>
+        apiVersion: v1<br>
+        kind: ConfigMap<br>
+        metadata:<br>
+        &nbsp;&nbsp;name: myapp-config<br>
+        data:<br>
+        &nbsp;&nbsp;application.yml: |<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;server:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;port: 8080<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;spring:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;datasource:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;url: jdbc:postgresql://postgres:5432/mydb<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username: myuser
+      </div>
+
+      <div class="code-snip">
+        <span class="cm"># Use ConfigMap in deployment</span><br>
+        spec:<br>
+        &nbsp;&nbsp;containers:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;- name: myapp<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;volumeMounts:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- name: config<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mountPath: /config<br>
+        &nbsp;&nbsp;volumes:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;- name: config<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;configMap:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: myapp-config
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 26 ========== -->
+    <div class="slide" data-slide="25">
+      <h2><i class="fas fa-secret"></i> Secrets for Java Apps</h2>
+      <div class="sub"><span><i class="fas fa-lock"></i> Secure credentials</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Create secret</span><br>
+        $ kubectl create secret generic myapp-secrets \<br>
+        &nbsp;&nbsp;--from-literal=db-password=mysecretpassword<br><br>
+        <span class="cm"># Use secret in deployment</span><br>
+        spec:<br>
+        &nbsp;&nbsp;containers:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;- name: myapp<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;env:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- name: SPRING_DATASOURCE_PASSWORD<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;valueFrom:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;secretKeyRef:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: myapp-secrets<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;key: db-password
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-shield-alt"></i> <strong>Security:</strong> Secrets are base64-encoded but not encrypted. Use external secrets manager for production.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 27 ========== -->
+    <div class="slide" data-slide="26">
+      <h2><i class="fas fa-ambulance"></i> Liveness &amp; Readiness Probes</h2>
+      <div class="sub"><span><i class="fas fa-heartbeat"></i> Kubernetes health checks</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># In deployment.yaml</span><br>
+        spec:<br>
+        &nbsp;&nbsp;containers:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;- name: myapp<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;livenessProbe:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;httpGet:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;path: /actuator/health/liveness<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;port: 8080<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;initialDelaySeconds: 60<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;periodSeconds: 10<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;readinessProbe:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;httpGet:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;path: /actuator/health/readiness<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;port: 8080<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;initialDelaySeconds: 30<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;periodSeconds: 5
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Liveness Probe</h3>
+          <p>Restarts container if it fails. Use for deadlock detection.</p>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-check-circle"></i> Readiness Probe</h3>
+          <p>Removes pod from service if it fails. Use for startup delays.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 28 ========== -->
+    <div class="slide" data-slide="27">
+      <h2><i class="fas fa-horizontal-rule"></i> Horizontal Pod Autoscaling (HPA)</h2>
+      <div class="sub"><span><i class="fas fa-chart-line"></i> Auto-scaling Java apps</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># hpa.yaml</span><br>
+        apiVersion: autoscaling/v2<br>
+        kind: HorizontalPodAutoscaler<br>
+        metadata:<br>
+        &nbsp;&nbsp;name: myapp-hpa<br>
+        spec:<br>
+        &nbsp;&nbsp;scaleTargetRef:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;apiVersion: apps/v1<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;kind: Deployment<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;name: myapp<br>
+        &nbsp;&nbsp;minReplicas: 2<br>
+        &nbsp;&nbsp;maxReplicas: 10<br>
+        &nbsp;&nbsp;metrics:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;- type: Resource<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resource:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: cpu<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: Utilization<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;averageUtilization: 70<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;- type: Resource<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resource:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: memory<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: Utilization<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;averageUtilization: 80
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> For Java, memory-based autoscaling is often more reliable than CPU-based due to heap usage patterns.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 29 ========== -->
+    <div class="slide" data-slide="28">
+      <h2><i class="fas fa-chart-line"></i> Java Metrics with Prometheus</h2>
+      <div class="sub"><span><i class="fas fa-graph"></i> Monitoring in Kubernetes</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># application.yml</span><br>
+        management:<br>
+        &nbsp;&nbsp;endpoints:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;web:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exposure:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include: health,info,metrics,prometheus<br>
+        &nbsp;&nbsp;metrics:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;export:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prometheus:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;enabled: true
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-code"></i> Dependencies</h3>
+          <div class="code-snip" style="font-size:0.7rem;">
+            implementation 'io.micrometer:micrometer-registry-prometheus'<br>
+            implementation 'org.springframework.boot:spring-boot-starter-actuator'
+          </div>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-chart-pie"></i> Available Metrics</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>JVM memory &amp; GC</li>
+            <li>Thread states</li>
+            <li>HTTP request metrics</li>
+            <li>Business metrics</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 30 ========== -->
+    <div class="slide" data-slide="29">
+      <h2><i class="fas fa-trace"></i> Distributed Tracing for Java</h2>
+      <div class="sub"><span><i class="fas fa-microscope"></i> Observability in microservices</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># With Spring Cloud Sleuth</span><br>
+        implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'<br><br>
+        <span class="cm"># With Micrometer Tracing</span><br>
+        implementation 'io.micrometer:micrometer-tracing'<br>
+        implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Tracing Features</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Distributed trace IDs</li>
+            <li>Span propagation</li>
+            <li>Integration with Zipkin/Jaeger</li>
+            <li>Log correlation</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-play"></i> Enable Tracing</h3>
+          <div class="code-snip" style="font-size:0.7rem;">
+            spring.zipkin.baseUrl=http://zipkin:9411<br>
+            spring.sleuth.sampler.probability=1.0
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 31 ========== -->
+    <div class="slide" data-slide="30">
+      <h2><i class="fas fa-bug"></i> Debugging Java in Containers</h2>
+      <div class="sub"><span><i class="fas fa-tools"></i> Remote debugging</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Enable remote debugging</span><br>
+        ENV JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"<br><br>
+        <span class="cm"># Docker run with debug port</span><br>
+        $ docker run -p 5005:5005 -e JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" myapp
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> IntelliJ Configuration</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Create Remote JVM Debug config</li>
+            <li>Host: localhost</li>
+            <li>Port: 5005</li>
+            <li>Use module classpath</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Security Note</h3>
+          <p>Never enable remote debugging in production. Use only for development.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 32 ========== -->
+    <div class="slide" data-slide="31">
+      <h2><i class="fas fa-memory"></i> Memory Leak Detection</h2>
+      <div class="sub"><span><i class="fas fa-search"></i> Finding leaks in containers</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Generate heap dump</span><br>
+        $ docker exec container jmap -dump:live,format=b,file=/tmp/heap.hprof 1<br><br>
+        <span class="cm"># Copy heap dump to host</span><br>
+        $ docker cp container:/tmp/heap.hprof .<br><br>
+        <span class="cm"># Analyze with VisualVM or MAT</span><br>
+        $ mat heap.hprof
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Leak Detection Tools</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>VisualVM / JConsole</li>
+            <li>Eclipse MAT</li>
+            <li>YourKit</li>
+            <li>JProfiler</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-flag"></i> Heap Dump Flags</h3>
+          <div class="code-snip" style="font-size:0.7rem;">
+            -XX:+HeapDumpOnOutOfMemoryError<br>
+            -XX:HeapDumpPath=/tmp/heapdump.hprof
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 33 ========== -->
+    <div class="slide" data-slide="32">
+      <h2><i class="fas fa-file-archive"></i> JAR Optimization – Reducing Size</h2>
+      <div class="sub"><span><i class="fas fa-weight-hanging"></i> Smaller images</span></div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-maven"></i> Maven Optimizations</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Use <code>maven-shade-plugin</code></li>
+            <li>Exclude unnecessary dependencies</li>
+            <li>Use <code>spring-boot-maven-plugin</code> with layers</li>
+            <li>Enable <code>-DskipTests</code> for faster builds</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-gradle"></i> Gradle Optimizations</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Use <code>jar</code> task with layers</li>
+            <li>Exclude unnecessary files</li>
+            <li>Use <code>implementation</code> vs <code>api</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Result:</strong> Smaller JARs = faster builds, smaller images, faster deployments.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 34 ========== -->
+    <div class="slide" data-slide="33">
+      <h2><i class="fas fa-cache"></i> Maven Cache in Docker</h2>
+      <div class="sub"><span><i class="fas fa-rocket"></i> Faster builds with cache</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Use volume for Maven cache</span><br>
+        $ docker run -v ~/.m2:/root/.m2 -v $(pwd):/app -w /app maven:3.8 mvn package<br><br>
+        <span class="cm"># Dockerfile with cache mount (BuildKit)</span><br>
+        FROM maven:3.8 AS builder<br>
+        WORKDIR /app<br>
+        COPY pom.xml .<br>
+        RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline<br>
+        COPY src ./src<br>
+        RUN --mount=type=cache,target=/root/.m2 mvn package
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-rocket"></i> <strong>Speed:</strong> Builds are 3-5x faster with cached dependencies.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 35 ========== -->
+    <div class="slide" data-slide="34">
+      <h2><i class="fas fa-gradle"></i> Gradle Cache in Docker</h2>
+      <div class="sub"><span><i class="fas fa-cache"></i> Optimizing Gradle builds</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Dockerfile with Gradle cache (BuildKit)</span><br>
+        FROM gradle:7.6 AS builder<br>
+        WORKDIR /app<br>
+        COPY build.gradle settings.gradle .<br>
+        RUN --mount=type=cache,target=/home/gradle/.gradle gradle dependencies<br>
+        COPY src ./src<br>
+        RUN --mount=type=cache,target=/home/gradle/.gradle gradle build -x test
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Gradle Features</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Build cache</li>
+            <li>Configuration cache</li>
+            <li>Parallel execution</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-flag"></i> Gradle Daemon</h3>
+          <p>Use <code>--no-daemon</code> in container builds to avoid leaving processes.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 36 ========== -->
+    <div class="slide" data-slide="35">
+      <h2><i class="fas fa-native"></i> Java Native Image with GraalVM</h2>
+      <div class="sub"><span><i class="fas fa-bolt"></i> Startup time &amp; memory improvements</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Dockerfile for GraalVM native image</span><br>
+        FROM ghcr.io/graalvm/native-image:latest AS builder<br>
+        WORKDIR /app<br>
+        COPY . .<br>
+        RUN ./gradlew nativeCompile<br><br>
+        <span class="cm"># Runtime stage</span><br>
+        FROM alpine:latest<br>
+        COPY --from=builder /app/build/native/nativeCompile/app /app/<br>
+        CMD ["/app"]
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Benefits</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>✅ Startup: ms vs seconds</li>
+            <li>✅ Memory: 50-80% less</li>
+            <li>✅ Small image: ~30-50MB</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Limitations</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>⚠️ Reflection needs config</li>
+            <li>⚠️ Build time: 5-10x longer</li>
+            <li>⚠️ Not all libraries supported</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 37 ========== -->
+    <div class="slide" data-slide="36">
+      <h2><i class="fas fa-spring"></i> Spring Native – Spring Boot on GraalVM</h2>
+      <div class="sub"><span><i class="fas fa-mountain"></i> Cloud-native Spring Boot</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># build.gradle for Spring Native</span><br>
+        dependencies {<br>
+        &nbsp;&nbsp;implementation 'org.springframework.experimental:spring-native'<br>
+        }<br><br>
+        <span class="cm"># application.properties</span><br>
+        spring.native.build-tools=gradle<br>
+        spring.native.hint=json,resource
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-star" style="color:#d48f2b;"></i> <strong>Perfect for:</strong> Serverless, FaaS, microservices where fast startup matters.
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Spring Native Features</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Auto-configuration hints</li>
+            <li>Proxy generation</li>
+            <li>Resource detection</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-arrow-right"></i> Memory Comparison</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>JVM: ~500MB heap</li>
+            <li>Native: ~100MB heap</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 38 ========== -->
+    <div class="slide" data-slide="37">
+      <h2><i class="fas fa-serverless"></i> Java on AWS Lambda with Docker</h2>
+      <div class="sub"><span><i class="fas fa-aws"></i> Deploy Java to Lambda container</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Dockerfile for AWS Lambda</span><br>
+        FROM public.ecr.aws/lambda/java:11<br>
+        COPY target/myapp.jar ${LAMBDA_TASK_ROOT}/<br>
+        CMD ["com.example.LambdaHandler::handleRequest"]
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Lambda Best Practices</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Use smaller base images</li>
+            <li>Optimize cold start</li>
+            <li>Use SnapStart (Java 11+)</li>
+            <li>Keep JARs small</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-arrow-right"></i> Custom Runtime</h3>
+          <div class="code-snip" style="font-size:0.7rem;">
+            FROM amazonlinux:2<br>
+            RUN yum install -y java-11-amazon-corretto-headless
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 39 ========== -->
+    <div class="slide" data-slide="38">
+      <h2><i class="fas fa-cicd"></i> CI/CD for Java Apps</h2>
+      <div class="sub"><span><i class="fas fa-github"></i> GitHub Actions + Docker</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># .github/workflows/docker-build.yml</span><br>
+        name: Build and Push<br>
+        on: [push]<br>
+        jobs:<br>
+        &nbsp;&nbsp;build:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;runs-on: ubuntu-latest<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;steps:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- uses: actions/checkout@v3<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- uses: actions/setup-java@v3<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;java-version: '17'<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;distribution: 'temurin'<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- name: Build with Maven<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;run: mvn package<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- name: Build and push Docker image<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uses: docker/build-push-action@v4<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;context: .<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;push: true<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tags: myregistry/myapp:latest
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 40 ========== -->
+    <div class="slide" data-slide="39">
+      <h2><i class="fas fa-shield-alt"></i> Java Container Security Scanning</h2>
+      <div class="sub"><span><i class="fas fa-lock"></i> CI/CD security</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># GitHub Action with Trivy</span><br>
+        - name: Scan image with Trivy<br>
+        &nbsp;&nbsp;uses: aquasecurity/trivy-action@master<br>
+        &nbsp;&nbsp;with:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;image-ref: myregistry/myapp:latest<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;severity: HIGH,CRITICAL
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> CI/CD Security Gates</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Scan for vulnerabilities</li>
+            <li>Fail build on HIGH/CRITICAL</li>
+            <li>Check for secrets in image</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-tools"></i> Tools</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Trivy</li>
+            <li>Snyk</li>
+            <li>Grype</li>
+            <li>Clair</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 41 ========== -->
+    <div class="slide" data-slide="40">
+      <h2><i class="fas fa-env"></i> Environment Profiles in Java</h2>
+      <div class="sub"><span><i class="fas fa-flag"></i> Multi-environment configuration</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># application.yml</span><br>
+        spring:<br>
+        &nbsp;&nbsp;profiles:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;active: ${SPRING_PROFILES_ACTIVE:default}<br>
+        ---<br>
+        spring:<br>
+        &nbsp;&nbsp;config:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;activate:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on-profile: local<br>
+        &nbsp;&nbsp;datasource:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;url: jdbc:h2:mem:test<br>
+        ---<br>
+        spring:<br>
+        &nbsp;&nbsp;config:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;activate:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on-profile: prod<br>
+        &nbsp;&nbsp;datasource:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;url: ${DB_URL}
+      </div>
+
+      <div class="code-snip" style="font-size:0.7rem;">
+        <span class="cm"># Run with profile</span><br>
+        $ docker run -e SPRING_PROFILES_ACTIVE=prod myapp
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 42 ========== -->
+    <div class="slide" data-slide="41">
+      <h2><i class="fas fa-java"></i> Java Logging in Containers</h2>
+      <div class="sub"><span><i class="fas fa-file-alt"></i> Logging best practices</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># logback.xml for structured logging</span><br>
+        &lt;configuration&gt;<br>
+        &nbsp;&nbsp;&lt;appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender"&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&lt;encoder&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;pattern&gt;%d{yyyy-MM-dd HH:mm:ss} - %msg%n&lt;/pattern&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&lt;/encoder&gt;<br>
+        &nbsp;&nbsp;&lt;/appender&gt;<br>
+        &nbsp;&nbsp;&lt;root level="INFO"&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&lt;appender-ref ref="STDOUT" /&gt;<br>
+        &nbsp;&nbsp;&lt;/root&gt;<br>
+        &lt;/configuration&gt;
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Best Practice:</strong> Log to STDOUT/STDERR. Let Docker/runtime handle log aggregation.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 43 ========== -->
+    <div class="slide" data-slide="42">
+      <h2><i class="fas fa-json"></i> Structured Logging for Java</h2>
+      <div class="sub"><span><i class="fas fa-code"></i> JSON logs for ELK/EFK</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># logback-spring.xml</span><br>
+        &lt;appender name="JSON" class="ch.qos.logback.core.ConsoleAppender"&gt;<br>
+        &nbsp;&nbsp;&lt;encoder class="net.logstash.logback.encoder.LogstashEncoder" /&gt;<br>
+        &lt;/appender&gt;
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Benefits</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Machine-parsable</li>
+            <li>Rich metadata (trace IDs)</li>
+            <li>Easy to query</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-code"></i> Dependencies</h3>
+          <div class="code-snip" style="font-size:0.7rem;">
+            implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 44 ========== -->
+    <div class="slide" data-slide="43">
+      <h2><i class="fas fa-database"></i> Java + Redis in Docker</h2>
+      <div class="sub"><span><i class="fas fa-cache"></i> Caching and session management</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># docker-compose with Redis</span><br>
+        services:<br>
+        &nbsp;&nbsp;redis:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;image: redis:7-alpine<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;ports:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- "6379:6379"<br>
+        &nbsp;&nbsp;app:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;build: .<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;environment:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- SPRING_REDIS_HOST=redis<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- SPRING_REDIS_PORT=6379
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Spring Boot Redis:</strong> Add <code>spring-boot-starter-data-redis</code> dependency.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 45 ========== -->
+    <div class="slide" data-slide="44">
+      <h2><i class="fas fa-message"></i> Java + RabbitMQ in Docker</h2>
+      <div class="sub"><span><i class="fas fa-queue"></i> Messaging and event-driven</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># docker-compose with RabbitMQ</span><br>
+        services:<br>
+        &nbsp;&nbsp;rabbitmq:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;image: rabbitmq:3-management-alpine<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;ports:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- "5672:5672"<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- "15672:15672"<br>
+        &nbsp;&nbsp;app:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;build: .<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;environment:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- SPRING_RABBITMQ_HOST=rabbitmq
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Spring Boot RabbitMQ:</strong> Add <code>spring-boot-starter-amqp</code> dependency.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 46 ========== -->
+    <div class="slide" data-slide="45">
+      <h2><i class="fas fa-layers"></i> Java + ELK Stack in Docker</h2>
+      <div class="sub"><span><i class="fas fa-search"></i> Centralized logging</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># logback-spring.xml</span><br>
+        &lt;appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender"&gt;<br>
+        &nbsp;&nbsp;&lt;destination&gt;logstash:5000&lt;/destination&gt;<br>
+        &nbsp;&nbsp;&lt;encoder class="net.logstash.logback.encoder.LogstashEncoder" /&gt;<br>
+        &lt;/appender&gt;
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> ELK Components</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Elasticsearch – storage</li>
+            <li>Logstash – processing</li>
+            <li>Kibana – visualization</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-play"></i> Run ELK</h3>
+          <div class="code-snip" style="font-size:0.7rem;">
+            $ docker-compose -f docker-compose-elk.yml up -d
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 47 ========== -->
+    <div class="slide" data-slide="46">
+      <h2><i class="fas fa-stopwatch"></i> Java Startup Time Optimization</h2>
+      <div class="sub"><span><i class="fas fa-rocket"></i> Reduce cold start</span></div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Optimization Strategies</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Use CDS (Class Data Sharing)</li>
+            <li>Use AppCDS (Application CDS)</li>
+            <li>Pre-touch heap (Linux)</li>
+            <li>Use GraalVM native image</li>
+            <li>Avoid Spring auto-config scanning</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-flag"></i> AppCDS Example</h3>
+          <div class="code-snip" style="font-size:0.7rem;">
+            <span class="cm"># Create CDS archive</span><br>
+            java -Xshare:dump -XX:SharedArchiveFile=app.jsa<br>
+            <span class="cm"># Use CDS archive</span><br>
+            java -Xshare:on -XX:SharedArchiveFile=app.jsa -jar app.jar
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 48 ========== -->
+    <div class="slide" data-slide="47">
+      <h2><i class="fas fa-container"></i> Container vs JVM – Understanding the Overhead</h2>
+      <div class="sub"><span><i class="fas fa-chart-bar"></i> Performance comparison</span></div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> JVM in Container</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>JVM sees container limits (Java 10+)</li>
+            <li>GC threads = CPUs</li>
+            <li>Heap = % of container memory</li>
+            <li>~5-10% overhead vs bare metal</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-info-circle"></i> Recommendations</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Reserve 20-30% for OS/JVM overhead</li>
+            <li>Set CPU limits carefully</li>
+            <li>Monitor GC and memory</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Fact:</strong> Java in containers can achieve near-bare-metal performance with proper tuning.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 49 ========== -->
+    <div class="slide" data-slide="48">
+      <h2><i class="fas fa-aws"></i> Java on AWS ECS with Docker</h2>
+      <div class="sub"><span><i class="fas fa-cloud"></i> Amazon Elastic Container Service</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># task-definition.json</span><br>
+        {<br>
+        &nbsp;&nbsp;"family": "myapp",<br>
+        &nbsp;&nbsp;"containerDefinitions": [{<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;"name": "myapp",<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;"image": "myregistry/myapp:latest",<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;"memory": 1024,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;"cpu": 512,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;"portMappings": [{<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"containerPort": 8080<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;}]<br>
+        &nbsp;&nbsp;}]<br>
+        }
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-info-circle"></i> <strong>Deploy:</strong> <code>aws ecs register-task-definition --cli-input-json file://task-definition.json</code>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 50 ========== -->
+    <div class="slide" data-slide="49">
+      <h2><i class="fas fa-code"></i> Java + Docker – Summary of Key Commands</h2>
+      <div class="sub"><span><i class="fas fa-terminal"></i> Quick reference</span></div>
+
+      <div class="code-snip" style="font-size:0.75rem;">
+        <span class="cm"># Build Java image</span><br>
+        $ docker build -t myapp .<br><br>
+        <span class="cm"># Run with JVM options</span><br>
+        $ docker run -e JAVA_OPTS="-Xmx512m -XX:MaxRAMPercentage=70.0" myapp<br><br>
+        <span class="cm"># Run with debug port</span><br>
+        $ docker run -p 5005:5005 -e JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" myapp<br><br>
+        <span class="cm"># Run with memory limit</span><br>
+        $ docker run --memory=1g myapp<br><br>
+        <span class="cm"># Run with CPU limit</span><br>
+        $ docker run --cpus=2 myapp
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 51 ========== -->
+    <div class="slide" data-slide="50">
+      <h2><i class="fas fa-bug"></i> Java Debugging – Common Issues</h2>
+      <div class="sub"><span><i class="fas fa-tools"></i> Troubleshooting</span></div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> OutOfMemoryError</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Check <code>--memory</code> container limit</li>
+            <li>Check <code>-Xmx</code> or MaxRAMPercentage</li>
+            <li>Analyze heap dump</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> CPU Throttling</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Increase <code>--cpus</code> limit</li>
+            <li>Check GC overhead</li>
+            <li>Optimize application</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #8a4d9e;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Slow Startup</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Use AppCDS</li>
+            <li>Reduce dependencies</li>
+            <li>Use native image</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-exclamation-triangle"></i> ClassNotFound</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Check JAR packaging</li>
+            <li>Check classpath</li>
+            <li>Check multi-stage build</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 52 ========== -->
+    <div class="slide" data-slide="51">
+      <h2><i class="fas fa-shield-alt"></i> Java Container Security – Checklist</h2>
+      <div class="sub"><span><i class="fas fa-lock"></i> Production security</span></div>
+
+      <div class="step-list">
+        <li><i class="fas fa-check-circle" style="color:#1d7a3e;"></i> Use minimal base images (Alpine, JRE)</li>
+        <li><i class="fas fa-check-circle" style="color:#1d7a3e;"></i> Run as non-root user</li>
+        <li><i class="fas fa-check-circle" style="color:#1d7a3e;"></i> Drop all capabilities, add only needed</li>
+        <li><i class="fas fa-check-circle" style="color:#1d7a3e;"></i> Use <code>.dockerignore</code> to exclude secrets</li>
+        <li><i class="fas fa-check-circle" style="color:#1d7a3e;"></i> Scan images for vulnerabilities</li>
+        <li><i class="fas fa-check-circle" style="color:#1d7a3e;"></i> Use trusted base images</li>
+        <li><i class="fas fa-check-circle" style="color:#1d7a3e;"></i> Keep JVM and dependencies updated</li>
+        <li><i class="fas fa-check-circle" style="color:#1d7a3e;"></i> Use environment variables for secrets (not hardcoded)</li>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 53 ========== -->
+    <div class="slide" data-slide="52">
+      <h2><i class="fas fa-speedometer"></i> Java Performance Monitoring</h2>
+      <div class="sub"><span><i class="fas fa-chart-line"></i> Key metrics to watch</span></div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-memory"></i> Memory Metrics</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Heap usage %</li>
+            <li>GC frequency &amp; pauses</li>
+            <li>Metaspace usage</li>
+            <li>Container memory limit</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-cpu"></i> CPU Metrics</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>CPU utilization</li>
+            <li>Thread count</li>
+            <li>GC thread usage</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Tools:</strong> Prometheus + Grafana, Datadog, New Relic, or JMX + VisualVM.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 54 ========== -->
+    <div class="slide" data-slide="53">
+      <h2><i class="fas fa-route"></i> Java + Service Mesh (Istio)</h2>
+      <div class="sub"><span><i class="fas fa-mesh"></i> Advanced microservices</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># Enable Istio sidecar injection</span><br>
+        $ kubectl label namespace default istio-injection=enabled<br><br>
+        <span class="cm"># Deploy Java app with sidecar</span><br>
+        $ kubectl apply -f deployment.yaml
+      </div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Istio Features</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Traffic management</li>
+            <li>Security (mTLS)</li>
+            <li>Observability</li>
+            <li>Circuit breaking</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-code"></i> Java Compatibility</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>No code changes needed</li>
+            <li>Works with any Java app</li>
+            <li>Spring Boot compatible</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 55 ========== -->
+    <div class="slide" data-slide="54">
+      <h2><i class="fas fa-cicd"></i> CI/CD Pipeline for Java + Docker</h2>
+      <div class="sub"><span><i class="fas fa-github"></i> Full pipeline example</span></div>
+
+      <div class="code-snip">
+        <span class="cm"># GitHub Actions workflow</span><br>
+        name: CI/CD Pipeline<br>
+        on: [push]<br>
+        jobs:<br>
+        &nbsp;&nbsp;build-and-test:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;runs-on: ubuntu-latest<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;steps:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- uses: actions/checkout@v3<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- uses: actions/setup-java@v3<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with: { java-version: '17', distribution: 'temurin' }<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- name: Unit Tests<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;run: mvn test<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- name: Build JAR<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;run: mvn package -DskipTests<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- name: Build Docker Image<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;run: docker build -t myregistry/myapp:${{ github.sha }} .<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- name: Scan Image<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uses: aquasecurity/trivy-action@master<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- name: Push to Registry<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;run: docker push myregistry/myapp:${{ github.sha }}
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 56 ========== -->
+    <div class="slide" data-slide="55">
+      <h2><i class="fas fa-migration"></i> Legacy Java Apps to Docker</h2>
+      <div class="sub"><span><i class="fas fa-arrow-right"></i> Migration strategy</span></div>
+
+      <div class="step-list">
+        <li><span class="step-num">1</span> <strong>Assessment:</strong> Identify dependencies, Java version, configuration</li>
+        <li><span class="step-num">2</span> <strong>Containerize:</strong> Create Dockerfile with multi-stage build</li>
+        <li><span class="step-num">3</span> <strong>Test:</strong> Run locally with Docker Compose</li>
+        <li><span class="step-num">4</span> <strong>Optimize:</strong> Tune JVM, reduce image size</li>
+        <li><span class="step-num">5</span> <strong>Deploy:</strong> Deploy to staging/production</li>
+        <li><span class="step-num">6</span> <strong>Monitor:</strong> Set up monitoring and health checks</li>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Start with non-critical apps. Use the same Java version as production.
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 57 ========== -->
+    <div class="slide" data-slide="56">
+      <h2><i class="fas fa-file-archive"></i> Java + Docker – Deployment Strategies</h2>
+      <div class="sub"><span><i class="fas fa-deploy"></i> Zero-downtime deployments</span></div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Blue-Green</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Two identical environments</li>
+            <li>Switch traffic atomically</li>
+            <li>Instant rollback</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-check-circle"></i> Canary</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Gradual rollout</li>
+            <li>Monitor metrics</li>
+            <li>Automatically rollback on errors</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="comparison-box">
+        <i class="fas fa-kubernetes"></i> <strong>Kubernetes:</strong> Supports rolling updates, blue-green (via labels), canary (via service weights).
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 58 ========== -->
+    <div class="slide" data-slide="57">
+      <h2><i class="fas fa-book"></i> Java + Docker – Best Practices Summary</h2>
+      <div class="sub"><span><i class="fas fa-star"></i> 10 golden rules</span></div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #2a7a3e;">
+          <h3><i class="fas fa-check-circle"></i> Image Best Practices</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Use multi-stage builds</li>
+            <li>Use Alpine JRE base</li>
+            <li>Use layered JARs (Spring Boot)</li>
+            <li>Set non-root user</li>
+            <li>Add health checks</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b36b2d;">
+          <h3><i class="fas fa-check-circle"></i> Runtime Best Practices</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Set MaxRAMPercentage</li>
+            <li>Use G1GC or ZGC</li>
+            <li>Set container limits</li>
+            <li>Use environment variables</li>
+            <li>Log to STDOUT</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 59 ========== -->
+    <div class="slide" data-slide="58">
+      <h2><i class="fas fa-certificate"></i> Java + Docker – Anti-Patterns to Avoid</h2>
+      <div class="sub"><span><i class="fas fa-exclamation-triangle"></i> Common mistakes</span></div>
+
+      <div class="grid-2col">
+        <div class="java-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-times-circle"></i> Image Anti-Patterns</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>Using <code>latest</code> base images</li>
+            <li>Running as root</li>
+            <li>Embedding secrets in image</li>
+            <li>Not using .dockerignore</li>
+          </ul>
+        </div>
+        <div class="java-card" style="border-left-color: #b34d4d;">
+          <h3><i class="fas fa-times-circle"></i> Runtime Anti-Patterns</h3>
+          <ul style="margin:0.5rem 0 0 1.2rem; color:#1f3a55; font-size:0.85rem;">
+            <li>No memory limits</li>
+            <li>Fixed heap size</li>
+            <li>Logging to files (not STDOUT)</li>
+            <li>Storing state in container</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE 60 ========== -->
+    <div class="slide" data-slide="59">
+      <h2><i class="fas fa-flag-checkered"></i> Docker in Java – Complete Recap</h2>
+      <div class="sub"><span><i class="fas fa-check-double"></i> 60 slides – you've mastered it!</span></div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.6rem; margin:1rem 0;">
+        <div style="background:#e4eff8; border-radius:0.8rem; padding:0.5rem 0.8rem; text-align:center; font-size:0.8rem;">
+          <i class="fas fa-cube" style="color:#1f6e9b;"></i> Base Images
+        </div>
+        <div style="background:#e4eff8; border-radius:0.8rem; padding:0.5rem 0.8rem; text-align:center; font-size:0.8rem;">
+          <i class="fas fa-file-code" style="color:#b36b2d;"></i> Dockerfiles
+        </div>
+        <div style="background:#e4eff8; border-radius:0.8rem; padding:0.5rem 0.8rem; text-align:center; font-size:0.8rem;">
+          <i class="fas fa-cog" style="color:#8a4d9e;"></i> JVM Tuning
+        </div>
+        <div style="background:#e4eff8; border-radius:0.8rem; padding:0.5rem 0.8rem; text-align:center; font-size:0.8rem;">
+          <i class="fas fa-spring" style="color:#2a7a3e;"></i> Spring Boot
+        </div>
+        <div style="background:#e4eff8; border-radius:0.8rem; padding:0.5rem 0.8rem; text-align:center; font-size:0.8rem;">
+          <i class="fas fa-maven" style="color:#b34d4d;"></i> Build Tools
+        </div>
+        <div style="background:#e4eff8; border-radius:0.8rem; padding:0.5rem 0.8rem; text-align:center; font-size:0.8rem;">
+          <i class="fas fa-layer-group" style="color:#9b5f2d;"></i> Layered JARs
+        </div>
+        <div style="background:#e4eff8; border-radius:0.8rem; padding:0.5rem 0.8rem; text-align:center; font-size:0.8rem;">
+          <i class="fas fa-network-wired" style="color:#1f6e9b;"></i> Compose/K8s
+        </div>
+        <div style="background:#e4eff8; border-radius:0.8rem; padding:0.5rem 0.8rem; text-align:center; font-size:0.8rem;">
+          <i class="fas fa-shield-alt" style="color:#b36b2d;"></i> Security
+        </div>
+        <div style="background:#dcebf7; border-radius:0.8rem; padding:0.5rem 0.8rem; text-align:center; font-size:0.8rem;">
+          <i class="fas fa-rocket" style="color:#1d7a3e;"></i> Production Ready
+        </div>
+      </div>
+
+      <div style="background:#0d1f2e; color:#d6e6f5; border-radius:1.2rem; padding:1rem 1.5rem;">
+        <i class="fas fa-quote-left" style="color:#5ba9e0; margin-right:8px;"></i>
+        "Docker + Java = a powerful combination for cloud-native, scalable, and resilient applications. <strong>Now go build!</strong>"
+      </div>
+
+      <div class="footnote">
+        <span><i class="fab fa-docker" style="color:#0e7cbb;"></i> Learn more at docs.docker.com</span>
+        <span><i class="fab fa-java java-icon"></i> Java 17+ is recommended</span>
+      </div>
+    </div>
+
+    <!-- ========== SLIDE NAVIGATION ========== -->
+    <div class="slide-nav">
+      <button class="nav-btn" id="prevSlide"><i class="fas fa-chevron-left"></i> Prev</button>
+      <div class="dots" id="dotsContainer"></div>
+      <button class="nav-btn" id="nextSlide">Next <i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; flex-wrap:wrap; gap:0.5rem;">
+      <span class="slide-counter" id="slideCounter">1 / 60</span>
+      <span style="color:#8fb4cc; font-size:0.75rem;"><i class="fas fa-arrows-alt-h"></i> Use arrow keys or click dots</span>
+    </div>
+
+  </div> <!-- end slide-card -->
+</div> <!-- end slide-wrapper -->
+
+<script>
+  (function() {
+    const slides = document.querySelectorAll('.slide');
+    const dotsContainer = document.getElementById('dotsContainer');
+    const prevBtn = document.getElementById('prevSlide');
+    const nextBtn = document.getElementById('nextSlide');
+    const counter = document.getElementById('slideCounter');
+
+    let current = 0;
+    const total = slides.length;
+    let autoSlideInterval;
+
+    // create dots
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.dataset.index = i;
+      dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+      dot.addEventListener('click', function() {
+        goTo(parseInt(this.dataset.index));
+        resetAutoSlide();
+      });
+      dotsContainer.appendChild(dot);
+    }
+
+    const dots = dotsContainer.querySelectorAll('.dot');
+
+    function goTo(index) {
+      if (index < 0) index = 0;
+      if (index >= total) index = total - 1;
+      if (index === current) return;
+
+      slides[current].classList.remove('active');
+      dots[current].classList.remove('active');
+      current = index;
+      slides[current].classList.add('active');
+      dots[current].classList.add('active');
+      updateCounter();
+      updateButtons();
+    }
+
+    function updateCounter() {
+      counter.textContent = (current + 1) + ' / ' + total;
+    }
+
+    function updateButtons() {
+      prevBtn.disabled = (current === 0);
+      nextBtn.disabled = (current === total - 1);
+    }
+
+    function next() {
+      if (current < total - 1) goTo(current + 1);
+    }
+
+    function prev() {
+      if (current > 0) goTo(current - 1);
+    }
+
+    function resetAutoSlide() {
+      clearInterval(autoSlideInterval);
+      autoSlideInterval = setInterval(next, 4000);
+    }
+
+    prevBtn.addEventListener('click', function() {
+      prev();
+      resetAutoSlide();
+    });
+
+    nextBtn.addEventListener('click', function() {
+      next();
+      resetAutoSlide();
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        next();
+        resetAutoSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        prev();
+        resetAutoSlide();
+      }
+    });
+
+    // Initialize auto-slide
+    autoSlideInterval = setInterval(next, 4000);
+
+    updateCounter();
+    updateButtons();
+  })();
+</script>
+</body>
+</html>
